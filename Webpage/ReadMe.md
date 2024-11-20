@@ -1,0 +1,15 @@
+## Development Environment Setup
+- Download and install Node.js LTS: https://nodejs.org/en
+- Verify the installation by running these 2 commands (one by one) in the Webstorm terminal:
+  - `node -v`
+  - `npm -v`
+- Install all packages by running this command in the Webstorm terminal:
+  - `npm install`
+- Optional: Set up the .env configuration if you want to test on your server instead of locally.
+- Start the backend server using `npm start` or configure this for the future by following these steps:
+  - Click on `Current File`
+  - Click on `Edit Configurations`
+  - Click on the + and choose `npm`
+  - Choose Command `run`
+  - Choose Scripts `start`
+  - Click on `Apply` and `Ok`

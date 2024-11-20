@@ -38,15 +38,16 @@ Once your PR has been approved, you can create a pull request from dev to master
 
 - **Files:** **c**amelCase, no space or _ in the name.
 - **Folder** names should be in **C**amelCase if they are not an abbreviation (example API).
-- **Variables:** same as Files. Since we use typescript again, please make use of the typing! 
+- **Variables:** same as Files (excluding the variables for the envConfig). Since we use typescript again, please make use of the typing! 
   - You are allowed to not approve the Pull Request if someone (including myself) does not type correctly.
 
 
 - **Structure:**
   - Database folder should contain the 
     - liquibase files in a Liquibase folder
-    - typeorm-entities files in a folder named Mapper. 
-      - Additionally, the Mapper folder should have a folder named Services which will contain .ts files for caching the typeorm entities. 
+    - Mapper folder which will contain 2 subfolders: Entities and Enums. 
+      - Entities will have the TypeOrm Entities. These classes will have sum custom functions to cache the Entity if needed (instead of having a separate Services directory)
+      - Enums will have TechCodes.ts files inside of it.
   - Webpage folder should contain: 
     - one styles.css, 
     - one folder named Assets 
