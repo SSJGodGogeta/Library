@@ -25,8 +25,4 @@ export class envConfig {
         }
         console.log("EnvConfig loaded successfully.");
     }
-
-    /**
-     * Ensures that all channel and thread ids in the .env file are valid.
-     */
 }
