@@ -77,6 +77,3 @@ Once your PR has been approved, you can create a pull request from dev to master
 - HTML
 - CSS
 - MySQL
-
-
-- (React?)
