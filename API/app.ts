@@ -6,7 +6,7 @@ import {envConfig} from "../Database/envConfig.js";
 
 // Routes
 import userRoute from "./Routes/userRoute.js";
-
+import DatabaseTools from "./Routes/databaseTools.js";
 // Validate EnvConfig
 envConfig.validateEnvConfig();
 // From here on, we expect that each Environment variable is set
@@ -37,6 +37,7 @@ const server = app.listen(envConfig.FRONTEND_PORT, () => {
 });
 // Add Routes here:
 app.use("/user", userRoute);
+app.use("/validateDB", DatabaseTools);
 
 
 // Graceful shutdown handling

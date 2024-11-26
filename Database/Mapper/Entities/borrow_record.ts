@@ -44,7 +44,13 @@ export class BorrowRecord extends BaseEntity {
     user!: User;
 
     static async getBorrowRecordsFromCacheOrDB(): Promise<BorrowRecord[]> {
-        if (!borrowRecords) borrowRecords = await BorrowRecord.find();
+        if (!borrowRecords) borrowRecords = await BorrowRecord.find({
+            relations:{
+                book_copy:{
+                    book: true
+                }
+            }
+        });
         return borrowRecords;
     }
 
