@@ -5,7 +5,7 @@ import {dataSource} from "../Database/dataSource.js";
 import {envConfig} from "../Database/envConfig.js";
 
 // Routes
-import testRoute from "./Routes/testRoute.js";
+import userRoute from "./Routes/userRoute.js";
 
 // Validate EnvConfig
 envConfig.validateEnvConfig();
@@ -31,13 +31,13 @@ app.use(express.json());
 // use cookieParser to access the cookies, send with the request
 app.use(cookieParser());
 
-// Add Routes here:
-app.use("/api/test", testRoute);
-
 // Start Frontend Server:
 const server = app.listen(envConfig.FRONTEND_PORT, () => {
     console.log(`Server running on http://${envConfig.FRONTEND_HOST}:${envConfig.FRONTEND_PORT}`);
 });
+// Add Routes here:
+app.use("/user", userRoute);
+
 
 // Graceful shutdown handling
 async function shutdown() {
