@@ -24,7 +24,7 @@ export class BorrowRecord extends BaseEntity {
     @Column({ length: '50', nullable: false })
     status!: BorrowRecord_Techcode;
 
-    @ManyToOne('Book_Copy', { nullable: false })
+    @ManyToOne('Book_Copy', (book_copy:Book_Copy) => book_copy.book_copy_id)
     @JoinColumn({
         name: 'book_copy_book_copy_id',
         referencedColumnName: 'book_copy_id',
@@ -32,7 +32,7 @@ export class BorrowRecord extends BaseEntity {
     })
     book_copy!: Book_Copy;
 
-    @ManyToOne('Book_Copy', (book_copy:Book_Copy) => book_copy.book_copy_id)
+    @ManyToOne('User', (user:User) => user.user_id)
     @JoinColumn({
         name: 'user_user_id',
         referencedColumnName: 'user_id',
