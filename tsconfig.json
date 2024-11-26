@@ -22,5 +22,5 @@
     "lib": ["dom", "es2022"]
   },
   "include": ["./**/*.ts"],
-  "exclude": ["node_modules", "Database/Liquibase"]
+  "exclude": ["node_modules", "Database/data_model", "Database/database_objects"]
 }
