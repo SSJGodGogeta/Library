@@ -1,33 +1,26 @@
-import {
-    Entity,
-    Column,
-    PrimaryGeneratedColumn,
-    BaseEntity,
-    ManyToOne,
-    JoinColumn,
-} from 'typeorm';
+import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn,} from 'typeorm';
 import {User} from './user.js';
 import {Book_Copy} from './book_copy.js';
-import { BorrowRecord_Techcode } from '../Techcodes/BorrowRecord_Techcode.js';
+import {BorrowRecord_Techcode} from '../Techcodes/BorrowRecord_Techcode.js';
 
 @Entity('borrow_record')
 export class BorrowRecord extends BaseEntity {
-    @PrimaryGeneratedColumn({ name: 'borrow_record_id' })
+    @PrimaryGeneratedColumn({name: 'borrow_record_id'})
     borrow_record_id!: number;
 
-    @Column({ type: 'datetime', nullable: false })
+    @Column({type: 'datetime', nullable: false})
     borrow_date!: Date;
 
-    @Column({ type: 'datetime', nullable: false })
+    @Column({type: 'datetime', nullable: false})
     return_date!: Date;
 
-    @Column({ length: '50', nullable: false })
+    @Column({length: '50', nullable: false})
     status!: BorrowRecord_Techcode;
 
-    @Column({ nullable: true })
+    @Column({type: "double", nullable: true})
     rating?: number;
 
-    @ManyToOne('Book_Copy', (book_copy:Book_Copy) => book_copy.book_copy_id)
+    @ManyToOne('Book_Copy', (book_copy: Book_Copy) => book_copy.book_copy_id)
     @JoinColumn({
         name: 'book_copy_book_copy_id',
         referencedColumnName: 'book_copy_id',
@@ -35,7 +28,7 @@ export class BorrowRecord extends BaseEntity {
     })
     book_copy!: Book_Copy;
 
-    @ManyToOne('User', (user:User) => user.user_id)
+    @ManyToOne('User', (user: User) => user.user_id)
     @JoinColumn({
         name: 'user_user_id',
         referencedColumnName: 'user_id',
@@ -45,8 +38,8 @@ export class BorrowRecord extends BaseEntity {
 
     static async getBorrowRecordsFromCacheOrDB(): Promise<BorrowRecord[]> {
         if (!borrowRecords) borrowRecords = await BorrowRecord.find({
-            relations:{
-                book_copy:{
+            relations: {
+                book_copy: {
                     book: true
                 }
             }
@@ -60,10 +53,10 @@ export class BorrowRecord extends BaseEntity {
     }
 
     static async getBorrowRecordsByKey<K extends keyof BorrowRecord>(keyName: K, keyValue: BorrowRecord[K]): Promise<BorrowRecord | undefined> {
-        const borrowRecords:BorrowRecord[] = await BorrowRecord.getBorrowRecordsFromCacheOrDB();
+        const borrowRecords: BorrowRecord[] = await BorrowRecord.getBorrowRecordsFromCacheOrDB();
         if (!borrowRecords) return undefined;
         return borrowRecords.find(record => record[keyName] === keyValue);
     }
 }
 
-let borrowRecords: BorrowRecord[]|null = null;
+let borrowRecords: BorrowRecord[] | null = null;

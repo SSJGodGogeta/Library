@@ -189,4 +189,4 @@ ADD COLUMN `status` VARCHAR(50) NOT NULL AFTER `return_date`;
 
 --changeset arman:ar3
 ALTER TABLE `scrum_library`.`borrow_record`
-ADD COLUMN `rating` INT AFTER `status`;
+ADD COLUMN `rating` DOUBLE  AFTER `status`;
