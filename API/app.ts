@@ -4,6 +4,9 @@ import cors from "cors";
 import {dataSource} from "../Database/dataSource.js";
 import {envConfig} from "../Database/envConfig.js";
 
+// Routes
+import testRoute from "./Routes/testRoute.js";
+
 // Validate EnvConfig
 envConfig.validateEnvConfig();
 // From here on, we expect that each Environment variable is set
@@ -29,7 +32,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Add Routes here:
-
+app.use("/api/test", testRoute);
 
 // Start Frontend Server:
 const server = app.listen(envConfig.FRONTEND_PORT, () => {
