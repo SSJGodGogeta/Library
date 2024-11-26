@@ -32,4 +32,22 @@ export class Reservation extends BaseEntity {
         foreignKeyConstraintName: 'fk_reservation_user1',
     })
     user!: User;
+
+    static async getReservationFromCacheOrDB(): Promise<Reservation[]> {
+        if (!reservations) reservations = await Reservation.find();
+        return reservations;
+    }
+
+    static clearReservationsCache(): void {
+        reservations = null;
+        console.log("Cleared Reservations cache");
+    }
+
+    static async getReservationsByKey<K extends keyof Reservation>(keyName: K, keyValue: Reservation[K]): Promise<Reservation | undefined> {
+        const reservations:Reservation[] = await Reservation.getReservationFromCacheOrDB();
+        if (!reservations) return undefined;
+        return reservations.find(reservation => reservation[keyName] === keyValue);
+    }
 }
+
+let reservations: Reservation[]|null = null;

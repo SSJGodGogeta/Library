@@ -24,4 +24,22 @@ export class Book_Copy extends BaseEntity {
         foreignKeyConstraintName: 'fk_book_copy_book1'
     })
     book!: Book;
+
+    static async getBookCopiesFromCacheOrDB(): Promise<Book_Copy[]> {
+        if (!bookCopies) bookCopies = await Book_Copy.find();
+        return bookCopies;
+    }
+
+    static clearBookCopyCache():void {
+        bookCopies = null;
+        console.log("Cleared Book copy cache");
+    }
+
+    static async getBookCopyByKey<K extends keyof Book_Copy>(keyName: K, keyValue: Book_Copy[K]): Promise<Book_Copy | undefined> {
+        const bookCopies:Book_Copy[] = await Book_Copy.getBookCopiesFromCacheOrDB();
+        if (!bookCopies) return undefined;
+        return bookCopies.find(copy => copy[keyName] === keyValue);
+    }
 }
+
+let bookCopies: Book_Copy[]|null = null;

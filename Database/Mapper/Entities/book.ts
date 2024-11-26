@@ -48,4 +48,22 @@ export class Book extends BaseEntity {
 
     @Column({ length: '50', nullable: false })
     availability!: Availability_Techcode;
+
+    static async getBooksFromCacheOrDB():Promise<Book[]> {
+        if (!books) books = await Book.find();
+        return books;
+    }
+
+    static clearBookCache():void {
+        books = null;
+        console.log("Cleared Book cache");
+    }
+
+    static async getBookByKey<K extends keyof Book>(keyName: K, keyValue: Book[K]): Promise<Book | undefined> {
+        const books: Book[] = await Book.getBooksFromCacheOrDB();
+        if (!books) return undefined;
+        return books.find(book => book[keyName] === keyValue);
+    }
 }
+
+let books: Book[]|null = null;
