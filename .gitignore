@@ -1,2 +1,3 @@
 Dist/
 /node_modules/
+/Database/database_objects/output_local.sql

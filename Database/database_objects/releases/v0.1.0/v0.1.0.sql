@@ -181,3 +181,8 @@ CREATE TABLE IF NOT EXISTS `scrum_library`.`session` (
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+--changeset kevin:kev2
+
+ALTER TABLE `scrum_library`.`borrow_record`
+ADD COLUMN `status` VARCHAR(50) NOT NULL AFTER `return_date`;
