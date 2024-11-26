@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="scrum_library@localhost" uuid="aee71bbb-b54b-4f1c-bf0c-439c519bc25c">
+    <data-source source="LOCAL" name="scrum_library" uuid="d13c2c49-c12a-4e70-8479-302780736864">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
