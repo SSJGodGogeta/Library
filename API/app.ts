@@ -12,6 +12,8 @@ import bookCopyRoutes from "./Routes/bookCopyRoute.js";
 import borrowRecordRoutes from "./Routes/borrowRecordRoute.js";
 import reservationRoute from "./Routes/reservationRoute.js";
 import sessionRoute from "./Routes/sessionRoute.js";
+import authenticationRoute from "./Routes/authenticationRoute.js";
+
 // Validate EnvConfig
 envConfig.validateEnvConfig();
 // From here on, we expect that each Environment variable is set
@@ -40,7 +42,9 @@ app.use(cookieParser());
 const server = app.listen(envConfig.FRONTEND_PORT, () => {
     console.log(`Server running on http://${envConfig.FRONTEND_HOST}:${envConfig.FRONTEND_PORT}`);
 });
+
 // Add Routes here:
+app.use("/authentication", authenticationRoute);
 app.use("/user", userRoute);
 app.use("/book", bookRoute);
 app.use("/validateDB", DatabaseTools);

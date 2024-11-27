@@ -5,6 +5,7 @@ import {authenticate} from "../authenticationMiddleware.js";
 import {User} from "../../Database/Mapper/Entities/user.js";
 import {Session} from "../../Database/Mapper/Entities/session.js";
 import {Permission_Techcode} from "../../Database/Mapper/Techcodes/Permission_Techcode";
+import {sendResponseAsJson} from "./routeTools";
 
 const router = Router();
 
@@ -13,7 +14,6 @@ router.post("/register", register);
 router.post("/login", login);
 router.get("/currentUser", authenticate, currentUser);
 router.post("/logout", authenticate, logout);
-
 
 async function createNewSession(
     ip: string | undefined,
@@ -44,24 +44,17 @@ function setSessionCookie(
     });
 }
 
-function sendValidationError(
-    res: Response,
-    message: string
-) {
-    res.status(406).json({ message });
-}
-
 async function register(req: Request, res: Response)  {
     try {
         // get the email and the password, provided in the body
         let { email, password, first_name, last_name } = req.body;
 
         // check if the all necessary data was provided
-        if (!email) return sendValidationError(res, 'email is required');
-        if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) return sendValidationError(res, 'email has invalid format');
-        if (!password) return sendValidationError(res, 'password is required');
-        if (!first_name) return sendValidationError(res, 'first_name is required');
-        if (!last_name) return sendValidationError(res, 'last_name is required');
+        if (!email) return sendResponseAsJson(res, 406, "email is required");
+        if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) return sendResponseAsJson(res, 406, "email has invalid format");
+        if (!password) return sendResponseAsJson(res, 406, "password is required");
+        if (!first_name) return sendResponseAsJson(res, 406, "first_name is required");
+        if (!last_name) return sendResponseAsJson(res, 406, "last_name is required");
 
         // hash the provided password using the bcrypt.js package
         const hashed_password: string = bcrypt.hashSync(String(password), 10)
@@ -97,9 +90,9 @@ async function login(req: Request, res: Response) {
         // get the email and the password, provided in the body
         let { email, password } = req.body;
 
-        if (!email) return sendValidationError(res, 'email is required');
-        if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) return sendValidationError(res, 'email has invalid format');
-        if (!password) return sendValidationError(res, 'password is required');
+        if (!email) return sendResponseAsJson(res, 406, "email is required");
+        if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) return sendResponseAsJson(res, 406, "email has invalid format");
+        if (!password) return sendResponseAsJson(res, 406, "password is required");
 
         // get the user corresponding to the given email
         const user: User | undefined = await User.getUserByKey(
