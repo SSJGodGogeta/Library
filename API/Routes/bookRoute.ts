@@ -1,4 +1,4 @@
-import createEntityRoutes from "./routeTools.js";
+import createEntityRoutes, {sendResponseAsJson} from "./routeTools.js";
 import {Book} from "../../Database/Mapper/Entities/book.js";
 import {Request, Response} from "express";
 
@@ -14,14 +14,14 @@ const bookRoutes = createEntityRoutes<Book>(
 bookRoutes.get("/author/:author", async (req: Request, res: Response) => {
     try {
         const authorName = req.params.author;
-        // Perform fetch logic here (e.g., call Book.getBooksByAuthor(authorName))
-        const book: Book | undefined = await Book.getBookByKey("author", authorName);
-        console.log(`Fetching books by author: ${authorName}:`);
-        console.log(book);
-        res.status(200).json(book);
+        const books: Book[] | undefined = await Book.getBooksByKey("author", authorName);
+        if (!books) sendResponseAsJson(res, 404, "No book found!");
+        else {
+            sendResponseAsJson(res, 200, "Success", books);
+        }
     } catch (error) {
         console.error(`Error fetching books by author:`, error);
-        res.status(500).json({message: `Failed to fetch books by author`});
+        sendResponseAsJson(res, 500, "Failed to fetch books by author.");
     }
 });
 

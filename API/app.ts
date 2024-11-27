@@ -8,6 +8,10 @@ import {envConfig} from "../Database/envConfig.js";
 import userRoute from "./Routes/userRoute.js";
 import DatabaseTools from "./Routes/databaseTools.js";
 import bookRoute from "./Routes/bookRoute.js";
+import bookCopyRoutes from "./Routes/bookCopyRoute.js";
+import borrowRecordRoutes from "./Routes/borrowRecordRoute.js";
+import reservationRoute from "./Routes/reservationRoute.js";
+import sessionRoute from "./Routes/sessionRoute.js";
 // Validate EnvConfig
 envConfig.validateEnvConfig();
 // From here on, we expect that each Environment variable is set
@@ -40,6 +44,10 @@ const server = app.listen(envConfig.FRONTEND_PORT, () => {
 app.use("/user", userRoute);
 app.use("/book", bookRoute);
 app.use("/validateDB", DatabaseTools);
+app.use("/bookCopy", bookCopyRoutes);
+app.use("/borrowRecord", borrowRecordRoutes);
+app.use("/reservation", reservationRoute);
+app.use("/session", sessionRoute);
 
 
 // Graceful shutdown handling

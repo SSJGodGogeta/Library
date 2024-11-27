@@ -16,11 +16,13 @@ function createEntityRoutes<Entity>(
     async function getAllEntries(_req: Request, res: Response) {
         try {
             const entities: Entity[] | null = await EntityModel.getAllFromCacheOrDB();
-            console.log(`${entityName}s:`, entities);
-            res.status(200).json(entities);
+            if (!entities) sendResponseAsJson(res, 404, "No Entities found!");
+            else {
+                sendResponseAsJson(res, 200, "Success", entities);
+            }
         } catch (error) {
-            console.error(`Error fetching ${entityName}s:`, error);
-            res.status(500).json({message: `Failed to fetch ${entityName}s`});
+            sendResponseAsJson(res, 500, `Failed to fetch ${entityName}s`);
+            console.error(error);
         }
     }
 
@@ -33,15 +35,24 @@ function createEntityRoutes<Entity>(
                 `${entityName}_id` as keyof Entity, // Type assertion ensures this is treated as keyof Entity
                 entityId as Entity[keyof Entity]   // Type-safe value
             );
-            console.log(`${entityName}:`, entity);
-            res.status(200).json(entity);
+            if (!entity) sendResponseAsJson(res, 404, "No Entities found!");
+            else {
+                sendResponseAsJson(res, 200, "Success", entity);
+            }
         } catch (error) {
-            console.error(`Error fetching ${entityName}:`, error);
-            res.status(500).json({message: `Failed to fetch ${entityName}`});
+            sendResponseAsJson(res, 500, `Failed to fetch ${entityName}`);
+            console.error(error);
         }
     }
 
     return router;
+}
+
+export function sendResponseAsJson(res: Response, code: number, message: string, entities: any = null) {
+    res.status(code).json({
+        message: message,
+        entities: entities
+    });
 }
 
 export default createEntityRoutes;
