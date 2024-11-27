@@ -29,4 +29,22 @@ export class User extends BaseEntity {
 
     @Column({ length: 50, nullable: false })
     permissions!: Permission_Techcode;
+
+    static async getUsersFromCacheOrDB(): Promise<User[]> {
+        if (!users) users = await User.find();
+        return users;
+    }
+
+    static clearUserCache(): void {
+        users = null;
+        console.log("Cleared User cache");
+    }
+
+    static async getUserByKey<K extends keyof User>(keyName: K, keyValue: User[K]): Promise<User | undefined> {
+        const users:User[] = await User.getUsersFromCacheOrDB();
+        if (!users) return undefined;
+        return users.find(user => user[keyName] === keyValue);
+    }
 }
+
+let users: User[]|null = null;

@@ -32,4 +32,23 @@ export class Session extends BaseEntity {
         foreignKeyConstraintName: 'fk_session_user',
     })
     user!: User;
+
+
+    static async getSessionFromCacheOrDB(): Promise<Session[]> {
+        if (!sessions) sessions = await Session.find();
+        return sessions;
+    }
+
+    static clearSessionsCache(): void {
+        sessions = null;
+        console.log("Cleared Session cache");
+    }
+
+    static async getSessionByKey<K extends keyof Session>(keyName: K, keyValue: Session[K]): Promise<Session | undefined> {
+        const sessions:Session[] = await Session.getSessionFromCacheOrDB();
+        if (!sessions) return undefined;
+        return sessions.find(session => session[keyName] === keyValue);
+    }
 }
+
+let sessions: Session[]|null = null;

@@ -186,3 +186,7 @@ SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
 ALTER TABLE `scrum_library`.`borrow_record`
 ADD COLUMN `status` VARCHAR(50) NOT NULL AFTER `return_date`;
+
+--changeset arman:ar3
+ALTER TABLE `scrum_library`.`borrow_record`
+ADD COLUMN `rating` DOUBLE  AFTER `status`;

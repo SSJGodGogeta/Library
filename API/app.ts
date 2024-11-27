@@ -5,8 +5,13 @@ import {dataSource} from "../Database/dataSource.js";
 import {envConfig} from "../Database/envConfig.js";
 
 // Routes
-import testRoute from "./Routes/testRoute.js";
-
+import userRoute from "./Routes/userRoute.js";
+import DatabaseTools from "./Routes/databaseTools.js";
+import bookRoute from "./Routes/bookRoute.js";
+import bookCopyRoutes from "./Routes/bookCopyRoute.js";
+import borrowRecordRoutes from "./Routes/borrowRecordRoute.js";
+import reservationRoute from "./Routes/reservationRoute.js";
+import sessionRoute from "./Routes/sessionRoute.js";
 // Validate EnvConfig
 envConfig.validateEnvConfig();
 // From here on, we expect that each Environment variable is set
@@ -31,13 +36,19 @@ app.use(express.json());
 // use cookieParser to access the cookies, send with the request
 app.use(cookieParser());
 
-// Add Routes here:
-app.use("/api/test", testRoute);
-
 // Start Frontend Server:
 const server = app.listen(envConfig.FRONTEND_PORT, () => {
     console.log(`Server running on http://${envConfig.FRONTEND_HOST}:${envConfig.FRONTEND_PORT}`);
 });
+// Add Routes here:
+app.use("/user", userRoute);
+app.use("/book", bookRoute);
+app.use("/validateDB", DatabaseTools);
+app.use("/bookCopy", bookCopyRoutes);
+app.use("/borrowRecord", borrowRecordRoutes);
+app.use("/reservation", reservationRoute);
+app.use("/session", sessionRoute);
+
 
 // Graceful shutdown handling
 async function shutdown() {
