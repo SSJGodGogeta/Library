@@ -8,8 +8,12 @@ function createEntityRoutes<Entity>(
     entityName: string // has to be the exact name of the entity id. F.ex borrow_record
 ) {
     const router = Router();
+// Best practice to export the function and reference it in the route.
+    router.get("/", getAllEntries);
 
-    router.get("/", async (_req: Request, res: Response) => {
+    router.get("/:id", getSingleEntry);
+
+    async function getAllEntries(_req: Request, res: Response) {
         try {
             const entities: Entity[] | null = await EntityModel.getAllFromCacheOrDB();
             console.log(`${entityName}s:`, entities);
@@ -18,9 +22,10 @@ function createEntityRoutes<Entity>(
             console.error(`Error fetching ${entityName}s:`, error);
             res.status(500).json({message: `Failed to fetch ${entityName}s`});
         }
-    });
+    }
 
-    router.get("/:id", async (req: Request, res: Response) => {
+
+    async function getSingleEntry(req: Request, res: Response) {
         try {
             const entityId = parseInt(req.params.id);
             // Cast key name dynamically to a keyof Entity
@@ -34,7 +39,7 @@ function createEntityRoutes<Entity>(
             console.error(`Error fetching ${entityName}:`, error);
             res.status(500).json({message: `Failed to fetch ${entityName}`});
         }
-    });
+    }
 
     return router;
 }
