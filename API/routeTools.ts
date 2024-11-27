@@ -10,7 +10,7 @@ function createEntityRoutes<Entity>(
 ) {
     const router = Router();
 // Best practice to export the function and reference it in the route.
-    router.get("/", authenticate, getAllEntries);
+    router.get("/", getAllEntries);
 
     router.get("/:id", authenticate, getSingleEntry);
 

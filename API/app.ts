@@ -30,14 +30,14 @@ const app = express();
 
 
 app.use(cors({
-    origin: `http://${envConfig.FRONTEND_HOST}:${envConfig.FRONTEND_PORT}`,
+    origin: `http://${envConfig.BACKEND_API_HOST}:${envConfig.BACKEND_API_PORT}`,
     credentials: true, // allow sending credentials
 }));
 app.use(express.json());
 app.use(cookieParser());
 
-const server = app.listen(envConfig.FRONTEND_PORT, () => {
-    console.log(`Server running on http://${envConfig.FRONTEND_HOST}:${envConfig.FRONTEND_PORT}`);
+const server = app.listen(envConfig.BACKEND_API_PORT, () => {
+    console.log(`Server running on http://${envConfig.BACKEND_API_HOST}:${envConfig.BACKEND_API_PORT}`);
 });
 
 await initializeRoutes(app);
