@@ -1,5 +1,5 @@
 import {User} from "../../Database/Mapper/Entities/user.js";
-import createEntityRoutes from "./routeTools.js";
+import createEntityRoutes, {routes} from "../routeTools.js";
 
 const userRoutes = createEntityRoutes<User>(
     {
@@ -8,5 +8,4 @@ const userRoutes = createEntityRoutes<User>(
     },
     "user"
 );
-
-export default userRoutes;
+routes.push({path: "/user", router: userRoutes});

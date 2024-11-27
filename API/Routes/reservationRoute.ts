@@ -1,4 +1,4 @@
-import createEntityRoutes from "./routeTools.js";
+import createEntityRoutes, {routes} from "../routeTools.js";
 import {Reservation} from "../../Database/Mapper/Entities/reservation.js";
 
 const reservationRoutes = createEntityRoutes<Reservation>(
@@ -8,5 +8,4 @@ const reservationRoutes = createEntityRoutes<Reservation>(
     },
     "reservation"
 );
-
-export default reservationRoutes;
+routes.push({path: "/reservation", router: reservationRoutes});

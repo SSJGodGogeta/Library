@@ -1,6 +1,6 @@
 import {NextFunction, Request, Response} from "express";
 import {Session} from "../Database/Mapper/Entities/session.js";
-import {sendResponseAsJson} from "./Routes/routeTools.js";
+import {sendResponseAsJson} from "./routeTools.js";
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -12,11 +12,11 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
 
         // get the session, the given token belongs to
         const session: Session | null = await Session.findOne({
-            where: { token: token },
-            relations: { user: true }
+            where: {token: token},
+            relations: {user: true}
         });
         if (!session) {
-            return sendResponseAsJson(res, 404, "session not found");
+            return sendResponseAsJson(res, 401, "session not found");
         }
 
         /*

@@ -1,4 +1,4 @@
-import createEntityRoutes from "./routeTools.js";
+import createEntityRoutes, {routes} from "../routeTools.js";
 import {Book_Copy} from "../../Database/Mapper/Entities/book_copy.js";
 
 const bookCopyRoutes = createEntityRoutes<Book_Copy>(
@@ -9,4 +9,4 @@ const bookCopyRoutes = createEntityRoutes<Book_Copy>(
     "book_copy"
 );
 
-export default bookCopyRoutes;
+routes.push({path: "/bookCopy", router: bookCopyRoutes});

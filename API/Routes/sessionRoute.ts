@@ -1,5 +1,6 @@
-import createEntityRoutes from "./routeTools.js";
+import createEntityRoutes, {routes} from "../routeTools.js";
 import {Session} from "../../Database/Mapper/Entities/session.js";
+
 
 const sessionRoutes = createEntityRoutes<Session>(
     {
@@ -8,5 +9,4 @@ const sessionRoutes = createEntityRoutes<Session>(
     },
     "book_copy"
 );
-
-export default sessionRoutes;
+routes.push({path: "/session", router: sessionRoutes});

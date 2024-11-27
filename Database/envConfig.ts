@@ -12,7 +12,10 @@ export class envConfig {
     static DB_NAME: string = process.env.DB_NAME || "";
 
     static FRONTEND_PORT: string = process.env.FRONTEND_PORT || "";
-    static FRONTEND_HOST: string = process.env.DB_HOST || "";
+    static FRONTEND_HOST: string = process.env.FRONTEND_HOST || "";
+
+    static BACKEND_API_PORT: string = process.env.BACKEND_API_PORT || "";
+    static BACKEND_API_HOST: string = process.env.BACKEND_API_HOST || "";
 
     /**
      * Ensures that all EnvConfig variables have a value.

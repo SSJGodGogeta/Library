@@ -1,17 +1,20 @@
-import {Request, Response, Router} from "express";
+import {Express, NextFunction, Request, Response, Router} from "express";
+import {authenticate} from "./authenticationMiddleware.js";
 
 function createEntityRoutes<Entity>(
     EntityModel: {
         getAllFromCacheOrDB: () => Promise<Entity[] | null>;
         getByKey: <K extends keyof Entity>(keyName: K, keyValue: Entity[K]) => Promise<Entity | undefined>;
     },
-    entityName: string // has to be the exact name of the entity id. F.ex borrow_record
+    entityName: string, // has to be the exact name of the entity id. F.ex borrow_record
+    options?: { authenticate: boolean } // Add options to control authentication
 ) {
     const router = Router();
-// Best practice to export the function and reference it in the route.
-    router.get("/", getAllEntries);
+    const requireAuth = options?.authenticate ?? true;
 
-    router.get("/:id", getSingleEntry);
+// Best practice to export the function and reference it in the route.
+    router.get("/", optionalAuthenticate(requireAuth), getAllEntries);
+    router.get("/:id", optionalAuthenticate(requireAuth), getSingleEntry);
 
     async function getAllEntries(_req: Request, res: Response) {
         try {
@@ -53,6 +56,26 @@ export function sendResponseAsJson(res: Response, code: number, message: string,
         message: message,
         entities: entities
     });
+}
+
+export let routes: { path: string; router: Router }[] = [];
+
+export async function initializeRoutes(app: Express): Promise<void> {
+    // Import route files
+    routes.forEach(({path, router}) => {
+        console.log(`Registering route: ${path}`);
+        app.use(path, router);
+    });
+}
+
+export function optionalAuthenticate(required: boolean) {
+    return async (req: Request, res: Response, next: NextFunction) => {
+        if (required) {
+            await authenticate(req, res, next); // Use the existing authentication logic
+        } else {
+            next(); // Skip authentication
+        }
+    };
 }
 
 export default createEntityRoutes;
