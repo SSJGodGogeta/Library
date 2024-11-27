@@ -5,7 +5,7 @@ import {authenticate} from "../authenticationMiddleware.js";
 import {User} from "../../Database/Mapper/Entities/user.js";
 import {Session} from "../../Database/Mapper/Entities/session.js";
 import {Permission_Techcode} from "../../Database/Mapper/Techcodes/Permission_Techcode.js";
-import {sendResponseAsJson} from "./routeTools.js";
+import {routes, sendResponseAsJson} from "../routeTools.js";
 
 const router = Router();
 
@@ -44,10 +44,10 @@ function setSessionCookie(
     });
 }
 
-async function register(req: Request, res: Response)  {
+async function register(req: Request, res: Response) {
     try {
         // get the email and the password, provided in the body
-        let { email, password, first_name, last_name } = req.body;
+        let {email, password, first_name, last_name} = req.body;
 
         // check if the all necessary data was provided
         if (!email) return sendResponseAsJson(res, 406, "email is required");
@@ -86,7 +86,7 @@ async function register(req: Request, res: Response)  {
 async function login(req: Request, res: Response) {
     try {
         // get the email and the password, provided in the body
-        let { email, password } = req.body;
+        let {email, password} = req.body;
 
         if (!email) return sendResponseAsJson(res, 406, "email is required");
         if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) return sendResponseAsJson(res, 406, "email has invalid format");
@@ -157,4 +157,4 @@ async function logout(req: Request, res: Response) {
     }
 }
 
-export default router;
+routes.push({path: "/authentication", router: router});

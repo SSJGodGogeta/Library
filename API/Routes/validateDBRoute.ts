@@ -5,7 +5,8 @@ import {BorrowRecord} from "../../Database/Mapper/Entities/borrow_record.js";
 import {Availability_Techcode} from "../../Database/Mapper/Techcodes/Availability_Techcode.js";
 import {Request, Response, Router} from "express";
 
-import {sendResponseAsJson} from "./routeTools.js";
+import {routes, sendResponseAsJson} from "../routeTools.js";
+import {authenticate} from "../authenticationMiddleware.js";
 
 
 const router = Router();
@@ -101,7 +102,9 @@ async function validateDatabase() {
     };
 }
 
-router.get("/", async (_req: Request, res: Response) => {
+router.get("/", authenticate, checkDatabase);
+
+async function checkDatabase(_req: Request, res: Response) {
     try {
         const result = await validateDatabase();
         sendResponseAsJson(res, 200, "Success", result);
@@ -109,6 +112,6 @@ router.get("/", async (_req: Request, res: Response) => {
         console.error("Error while validating database:", error);
         sendResponseAsJson(res, 500, "Error while validating database");
     }
-});
+}
 
-export default router;
+routes.push({path: "/validateDB", router: router});

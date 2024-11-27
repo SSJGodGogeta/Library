@@ -1,4 +1,4 @@
-import createEntityRoutes from "./routeTools.js";
+import createEntityRoutes, {routes} from "../routeTools.js";
 import {BorrowRecord} from "../../Database/Mapper/Entities/borrow_record.js";
 
 const borrowRecordRoutes = createEntityRoutes<BorrowRecord>(
@@ -8,5 +8,4 @@ const borrowRecordRoutes = createEntityRoutes<BorrowRecord>(
     },
     "borrow_record"
 );
-
-export default borrowRecordRoutes;
+routes.push({path: "/borrowRecord", router: borrowRecordRoutes});

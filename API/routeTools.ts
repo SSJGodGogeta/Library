@@ -1,4 +1,5 @@
-import {Request, Response, Router} from "express";
+import {Express, Request, Response, Router} from "express";
+import {authenticate} from "./authenticationMiddleware.js";
 
 function createEntityRoutes<Entity>(
     EntityModel: {
@@ -9,9 +10,9 @@ function createEntityRoutes<Entity>(
 ) {
     const router = Router();
 // Best practice to export the function and reference it in the route.
-    router.get("/", getAllEntries);
+    router.get("/", authenticate, getAllEntries);
 
-    router.get("/:id", getSingleEntry);
+    router.get("/:id", authenticate, getSingleEntry);
 
     async function getAllEntries(_req: Request, res: Response) {
         try {
@@ -55,4 +56,15 @@ export function sendResponseAsJson(res: Response, code: number, message: string,
     });
 }
 
+export let routes: { path: string; router: Router }[] = [];
+
+export async function initializeRoutes(app: Express): Promise<void> {
+    // Import route files
+    routes.forEach(({path, router}) => {
+        console.log(`Registering route: ${path}`);
+        app.use(path, router);
+    });
+}
+
 export default createEntityRoutes;
+

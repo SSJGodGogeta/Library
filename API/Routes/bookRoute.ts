@@ -1,6 +1,8 @@
-import createEntityRoutes, {sendResponseAsJson} from "./routeTools.js";
+import createEntityRoutes, {routes, sendResponseAsJson} from "../routeTools.js";
 import {Book} from "../../Database/Mapper/Entities/book.js";
+import {authenticate} from "../authenticationMiddleware.js";
 import {Request, Response} from "express";
+
 
 const bookRoutes = createEntityRoutes<Book>(
     {
@@ -11,7 +13,9 @@ const bookRoutes = createEntityRoutes<Book>(
 );
 // you can add new routes like this:
 // Add another GET route
-bookRoutes.get("/author/:author", async (req: Request, res: Response) => {
+bookRoutes.get("/author/:author", authenticate, getBooksByAuthor);
+
+async function getBooksByAuthor(req: Request, res: Response) {
     try {
         const authorName = req.params.author;
         const books: Book[] | undefined = await Book.getBooksByKey("author", authorName);
@@ -23,6 +27,6 @@ bookRoutes.get("/author/:author", async (req: Request, res: Response) => {
         console.error(`Error fetching books by author:`, error);
         sendResponseAsJson(res, 500, "Failed to fetch books by author.");
     }
-});
+}
 
-export default bookRoutes;
+routes.push({path: "/book", router: bookRoutes});
