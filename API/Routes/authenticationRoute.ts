@@ -4,8 +4,8 @@ import crypto from "crypto";
 import {authenticate} from "../authenticationMiddleware.js";
 import {User} from "../../Database/Mapper/Entities/user.js";
 import {Session} from "../../Database/Mapper/Entities/session.js";
-import {Permission_Techcode} from "../../Database/Mapper/Techcodes/Permission_Techcode";
-import {sendResponseAsJson} from "./routeTools";
+import {Permission_Techcode} from "../../Database/Mapper/Techcodes/Permission_Techcode.js";
+import {sendResponseAsJson} from "./routeTools.js";
 
 const router = Router();
 
