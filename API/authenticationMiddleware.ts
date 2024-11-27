@@ -1,13 +1,13 @@
 import {NextFunction, Request, Response} from "express";
-import {Session} from "../Database/Mapper/Entities/session";
+import {Session} from "../Database/Mapper/Entities/session.js";
+import {sendResponseAsJson} from "./Routes/routeTools.js";
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         // Retrieve the session token from the cookies send with the request
         const token = req.cookies.session_token;
         if (!token) {
-            res.status(406).json({message: "no session token provided"});
-            return;
+            return sendResponseAsJson(res, 406, "no session token provided");
         }
 
         // get the session, the given token belongs to
@@ -16,7 +16,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
             relations: { user: true }
         });
         if (!session) {
-            res.status(404).json({message: "session not found"});
+            return sendResponseAsJson(res, 404, "session not found");
         }
 
         /*
@@ -39,6 +39,6 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
         next(); // Proceed to the next route handler
     } catch (error) {
         console.error("Authentication error:", error);
-        res.status(500).json({message: "Failed to authenticate token"});
+        return sendResponseAsJson(res, 500, "Failed to authenticate with token");
     }
 };

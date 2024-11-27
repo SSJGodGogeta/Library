@@ -76,12 +76,10 @@ async function register(req: Request, res: Response)  {
         // Set the token as a secure HttpOnly cookie
         setSessionCookie(res, session.token);
 
-        res.status(200).json({ message: "registering successful" });
-        return
+        return sendResponseAsJson(res, 200, "Success");
     } catch (error) {
         console.error("Error registering in:", error);
-        res.status(500).json({message: "Failed to process registering"});
-        return;
+        return sendResponseAsJson(res, 500, "Failed to process registration");
     }
 }
 
@@ -100,8 +98,7 @@ async function login(req: Request, res: Response) {
             email as User[keyof User],
         );
         if (!user) {
-            res.status(401).json({message: "Email or password incorrect"});
-            return;
+            return sendResponseAsJson(res, 401, "Email or password incorrect");
         }
 
         // hash the given password using the bcrypt.js package and compare it to the stored hash
@@ -109,8 +106,7 @@ async function login(req: Request, res: Response) {
             // uncomment the following line to show what a possible hash would be for a new password
             // console.log(bcrypt.hashSync(String(password), 10))
 
-            res.status(401).json({message: "Email or password incorrect"});
-            return;
+            return sendResponseAsJson(res, 401, "Email or password incorrect");
         }
 
         // ----------------------------------------------------------------------------------------------------------
@@ -124,32 +120,27 @@ async function login(req: Request, res: Response) {
         // Set the token as a secure HttpOnly cookie
         setSessionCookie(res, session.token);
 
-        res.status(200).json({ message: "Login successful" });
-        return
+        return sendResponseAsJson(res, 200, "Success");
     } catch (error) {
         console.error("Error logging in:", error);
-        res.status(500).json({message: "Failed to process login"});
-        return;
+        return sendResponseAsJson(res, 500, "Failed to process login");
     }
 }
 
 async function currentUser(req: Request, res: Response) {
     try {
-        const users = req.body.user;
-        res.status(200).json(users);
+        const user = req.body.user;
+        return sendResponseAsJson(res, 200, "Success", user);
     } catch (error) {
         console.error("Error getting current user:", error);
-        res.status(500).json({message: "Failed to fetch current user"});
+        return sendResponseAsJson(res, 500, "Failed to fetch current user");
     }
 }
 
 async function logout(req: Request, res: Response) {
     try {
+        // the session is guaranteed to exist at this point. Otherwise, the authenticationMiddleware would have thrown an error
         const session: Session = req.body.session;
-        if (!session) {
-            res.status(404).json({ message: "Session not found" });
-            return;
-        }
         await session.remove();
 
         // Clear the cookie from the client
@@ -159,13 +150,10 @@ async function logout(req: Request, res: Response) {
             sameSite: "lax",
         });
 
-
-        res.status(200).json({ message: "Logout successful" });
-        return;
+        return sendResponseAsJson(res, 200, "Success");
     } catch (error) {
         console.error("Error logging out:", error);
-        res.status(500).json({message: "Failed to process logout"});
-        return;
+        return sendResponseAsJson(res, 500, "Failed to logout");
     }
 }
 
