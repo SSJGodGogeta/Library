@@ -56,7 +56,7 @@ Once your PR has been approved, you can create a pull request from dev to master
     - one file named navigation.ts which is used globally for all .html files (adds logic for onButtonClicks).
   - API folder should have 
     - an app.ts, 
-    - authenticationMiddleWare.ts and a 
+    - authenticationMiddleware.ts and a 
     - Routes folder, that contains all .ts files.
   - Dist Folder will be in the root (where Database, Webpage, API). This is where the compiled .js file will be. 
   - There will be a nodeModules folder (its auto generated).  (Dist and nodeModules should be added to the .gitignore)
