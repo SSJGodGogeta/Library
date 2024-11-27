@@ -10,6 +10,6 @@ export const dataSource: DataSource = new DataSource({
     database: envConfig.DB_NAME,
     synchronize: false,
     logging: true,
-    entities: ["Dist/Database/Mapper/Entities/*.js"],
+    entities: ["Dist/Database/Mapper/Entities/*.script"],
     subscribers: [],
 });
