@@ -5,6 +5,8 @@ import {BorrowRecord} from "../../Database/Mapper/Entities/borrow_record.js";
 import {Availability_Techcode} from "../../Database/Mapper/Techcodes/Availability_Techcode.js";
 import {Request, Response, Router} from "express";
 
+import {sendResponseAsJson} from "./routeTools.js";
+
 
 const router = Router();
 
@@ -102,10 +104,10 @@ async function validateDatabase() {
 router.get("/", async (_req: Request, res: Response) => {
     try {
         const result = await validateDatabase();
-        res.status(200).json(result);
+        sendResponseAsJson(res, 200, "Success", result);
     } catch (error) {
         console.error("Error while validating database:", error);
-        res.status(500).json({message: "Error while validating database:"});
+        sendResponseAsJson(res, 500, "Error while validating database");
     }
 });
 

@@ -60,6 +60,12 @@ export class Book extends BaseEntity {
         if (!books) return undefined;
         return books.find(book => book[keyName] === keyValue);
     }
+
+    static async getBooksByKey<K extends keyof Book>(keyName: K, keyValue: Book[K]): Promise<Book[] | undefined> {
+        const books: Book[] = await Book.getBooksFromCacheOrDB();
+        if (!books) return undefined;
+        return books.filter(copy => copy[keyName] === keyValue);
+    }
 }
 
 let books: Book[] | null = null;
