@@ -9,7 +9,8 @@ const bookRoutes = createEntityRoutes<Book>(
         getAllFromCacheOrDB: Book.getBooksFromCacheOrDB,
         getByKey: Book.getBookByKey,
     },
-    "book"
+    "book",
+    { authenticate: false }
 );
 // you can add new routes like this:
 // Add another GET route
