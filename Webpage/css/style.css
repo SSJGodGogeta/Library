@@ -1,0 +1,155 @@
+/*-------------Header-------------*/
+@import url('https://fonts.googleapis.com/css?family=Oswald:500');
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #f4f4f4  no-repeat fixed 0 50%;
+    background-size: cover;
+
+}
+
+.background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.3;
+    z-index: -1;
+}
+
+header>nav{
+    width: 100%;
+    position: fixed;
+    text-align: center;
+    background: #f4f4f4;
+}
+
+header>nav a{
+    font-family: monospace, sans-serif;
+    font-weight: 450;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: black;
+    font-size:18px;
+    letter-spacing:1px;
+    position:relative;
+    display:inline-block;
+    margin: 20px 20px 0;
+}
+
+header>nav a:before{
+    content:'';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background:#16151b;
+    top:85%;
+    animation:out 0.2s cubic-bezier(1, 0, 0.58, 0.97) 1 both;
+}
+
+header>nav a:hover:before{
+    animation:in 0.2s cubic-bezier(1, 0, 0.58, 0.97) 1 both;
+}
+
+@keyframes in{
+    0%{
+        width: 0;
+        left:0;
+        right:auto;
+    }
+    100%{
+        left:0;
+        right:auto;
+        width: 100%;
+    }
+}
+
+@keyframes out{
+    0%{
+        width:100%;
+        left: auto;
+        right: 0;
+    }
+    100%{
+        width: 0;
+        left: auto;
+        right: 0;
+    }
+}
+
+/*-------------Main Body-------------*/
+
+body{
+    display: flex;
+}
+
+main {
+    width: 100%; /* Make the main container stretch across the full width */
+    min-height: 100vh; /* Ensure it spans the full height of the viewport */
+    margin: 5vh 0; /* Add vertical margin while removing horizontal auto margin */
+    border-radius: 0; /* Remove border radius if you want sharp edges on the full width */
+    padding: 20px; /* Add inner spacing for content */
+    box-sizing: border-box; /* Include padding in the width calculation */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: monospace;
+}
+
+
+.limiter {
+    width: 80%; /* Ensure the limiter takes full width of the main container */
+    background: #f9f9f9; /* Lighter background for contrast with the main container */
+    border-radius: 10px;
+    padding: 15px; /* Add some padding for content spacing */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap; /* Allow books to wrap to the next line if needed */
+    gap: 20px; /* Space between books */
+    justify-content: space-around; /* Distribute books evenly across the row */
+    margin-top: 15px; /* Add space above the book list */
+}
+
+.book {
+    flex: 1 1 calc(20% - 20px); /* Books take 20% of the row width minus the gap */
+    max-width: 200px; /* Prevent books from becoming too wide */
+    background: #ffe0b2; /* Subtle background for books */
+    border-radius: 10px;
+    text-align: center;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Add hover animation */
+}
+
+.book:hover {
+    transform: scale(1.05); /* Slight zoom on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Emphasize shadow on hover */
+}
+
+.book img {
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.book button {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: #333;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.book button:hover {
+    background-color: #555;
+}

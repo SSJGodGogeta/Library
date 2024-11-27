@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="css/Login.css">
+    <script src="script/register.ts"></script>
+</head>
+<body>
+
+<div class="login-container">
+    <h1>Sign Up</h1>
+    <form method="post" action="script/register.ts" class="form-container">
+        <div class="form-group">
+            <label for="firstname">First Name</label>
+            <input type="text" id="firstname" name="firstname" placeholder="Type your first name" required>
+        </div>
+        <div class="form-group">
+            <label for="lastname">Last Name</label>
+            <input type="text" id="lastname" name="lastname" placeholder="Type your last name" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="Type your email" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Type your password" required>
+        </div>
+        <div class="form-group">
+            <button id="registerButton" type="submit" class="login-btn">Sign Up</button>
+        </div>
+        <span class="terms">By creating an account you agree to our Terms and Privacy.</span>
+    </form>
+    <div class="signup-link">
+        Already have an account? <a href="Login.html">Login</a>
+    </div>
+</div>
+
+</body>
+</html>
