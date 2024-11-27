@@ -30,7 +30,7 @@ const app = express();
 
 
 app.use(cors({
-    origin: `http://${envConfig.BACKEND_API_HOST}:${envConfig.BACKEND_API_PORT}`,
+    origin: `http://${envConfig.FRONTEND_API_HOST}:${envConfig.FRONTEND_API_PORT}`,
     credentials: true, // allow sending credentials
 }));
 app.use(express.json());

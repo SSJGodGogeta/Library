@@ -16,19 +16,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
             //const  email: String = emailAdressInput.value!.trim().toLowerCase(); // trim and lowercase the email address
             // const password: String = loginpasswordInput.value!; // read the password
-            // TODO: Change / configure url below.
             // For the sake of testing im just going to fetch random data here, just to ensure that everything is working fine. We can remove it later.
             const response2 = await fetch(`http://localhost:3000/user`, {
                 method: "GET",
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                credentials: "include",
             });
             if (!response2.ok) {
                 throw new Error(response2.status + " - " + response2.statusText);
             }
-
-            console.log("Successfully fetched data from api! Data: " + JSON.stringify(response2));
+            const {message, entities} = await response2.json();
+            console.log(message, entities);
             // TODO: add Post route. The fetch below wont work currently!!!
             /*
             const response = await fetch(`http://localhost:3000/authentication`, {
