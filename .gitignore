@@ -1,2 +1,3 @@
 Dist/
 /node_modules/
+/Database/Liquibase/database_objects/output_local.sql
