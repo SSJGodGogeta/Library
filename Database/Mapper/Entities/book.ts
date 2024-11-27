@@ -42,6 +42,15 @@ export class Book extends BaseEntity {
     @Column({nullable: true})
     times_borrowed?: number;
 
+    @Column({type: 'float', nullable: false})
+    sum_rating!: number;
+
+    @Column({type: 'int', nullable: false})
+    count_rating!: number;
+
+    @Column({type: 'text', nullable: true})
+    cover_url?: string;
+
     @Column({length: '50', nullable: false})
     availability!: Availability_Techcode;
 

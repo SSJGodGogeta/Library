@@ -28,9 +28,10 @@ dataSource.initialize()
 
 const app = express();
 
+console.log(`Enabling CORS for http://${envConfig.FRONTEND_HOST}:${envConfig.FRONTEND_PORT}`)
 
 app.use(cors({
-    origin: `http://${envConfig.BACKEND_API_HOST}:${envConfig.BACKEND_API_PORT}`,
+    origin: `http://${envConfig.FRONTEND_HOST}:${envConfig.FRONTEND_PORT}`,
     credentials: true, // allow sending credentials
 }));
 app.use(express.json());

@@ -85,6 +85,8 @@ async function register(req: Request, res: Response) {
 
 async function login(req: Request, res: Response) {
     try {
+        console.log('processing login');
+
         // get the email and the password, provided in the body
         let {email, password} = req.body;
 
@@ -102,10 +104,11 @@ async function login(req: Request, res: Response) {
         }
 
         // hash the given password using the bcrypt.js package and compare it to the stored hash
-        if (!bcrypt.compareSync(String(password), user.password)) {
+        if (!bcrypt.compareSync(String(password), user!.password)) {
             // uncomment the following line to show what a possible hash would be for a new password
             // console.log(bcrypt.hashSync(String(password), 10))
 
+            console.error("password incorrect");
             return sendResponseAsJson(res, 401, "Email or password incorrect");
         }
 
@@ -119,6 +122,8 @@ async function login(req: Request, res: Response) {
 
         // Set the token as a secure HttpOnly cookie
         setSessionCookie(res, session.token);
+
+        console.log('login processed');
 
         return sendResponseAsJson(res, 200, "Success");
     } catch (error) {

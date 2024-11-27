@@ -16,7 +16,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
             relations: {user: true}
         });
         if (!session) {
-            return sendResponseAsJson(res, 404, "session not found");
+            return sendResponseAsJson(res, 401, "session not found");
         }
 
         /*

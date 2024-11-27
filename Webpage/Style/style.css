@@ -1,5 +1,8 @@
 /*-------------Header-------------*/
-@import url('https://fonts.googleapis.com/css?family=Oswald:500');
+/*@import url('https://fonts.googleapis.com/css?family=Oswald:500');*/
+* {
+    font-family: Arial, serif;
+}
 
 body {
     margin: 0;
@@ -25,6 +28,7 @@ header>nav{
     position: fixed;
     text-align: center;
     background: #f4f4f4;
+    padding-bottom: 8px
 }
 
 header>nav a{
@@ -37,43 +41,52 @@ header>nav a{
     letter-spacing:1px;
     position:relative;
     display:inline-block;
-    margin: 20px 20px 0;
+    margin: 10px 20px 0;
 }
 
-header>nav a:before{
-    content:'';
+header > nav a:before {
+    content: '';
     position: absolute;
-    width: 100%;
+    width: 0;
     height: 2px;
-    background:#16151b;
-    top:85%;
-    animation:out 0.2s cubic-bezier(1, 0, 0.58, 0.97) 1 both;
+    background: #16151b;
+    top: 85%;
+    left: 0;
 }
 
-header>nav a:hover:before{
-    animation:in 0.2s cubic-bezier(1, 0, 0.58, 0.97) 1 both;
+header > nav a:hover:before {
+    animation: in 0.2s cubic-bezier(1, 0, 0.58, 0.97) 1 both;
 }
 
-@keyframes in{
-    0%{
+@keyframes in {
+    0% {
         width: 0;
-        left:0;
-        right:auto;
+        left: 0;
     }
-    100%{
-        left:0;
-        right:auto;
+    100% {
         width: 100%;
+        left: 0;
     }
 }
 
-@keyframes out{
-    0%{
-        width:100%;
+nav input[type=text] {
+    float: right;
+    padding: 4px;
+    border: none;
+    margin-top: 8px;
+    margin-right: 50px;
+    font-size: 16px;
+    max-width: 20%;
+    border-radius: 5px;
+}
+
+@keyframes out {
+    0% {
+        width: 100%;
         left: auto;
         right: 0;
     }
-    100%{
+    100% {
         width: 0;
         left: auto;
         right: 0;
@@ -90,7 +103,7 @@ main {
     width: 100%; /* Make the main container stretch across the full width */
     min-height: 100vh; /* Ensure it spans the full height of the viewport */
     margin: 5vh 0; /* Add vertical margin while removing horizontal auto margin */
-    border-radius: 0; /* Remove border radius if you want sharp edges on the full width */
+    border-radius: 0;
     padding: 20px; /* Add inner spacing for content */
     box-sizing: border-box; /* Include padding in the width calculation */
     display: flex;
@@ -102,9 +115,9 @@ main {
 
 .limiter {
     width: 80%; /* Ensure the limiter takes full width of the main container */
-    background: #f9f9f9; /* Lighter background for contrast with the main container */
+    background: #f9f9f9;
     border-radius: 10px;
-    padding: 15px; /* Add some padding for content spacing */
+    padding: 15px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
@@ -116,7 +129,7 @@ main {
     margin-top: 15px; /* Add space above the book list */
 }
 
-.book {
+.activity {
     flex: 1 1 calc(20% - 20px); /* Books take 20% of the row width minus the gap */
     max-width: 200px; /* Prevent books from becoming too wide */
     background: #ffe0b2; /* Subtle background for books */
@@ -127,19 +140,19 @@ main {
     transition: transform 0.2s ease, box-shadow 0.2s ease; /* Add hover animation */
 }
 
-.book:hover {
+.activity:hover {
     transform: scale(1.05); /* Slight zoom on hover */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Emphasize shadow on hover */
 }
 
-.book img {
+.activity img {
     width: 100%;
     height: auto;
     border-radius: 5px;
     margin-bottom: 10px;
 }
 
-.book button {
+.activity button {
     margin-top: 10px;
     padding: 8px 12px;
     background: #333;
@@ -150,6 +163,45 @@ main {
     transition: background-color 0.2s ease;
 }
 
-.book button:hover {
+.activity button:hover {
     background-color: #555;
+}
+
+
+#book-list {
+    padding-left: 0;
+    list-style: none;
+}
+
+.book-container {
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.book-info {
+    margin-left: 40px;
+}
+
+.book-info>h2 {
+    margin-top: 0;
+}
+
+.rating-container {
+    height: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.rating-container>img {
+    height: 25px;
+    width: 25px;
+}
+
+.rating-container>p {
+    margin-left: 20px;
 }
