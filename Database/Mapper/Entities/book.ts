@@ -59,9 +59,10 @@ export class Book extends BaseEntity {
         return books;
     }
 
-    static clearBookCache(): void {
+    static async resetBookCache(): Promise<void> {
         books = null;
-        console.log("Cleared Book cache");
+        console.log("Reset Book cache");
+        await this.getBooksFromCacheOrDB();
     }
 
     static async getBookByKey<K extends keyof Book>(keyName: K, keyValue: Book[K]): Promise<Book | undefined> {
@@ -74,6 +75,11 @@ export class Book extends BaseEntity {
         const books: Book[] = await Book.getBooksFromCacheOrDB();
         if (!books) return undefined;
         return books.filter(copy => copy[keyName] === keyValue);
+    }
+
+    static async saveBook(book: Book): Promise<void> {
+        await book.save();
+        await this.resetBookCache();
     }
 }
 

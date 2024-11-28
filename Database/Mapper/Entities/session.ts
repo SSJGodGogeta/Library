@@ -46,9 +46,10 @@ export class Session extends BaseEntity {
         return sessions;
     }
 
-    static clearSessionsCache(): void {
+    static async resetSessionsCache(): Promise<void> {
         sessions = null;
-        console.log("Cleared Session cache");
+        console.log("Reset Session cache");
+        await this.getSessionFromCacheOrDB();
     }
 
     static async getSessionByKey<K extends keyof Session>(keyName: K, keyValue: Session[K]): Promise<Session | undefined> {
@@ -69,6 +70,11 @@ export class Session extends BaseEntity {
                 }
             },
         });
+    }
+
+    static async saveSession(session: Session): Promise<void> {
+        await session.save();
+        await this.resetSessionsCache();
     }
 }
 
