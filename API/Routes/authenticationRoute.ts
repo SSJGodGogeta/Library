@@ -56,11 +56,11 @@ async function register(req: Request, res: Response) {
         let {email, password, first_name, last_name} = req.body;
 
         // check if the all necessary data was provided
-        if (!email) return sendResponseAsJson(res, 406, "email is required");
-        if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) return sendResponseAsJson(res, 406, "email has invalid format");
-        if (!password) return sendResponseAsJson(res, 406, "password is required");
-        if (!first_name) return sendResponseAsJson(res, 406, "first_name is required");
-        if (!last_name) return sendResponseAsJson(res, 406, "last_name is required");
+        if (!email) return sendResponseAsJson(res, 422, "email is required");
+        if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) return sendResponseAsJson(res, 422, "email has invalid format");
+        if (!password) return sendResponseAsJson(res, 422, "password is required");
+        if (!first_name) return sendResponseAsJson(res, 422, "first_name is required");
+        if (!last_name) return sendResponseAsJson(res, 422, "last_name is required");
 
         // hash the provided password using the bcrypt.js package
         const hashed_password: string = bcrypt.hashSync(String(password), 10)
@@ -100,9 +100,9 @@ async function login(req: Request, res: Response) {
         // get the email and the password, provided in the body
         let {email, password} = req.body;
 
-        if (!email) return sendResponseAsJson(res, 406, "Email is required");
-        if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) return sendResponseAsJson(res, 406, "Email has invalid format");
-        if (!password) return sendResponseAsJson(res, 406, "Password is required");
+        if (!email) return sendResponseAsJson(res, 422, "Email is required");
+        if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) return sendResponseAsJson(res, 422, "Email has invalid format");
+        if (!password) return sendResponseAsJson(res, 422, "Password is required");
 
         // get the user corresponding to the given email
         const user: User | undefined = await User.getUserByKey(`email`, email);

@@ -7,7 +7,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
         // Retrieve the session token from the cookies send with the request
         const token = req.cookies.session_token;
         if (!token) {
-            return sendResponseAsJson(res, 406, "no session token provided");
+            return sendResponseAsJson(res, 422, "no session token provided");
         }
 
         // get the session, the given token belongs to
