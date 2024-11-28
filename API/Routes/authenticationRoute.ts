@@ -16,18 +16,29 @@ router.post("/login", login);
 router.get("/currentUser", authenticate, currentUser);
 router.post("/logout", authenticate, logout);
 
+
+function isSessionExpired(createdAt: Date, days: number): boolean {
+    const now = Date.now(); // Current timestamp in milliseconds
+    const expirationTime = createdAt.getTime() + days * 24 * 60 * 60 * 1000; // Add days in milliseconds
+    return now > expirationTime;
+}
+
 async function createNewSession(req: Request, user: User): Promise<Session> {
     // get user, user agent and check if its the same as the one stored in the db.
     const userAgent = req.headers['user-agent'] || 'unknown';
     const {ua} = UAParser(userAgent);
     const ip: string | undefined = req.ip;
     const activeSession: Session | null = await Session.getSessionByUserId(user.user_id);
+    // if session exists:
     if (activeSession && activeSession.deviceInfo == ua && activeSession.ip == ip) {
-        activeSession.last_used = new Date();
-        await Session.saveSession(activeSession);
-        console.warn("User has already an active session.");
-        return activeSession;
+        if (!isSessionExpired(activeSession.last_used, 1)) {
+            activeSession.last_used = new Date();
+            await Session.saveSession(activeSession);
+            console.warn("User has already an active session.");
+            return activeSession;
+        }
     }
+    // if it doesn't exist:
     // generate the session and store it in the database
     const session: Session = new Session();
     session.deviceInfo = ua;
@@ -39,6 +50,7 @@ async function createNewSession(req: Request, user: User): Promise<Session> {
 
     await Session.saveSession(session);
     return session;
+
 }
 
 function setSessionCookie(res: Response, token: string) {
@@ -48,6 +60,12 @@ function setSessionCookie(res: Response, token: string) {
         sameSite: 'strict', // save but will not support cross site workflows like oauth2
         maxAge: 30 * 24 * 60 * 60 * 1000 // Cookie expiry (30 * 24 hours in milliseconds)
     });
+}
+
+function validateCredentials(res: Response, email: string, password: string) {
+    if (!email) return sendResponseAsJson(res, 422, "Email is required");
+    if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) return sendResponseAsJson(res, 422, "Email has invalid format");
+    if (!password) return sendResponseAsJson(res, 422, "Password is required");
 }
 
 async function register(req: Request, res: Response) {
@@ -140,12 +158,6 @@ async function currentUser(req: Request, res: Response) {
         console.error("Error getting current user:", error);
         return sendResponseAsJson(res, 500, "Failed to fetch current user");
     }
-}
-
-function validateCredentials(res: Response, email: string, password: string) {
-    if (!email) return sendResponseAsJson(res, 422, "Email is required");
-    if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) return sendResponseAsJson(res, 422, "Email has invalid format");
-    if (!password) return sendResponseAsJson(res, 422, "Password is required");
 }
 
 async function logout(req: Request, res: Response) {
