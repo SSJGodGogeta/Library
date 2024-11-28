@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <link href="Style/login.css" rel="stylesheet">
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <link href="Style/login.css" rel="stylesheet" type="text/css">
     <title>Login</title>
 </head>
 <body>
@@ -13,21 +14,24 @@
     <form class="form-container" id="loginForm">
         <div class="form-group">
             <label for="email">Email</label>
-            <input id="email" name="email" placeholder="Type your email" required type="email" autocomplete="username">
+            <input autocomplete="username" id="email" name="email" placeholder="Type your email" required type="email">
         </div>
         <div class="form-group">
             <label for="password">Password</label>
-            <input id="password" name="password" placeholder="Type your password" required type="password" autocomplete="current-password">
+            <input autocomplete="current-password" id="password" name="password" placeholder="Type your password"
+                   required
+                   type="password">
         </div>
         <div class="form-group">
             <button class="login-btn" id="loginButton" type="button">Login</button>
+            <p hidden="hidden" id="loginError"></p>
         </div>
     </form>
     <div class="signup-link">
         Don't have an account? <a href="register.html">Sign up</a>
     </div>
 </div>
-
+<script src="../Dist/Webpage/Scripts/tools.js"></script>
 <script src="../Dist/Webpage/Scripts/login.js"></script>
 </body>
 </html>

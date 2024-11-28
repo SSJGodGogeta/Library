@@ -7,13 +7,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let login_button: HTMLButtonElement = document.getElementById("loginButton") as HTMLButtonElement;
 
     // load the hidden error message
-    // let loginError: HTMLParagraphElement = document.getElementById("loginError") as HTMLParagraphElement;
+    let loginError: HTMLParagraphElement = document.getElementById("loginError") as HTMLParagraphElement;
+    loginError.style.display = "none";
 
     login_button.onclick = async function () {
         try {
-            // hide the error message for a retry
-            // loginError.style.display = "none";  This doesnt work. Buttons are undefined.
-
             const email: String = email_address_input.value!.trim().toLowerCase(); // trim and lowercase the email address
             const password: String = password_input.value!; // read the password
 
@@ -28,16 +26,17 @@ document.addEventListener("DOMContentLoaded", () => {
                     password: password,
                 }),
             });
-            if (!response.ok) {
-                throw new Error(response.status + " - " + response.statusText);
-            }
+            const {message} = await response.json();
 
+            if (!response.ok) {
+                loginError.style.display = "block";
+                loginError.innerText = message;
+                return;
+            }
             console.log("Logged in successfully");
-            window.location.href = "/Webpage/index.html";
+            window.location.href = "/Library/Webpage/index.html";
         } catch (e) {
-            // If the login failed, show an error message and log the error
             console.error(e);
-            // loginError.style.display = "block";
         }
     }
 });

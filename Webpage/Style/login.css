@@ -68,6 +68,15 @@ h1 {
     width: 30%;
 }
 
+#loginError {
+    display: none;
+    color: red;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
 .login-btn:hover {
     background-color: #0056b3;
 }

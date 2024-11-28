@@ -37,28 +37,10 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-const server = app.listen(envConfig.BACKEND_API_PORT, () => {
+export const server = app.listen(envConfig.BACKEND_API_PORT, () => {
     console.log(`Server running on http://${envConfig.BACKEND_API_HOST}:${envConfig.BACKEND_API_PORT}`);
 });
 
 await initializeRoutes(app);
 
 
-async function shutdown() {
-    console.log("Shutting down server...");
-    server.close(() => {
-        console.log("HTTP server closed.");
-    });
-
-    try {
-        await dataSource.destroy();
-        console.log("Database connection closed.");
-        process.exit(0); // Success exit code
-    } catch (error) {
-        console.error("Error during shutdown:", error);
-        process.exit(1); // Failure exit code
-    }
-}
-
-process.on('SIGINT', shutdown);
-process.on('SIGTERM', shutdown);

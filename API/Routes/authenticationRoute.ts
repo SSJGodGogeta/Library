@@ -1,6 +1,7 @@
 import {Request, Response, Router} from "express";
 import bcrypt from 'bcryptjs';
 import crypto from "crypto";
+import {UAParser} from 'ua-parser-js';
 import {authenticate} from "../authenticationMiddleware.js";
 import {User} from "../../Database/Mapper/Entities/user.js";
 import {Session} from "../../Database/Mapper/Entities/session.js";
@@ -15,13 +16,21 @@ router.post("/login", login);
 router.get("/currentUser", authenticate, currentUser);
 router.post("/logout", authenticate, logout);
 
-async function createNewSession(
-    ip: string | undefined,
-    user: User,
-): Promise<Session> {
+async function createNewSession(req: Request, user: User): Promise<Session> {
+    // get user, user agent and check if its the same as the one stored in the db.
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    const {ua} = UAParser(userAgent);
+    const ip: string | undefined = req.ip;
+    const activeSession: Session | null = await Session.getSessionByUserId(user.user_id);
+    if (activeSession && activeSession.deviceInfo == ua && activeSession.ip == ip) {
+        activeSession.last_used = new Date();
+        await activeSession.save();
+        console.warn("User has already an active session.");
+        return activeSession;
+    }
     // generate the session and store it in the database
     const session: Session = new Session();
-
+    session.deviceInfo = ua;
     session.ip = ip ?? 'unknown'; // get the ip of the request
     session.token = crypto.randomBytes(64).toString('hex'); // 128 characters (64 bytes in hex)
     session.created = new Date();
@@ -32,10 +41,7 @@ async function createNewSession(
     return session;
 }
 
-function setSessionCookie(
-    res: Response,
-    token: string
-) {
+function setSessionCookie(res: Response, token: string) {
     res.cookie('session_token', token, {
         httpOnly: true, // js cant access the cookie (prevent XSS Attacks)
         secure: true, // Only send over HTTPS
@@ -59,6 +65,10 @@ async function register(req: Request, res: Response) {
         // hash the provided password using the bcrypt.js package
         const hashed_password: string = bcrypt.hashSync(String(password), 10)
 
+        const userAlreadyExists = await User.getUserByKey("email", email);
+        if (userAlreadyExists) {
+            return sendResponseAsJson(res, 409, "User already exists! Please login");
+        }
         // create the new user
         const user: User = new User();
 
@@ -71,7 +81,7 @@ async function register(req: Request, res: Response) {
         await user.save();
 
         // generate the session and store it in the database
-        const session: Session = await createNewSession(req.ip, user!)
+        const session: Session = await createNewSession(req, user!)
 
         // Set the token as a secure HttpOnly cookie
         setSessionCookie(res, session.token);
@@ -85,30 +95,27 @@ async function register(req: Request, res: Response) {
 
 async function login(req: Request, res: Response) {
     try {
-        console.log('processing login');
+        console.log('Processing login');
 
         // get the email and the password, provided in the body
         let {email, password} = req.body;
 
-        if (!email) return sendResponseAsJson(res, 406, "email is required");
-        if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) return sendResponseAsJson(res, 406, "email has invalid format");
-        if (!password) return sendResponseAsJson(res, 406, "password is required");
+        if (!email) return sendResponseAsJson(res, 406, "Email is required");
+        if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) return sendResponseAsJson(res, 406, "Email has invalid format");
+        if (!password) return sendResponseAsJson(res, 406, "Password is required");
 
         // get the user corresponding to the given email
-        const user: User | undefined = await User.getUserByKey(
-            `email` as keyof User,
-            email as User[keyof User],
-        );
+        const user: User | undefined = await User.getUserByKey(`email`, email);
         if (!user) {
-            return sendResponseAsJson(res, 401, "Email or password incorrect");
+            console.error("No user found");
+            return sendResponseAsJson(res, 404, "User not found. Please register");
         }
-
         // hash the given password using the bcrypt.js package and compare it to the stored hash
         if (!bcrypt.compareSync(String(password), user!.password)) {
             // uncomment the following line to show what a possible hash would be for a new password
             // console.log(bcrypt.hashSync(String(password), 10))
 
-            console.error("password incorrect");
+            console.error("Password incorrect");
             return sendResponseAsJson(res, 401, "Email or password incorrect");
         }
 
@@ -118,12 +125,10 @@ async function login(req: Request, res: Response) {
         // ----------------------------------------------------------------------------------------------------------
 
         // generate the session and store it in the database
-        const session: Session = await createNewSession(req.ip, user!)
+        const session: Session = await createNewSession(req, user!)
 
         // Set the token as a secure HttpOnly cookie
         setSessionCookie(res, session.token);
-
-        console.log('login processed');
 
         return sendResponseAsJson(res, 200, "Success");
     } catch (error) {
