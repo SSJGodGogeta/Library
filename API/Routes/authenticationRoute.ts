@@ -57,8 +57,8 @@ async function register(req: Request, res: Response) {
 
         // check if the all necessary data was provided
         validateCredentials(res, email, password);
-        if (!first_name) return sendResponseAsJson(res, 406, "First name is required");
-        if (!last_name) return sendResponseAsJson(res, 406, "Last name is required");
+        if (!first_name) return sendResponseAsJson(res, 422, "First name is required");
+        if (!last_name) return sendResponseAsJson(res, 422, "Last name is required");
 
         // hash the provided password using the bcrypt.js package
         const hashed_password: string = bcrypt.hashSync(String(password), 10)
@@ -143,9 +143,9 @@ async function currentUser(req: Request, res: Response) {
 }
 
 function validateCredentials(res: Response, email: string, password: string) {
-    if (!email) return sendResponseAsJson(res, 406, "Email is required");
-    if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) return sendResponseAsJson(res, 406, "Email has invalid format");
-    if (!password) return sendResponseAsJson(res, 406, "Password is required");
+    if (!email) return sendResponseAsJson(res, 422, "Email is required");
+    if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) return sendResponseAsJson(res, 422, "Email has invalid format");
+    if (!password) return sendResponseAsJson(res, 422, "Password is required");
 }
 
 async function logout(req: Request, res: Response) {
