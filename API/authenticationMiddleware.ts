@@ -27,7 +27,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
         if (req.ip && session!.ip !== req.ip) {
             // update the ip address assigned to the session
             session!.ip = req.ip;
-            await session!.save();
+            await Session.saveSession(session);
         }
 
         console.log(`Authenticated User: ${session!.user.first_name} ${session!.user.last_name} with Email ${session!.user.email}`);

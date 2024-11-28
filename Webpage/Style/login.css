@@ -10,7 +10,7 @@ body {
 }
 
 /* Container for the whole form */
-.login-container {
+.login-container, .register-container {
     background-color: #ffffff;
     padding: 20px 30px;
     border-radius: 10px;
@@ -68,17 +68,17 @@ h1 {
     width: 30%;
 }
 
-#loginError {
+.login-btn:hover {
+    background-color: #0056b3;
+}
+
+#loginError, #registerError {
     display: none;
     color: red;
     align-items: center;
     text-align: center;
     justify-content: center;
     margin-top: 20px;
-}
-
-.login-btn:hover {
-    background-color: #0056b3;
 }
 
 /* Terms text */

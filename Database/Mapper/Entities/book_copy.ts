@@ -28,9 +28,10 @@ export class Book_Copy extends BaseEntity {
         return bookCopies;
     }
 
-    static clearBookCopyCache(): void {
+    static async resetBookCopyCache(): Promise<void> {
         bookCopies = null;
-        console.log("Cleared Book copy cache");
+        console.log("Reset Book copy cache");
+        await this.getBookCopiesFromCacheOrDB();
     }
 
     static async getBookCopyByKey<K extends keyof Book_Copy>(keyName: K, keyValue: Book_Copy[K]): Promise<Book_Copy | undefined> {
@@ -43,6 +44,11 @@ export class Book_Copy extends BaseEntity {
         const bookCopies: Book_Copy[] = await Book_Copy.getBookCopiesFromCacheOrDB();
         if (!bookCopies) return undefined;
         return bookCopies.filter(copy => copy[keyName] === keyValue);
+    }
+
+    static async saveBookCopy(bookCopy: Book_Copy): Promise<void> {
+        await bookCopy.save();
+        await this.resetBookCopyCache();
     }
 }
 

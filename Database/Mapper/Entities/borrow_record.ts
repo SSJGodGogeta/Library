@@ -47,15 +47,21 @@ export class BorrowRecord extends BaseEntity {
         return borrowRecords;
     }
 
-    static clearBorrowRecordsCache(): void {
+    static async resetBorrowRecordsCache(): Promise<void> {
         borrowRecords = null;
-        console.log("Cleared Borrow records cache");
+        console.log("Reset Borrow records cache");
+        await this.getBorrowRecordsFromCacheOrDB();
     }
 
     static async getBorrowRecordsByKey<K extends keyof BorrowRecord>(keyName: K, keyValue: BorrowRecord[K]): Promise<BorrowRecord | undefined> {
         const borrowRecords: BorrowRecord[] = await BorrowRecord.getBorrowRecordsFromCacheOrDB();
         if (!borrowRecords) return undefined;
         return borrowRecords.find(record => record[keyName] === keyValue);
+    }
+
+    static async saveBorrowRecord(borrowRecord: BorrowRecord): Promise<void> {
+        await borrowRecord.save();
+        await this.resetBorrowRecordsCache();
     }
 }
 

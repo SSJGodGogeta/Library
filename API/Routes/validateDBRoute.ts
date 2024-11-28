@@ -27,7 +27,7 @@ async function validateDatabase() {
             console.error("Impossible to have book copies without having books. Deleting all entries in the book_copy table");
             for (const bookcopy of bookCopies) {
                 await bookcopy.remove();
-                await bookcopy.save();
+                await Book_Copy.saveBookCopy(bookcopy);
             }
         }
         return {
@@ -47,20 +47,20 @@ async function validateDatabase() {
 
         if (availability != books[i].availability) {
             books[i].availability = availability;
-            await books[i].save();
+            await Book.saveBook(books[i]);
             console.log(`Changed availability for book with ID: ${books[i].book_id} to ${availability}`);
         }
 
         if (books[i].total_copies != bookTotalCopiesById.length) {
             books[i].total_copies = bookTotalCopiesById.length;
-            await books[i].save();
+            await Book.saveBook(books[i]);
             isValidTotalCopies = false;
             console.warn(`Data manipulation detected!\nChanged total book copies to ${bookTotalCopiesById.length} for book with ID: ${books[i].book_id}`);
         }
 
         if (books[i].available_copies != bookAvailableCopiesById.length) {
             books[i].available_copies = bookAvailableCopiesById.length;
-            await books[i].save();
+            await Book.saveBook(books[i]);
             isValidAvailableCopies = false;
             console.warn(`Data manipulation detected!\nChanged available book copies to ${bookAvailableCopiesById.length} for book with ID: ${books[i].book_id}`);
         }
@@ -75,7 +75,7 @@ async function validateDatabase() {
         if (books[i].times_borrowed != totalBorrowedBooks.length) {
             books[i].times_borrowed = totalBorrowedBooks.length;
             console.warn(`Data manipulation detected!\nChanged book times borrowed to ${totalBorrowedBooks.length} for book with ID: ${books[i].book_id}`);
-            await books[i].save();
+            await Book.saveBook(books[i]);
             isValidTimesBorrowed = false;
         }
 
@@ -89,7 +89,7 @@ async function validateDatabase() {
             if (averageRating != books[i].average_rating) {
                 books[i].average_rating = averageRating;
                 console.warn(`Data manipulation detected!\nChanged average rating to ${averageRating} for book with ID: ${books[i].book_id}`);
-                await books[i].save();
+                await Book.saveBook(books[i]);
                 isValidAverageRating = false;
             }
         }
