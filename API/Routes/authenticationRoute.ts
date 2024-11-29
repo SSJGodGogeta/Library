@@ -74,7 +74,6 @@ async function register(req: Request, res: Response) {
     try {
         // get the email and the password, provided in the body
         let {email, password, first_name, last_name} = req.body;
-
         // check if the all necessary data was provided
         validateCredentials(res, email, password);
         if (!first_name) return sendResponseAsJson(res, 422, "First name is required");

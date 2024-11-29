@@ -52,7 +52,7 @@ function createEntityRoutes<Entity>(
 }
 
 export function sendResponseAsJson(res: Response, code: number, message: string, entities: any = null) {
-    res.status(code).json({
+    if (!res.headersSent) res.status(code).json({
         message: message,
         entities: entities
     });
