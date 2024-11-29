@@ -30,9 +30,11 @@ document.addEventListener("DOMContentLoaded", async function () {
             const book_item = document.createElement('li');
             book_item.innerHTML = `
                <div class="book-container">
-                    <img src="${book.cover_url ?? "Images/book-cover-placeholder.png"}" alt="book cover" height="150px">
+                    <img src="${book.cover_url ?? "Images/book-cover-placeholder.png"}" alt="book cover" height="200px">
                     <div class="book-info">
                         <h2>${book.title}</h2>
+                        <p class="author-info">${book.author}</p>
+                        <p class="isbn-info">ISBN: ${book.isbn}</p>
                         <p>${book.description}</p>
                         <p><b>Average Rating:</b></p>
                         <div class="rating-container">
