@@ -7,7 +7,7 @@
 body {
     margin: 0;
     padding: 0;
-    background: #f4f4f4  no-repeat fixed 0 50%;
+    background: #f4f4f4 no-repeat fixed 0 50%;
     background-size: cover;
 
 }
@@ -23,7 +23,7 @@ body {
     z-index: -1;
 }
 
-header>nav{
+#navbar > nav {
     width: 100%;
     position: fixed;
     text-align: center;
@@ -31,20 +31,20 @@ header>nav{
     padding-bottom: 8px
 }
 
-header>nav a{
+#navbar > nav a {
     font-family: monospace, sans-serif;
     font-weight: 450;
     text-transform: uppercase;
     text-decoration: none;
     color: black;
-    font-size:18px;
-    letter-spacing:1px;
-    position:relative;
-    display:inline-block;
+    font-size: 18px;
+    letter-spacing: 1px;
+    position: relative;
+    display: inline-block;
     margin: 10px 20px 0;
 }
 
-header > nav a:before {
+#navbar > nav a:before {
     content: '';
     position: absolute;
     width: 0;
@@ -54,7 +54,7 @@ header > nav a:before {
     left: 0;
 }
 
-header > nav a:hover:before {
+#navbar > nav a:hover:before {
     animation: in 0.2s cubic-bezier(1, 0, 0.58, 0.97) 1 both;
 }
 
@@ -95,7 +95,7 @@ nav input[type=text] {
 
 /*-------------Main Body-------------*/
 
-body{
+body {
     display: flex;
 }
 
@@ -187,7 +187,7 @@ main {
     margin-left: 40px;
 }
 
-.book-info>h2 {
+.book-info > h2 {
     margin-top: 0;
 }
 
@@ -197,11 +197,11 @@ main {
     align-items: center;
 }
 
-.rating-container>img {
+.rating-container > img {
     height: 25px;
     width: 25px;
 }
 
-.rating-container>p {
+.rating-container > p {
     margin-left: 20px;
 }
