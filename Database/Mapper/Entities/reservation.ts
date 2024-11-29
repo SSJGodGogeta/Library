@@ -36,15 +36,21 @@ export class Reservation extends BaseEntity {
         return reservations;
     }
 
-    static clearReservationsCache(): void {
+    static async resetReservationsCache(): Promise<void> {
         reservations = null;
-        console.log("Cleared Reservations cache");
+        console.log("Reset Reservations cache");
+        await this.getReservationFromCacheOrDB();
     }
 
     static async getReservationsByKey<K extends keyof Reservation>(keyName: K, keyValue: Reservation[K]): Promise<Reservation | undefined> {
         const reservations: Reservation[] = await Reservation.getReservationFromCacheOrDB();
         if (!reservations) return undefined;
         return reservations.find(reservation => reservation[keyName] === keyValue);
+    }
+
+    static async saveReservation(reservation: Reservation): Promise<void> {
+        await reservation.save();
+        await this.resetReservationsCache();
     }
 }
 

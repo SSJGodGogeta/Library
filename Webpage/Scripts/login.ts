@@ -2,21 +2,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // load the email-address and the password field
     let email_address_input: HTMLInputElement = document.getElementById("email") as HTMLInputElement;
     let password_input: HTMLInputElement = document.getElementById("password") as HTMLInputElement;
-
-    // load the login button
     let login_button: HTMLButtonElement = document.getElementById("loginButton") as HTMLButtonElement;
+    let loginError: HTMLParagraphElement = document.getElementById("loginError") as HTMLParagraphElement;
+    loginError.style.display = "none";
 
-    // load the hidden error message
-    // let loginError: HTMLParagraphElement = document.getElementById("loginError") as HTMLParagraphElement;
-
-    login_button.onclick = async function () {
+    async function handleLogin() {
         try {
-            // hide the error message for a retry
-            // loginError.style.display = "none";  This doesnt work. Buttons are undefined.
-
             const email: String = email_address_input.value!.trim().toLowerCase(); // trim and lowercase the email address
             const password: String = password_input.value!; // read the password
-
+            if (email.length == 0 || password.length == 0) return;
             const response = await fetch(`http://localhost:3000/authentication/login`, {
                 method: "POST",
                 headers: {
@@ -28,17 +22,30 @@ document.addEventListener("DOMContentLoaded", () => {
                     password: password,
                 }),
             });
-            if (!response.ok) {
-                throw new Error(response.status + " - " + response.statusText);
-            }
+            const {message} = await response.json();
 
+            if (!response.ok) {
+                loginError.style.display = "block";
+                loginError.innerText = message;
+                return;
+            }
             console.log("Logged in successfully");
-            window.location.href = "/Webpage/index.html";
+            window.location.href = "/Library/Webpage/index.html";
         } catch (e) {
-            // If the login failed, show an error message and log the error
             console.error(e);
-            // loginError.style.display = "block";
         }
     }
+
+
+    login_button.onclick = async function () {
+        await handleLogin();
+    }
+    document.addEventListener('keydown', async function (event) {
+        if (event.key === "Enter") {
+            await handleLogin();
+        }
+    });
 });
+
+
 

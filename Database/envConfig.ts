@@ -17,6 +17,9 @@ export class envConfig {
     static BACKEND_API_PORT: string = process.env.BACKEND_API_PORT || "";
     static BACKEND_API_HOST: string = process.env.BACKEND_API_HOST || "";
 
+    static FRONTEND_API_PORT: string = process.env.FRONTEND_API_PORT || "";
+    static FRONTEND_API_HOST: string = process.env.FRONTEND_API_HOST || "";
+
     /**
      * Ensures that all EnvConfig variables have a value.
      */
