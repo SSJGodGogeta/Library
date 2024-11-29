@@ -4,20 +4,17 @@ document.addEventListener("DOMContentLoaded", () => {
     let lastNameInput: HTMLInputElement = document.getElementById("lastname") as HTMLInputElement;
     let emailInput: HTMLInputElement = document.getElementById("email") as HTMLInputElement;
     let passwordInput: HTMLInputElement = document.getElementById("password") as HTMLInputElement;
-// Load the registration button
     let registerButton: HTMLButtonElement = document.getElementById("registerButton") as HTMLButtonElement;
     let registerError: HTMLParagraphElement = document.getElementById("registerError") as HTMLParagraphElement;
-// Hide the error message for a retry
     registerError.style.display = "none";
 
-    registerButton.onclick = async function () {
+    async function handleRegistration() {
         try {
-            // Read and process the input values
             let email: string = emailInput.value!.trim().toLowerCase(); // Trim and lowercase the email
             let password: string = passwordInput.value!; // Read the password
             let firstName: string = firstNameInput.value!.trim(); // Trim the first name
             let lastName: string = lastNameInput.value!.trim(); // Trim the last name
-
+            if (email.length == 0 || password.length == 0 || firstName.length == 0 || lastName.length == 0) return;
             // Send the registration data to the backend
             const response = await fetch("http://localhost:3000/authentication/register", {
                 method: "POST",
@@ -45,5 +42,14 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (e) {
             console.error(e);
         }
+    }
+
+    registerButton.onclick = async function () {
+        await handleRegistration();
     };
+    document.addEventListener('keydown', async function (event) {
+        if (event.key === "Enter") {
+            await handleRegistration();
+        }
+    });
 });

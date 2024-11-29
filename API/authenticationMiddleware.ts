@@ -1,6 +1,7 @@
 import {NextFunction, Request, Response} from "express";
 import {Session} from "../Database/Mapper/Entities/session.js";
 import {sendResponseAsJson} from "./routeTools.js";
+import {isSessionExpired} from "./Routes/authenticationRoute.js";
 
 function getDifferenceInMinutes(date1: Date, date2: Date): number {
     const time1 = date1.getTime(); // Convert date1 to a timestamp in milliseconds
@@ -15,7 +16,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
         // Retrieve the session token from the cookies send with the request
         const token = req.cookies.session_token;
         if (!token) {
-            return sendResponseAsJson(res, 422, "no session token provided");
+            return sendResponseAsJson(res, 422, "No session token provided");
         }
 
         // get the session, the given token belongs to
@@ -23,7 +24,11 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
         if (!session) {
             return sendResponseAsJson(res, 401, "Session not found");
         }
-
+        if (isSessionExpired(session.last_used, 1)) {
+            await session.remove();
+            await Session.saveSession(session);
+            return sendResponseAsJson(res, 401, "Session expired");
+        }
         /*
         check if the ip of the session has changed
         this can happen, when you have no static IP and your public IP changes
