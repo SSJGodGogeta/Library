@@ -1,5 +1,5 @@
 function routeToBookDetails(book_id: string) {
-    window.location.href = "/Webpage/book_details.html?book_id=" + book_id;
+    window.location.href = "/Library/Webpage/book_details.html?book_id=" + book_id;
 }
 
 document.addEventListener("DOMContentLoaded", async function () {
