@@ -17,7 +17,7 @@ router.get("/currentUser", authenticate, currentUser);
 router.post("/logout", authenticate, logout);
 
 
-function isSessionExpired(createdAt: Date, days: number): boolean {
+export function isSessionExpired(createdAt: Date, days: number): boolean {
     const now = Date.now(); // Current timestamp in milliseconds
     const expirationTime = createdAt.getTime() + days * 24 * 60 * 60 * 1000; // Add days in milliseconds
     return now > expirationTime;
@@ -37,6 +37,8 @@ async function createNewSession(req: Request, user: User): Promise<Session> {
             console.warn("User has already an active session.");
             return activeSession;
         }
+        await activeSession.remove();
+        await Session.saveSession(activeSession);
     }
     // if it doesn't exist:
     // generate the session and store it in the database
@@ -97,7 +99,6 @@ async function register(req: Request, res: Response) {
         await User.saveUser(user);
         // generate the session and store it in the database
         const session: Session = await createNewSession(req, user!)
-
         // Set the token as a secure HttpOnly cookie
         setSessionCookie(res, session.token);
 
@@ -139,7 +140,6 @@ async function login(req: Request, res: Response) {
 
         // generate the session and store it in the database
         const session: Session = await createNewSession(req, user!)
-
         // Set the token as a secure HttpOnly cookie
         setSessionCookie(res, session.token);
 
