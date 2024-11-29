@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     loadNavbar();
 });
-
+// All elements within nav bar. All <a></a>
 const elements = {
     homeLink: {
         id: "homeLink",
@@ -48,10 +48,11 @@ function loadNavbar(): void {
         </label>
     </nav>`;
 
-    const navbarContainer = document.getElementById('navbar');
+    const navbarContainer: HTMLElement | null = document.getElementById('navbar');
     if (navbarContainer) {
         navbarContainer.innerHTML = navbarHTML;
-    } else {
-        console.error("Navbar container with ID 'navbar' not found.");
+        return;
     }
+    console.error("Navbar container with ID 'navbar' not found.");
+
 }
