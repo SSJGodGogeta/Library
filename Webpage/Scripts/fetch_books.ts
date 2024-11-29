@@ -1,3 +1,7 @@
+function routeToBookDetails(book_id: string) {
+    window.location.href = "/Webpage/book_details.html?book_id=" + book_id;
+}
+
 document.addEventListener("DOMContentLoaded", async function () {
     try {
         const response = await fetch(`http://localhost:3000/book`,
@@ -29,13 +33,13 @@ document.addEventListener("DOMContentLoaded", async function () {
         for (const book of entities) {
             const book_item = document.createElement('li');
             book_item.innerHTML = `
-               <div class="book-container">
+               <div class="book-container" onclick="routeToBookDetails('${book.book_id}')">
                     <img src="${book.cover_url ?? "Images/book-cover-placeholder.png"}" alt="book cover" height="200px">
                     <div class="book-info">
                         <h2>${book.title}</h2>
                         <p class="author-info">${book.author}</p>
                         <p class="isbn-info">ISBN: ${book.isbn}</p>
-                        <p>${book.description}</p>
+                        <p class="book-overview-description">${book.description}</p>
                         <p><b>Average Rating:</b></p>
                         <div class="rating-container">
                             <img src="Images/${getStarImageName(1, book.average_rating)}" alt="star">
@@ -51,6 +55,6 @@ document.addEventListener("DOMContentLoaded", async function () {
             book_list.appendChild(book_item);
         }// End of inner for loop
     } catch (error) {
-        console.error("Failed to fetch timetable data:", error);
+        console.error("Failed to fetch books:", error);
     }
 });

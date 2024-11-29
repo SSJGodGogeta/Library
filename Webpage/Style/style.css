@@ -2,6 +2,7 @@
 /*@import url('https://fonts.googleapis.com/css?family=Oswald:500');*/
 * {
     font-family: Arial, serif;
+    line-height: 1.6;
 }
 
 body {
@@ -117,7 +118,7 @@ main {
     width: 80%; /* Ensure the limiter takes full width of the main container */
     background: #f9f9f9;
     border-radius: 10px;
-    padding: 15px;
+    padding: 30px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
@@ -191,6 +192,7 @@ main {
  .isbn-info {
     color: #777777;
 }
+
 .author-info  {
     margin-top: 0;
     margin-bottom: 5px;
@@ -198,6 +200,14 @@ main {
 
 .author-info:hover   {
     text-decoration: underline;
+}
+
+.book-overview-description {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* number of lines to show */
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
 }
 
 .book-info {
@@ -222,4 +232,43 @@ main {
 
 .rating-container>p {
     margin-left: 20px;
+}
+
+#book-details-container>h1 {
+    margin-bottom: 0;
+    margin-top: 20px;
+}
+
+#book-details-container>h3 {
+    margin-top: 40px;
+    margin-bottom: 10px;
+}
+
+#book-details-container>p {
+    margin-bottom: 0;
+    margin-top: 0;
+}
+
+#book-details-container>.rating-container {
+    margin-bottom: 20px;
+    margin-top: 0;
+}
+
+.borrow-button-container {
+    margin-bottom: 20px;
+}
+
+.borrow-button-container>button {
+    cursor: pointer;
+    margin-right: 10px;
+    background-color: #007bff;
+    color: white;
+    border-style: none;
+    padding: 8px 25px;
+    border-radius: 5px;
+}
+
+.borrow-button-container>button:disabled {
+    cursor: not-allowed;
+    background-color: #bbbbbb;
 }
