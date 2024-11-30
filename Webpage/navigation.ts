@@ -1,5 +1,5 @@
-document.addEventListener('DOMContentLoaded', () => {
-    loadNavbar();
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadNavbar();
 });
 // All elements within nav bar. All <a></a>
 const elements = {
@@ -30,18 +30,24 @@ const elements = {
     }
 }
 
-function loadNavbar(): void {
+async function loadNavbar(): Promise<void> {
     let navbarHTML = `
         <img alt="Background" class="background" src="Images/Background.jpg">
         <nav>`;
-
     Object.values(elements).forEach(link => {
-        navbarHTML += `
-            <a href="${link.href}" id="${link.id}">${link.name}</a>
-        `;
+        if (link == elements.myAccountLink) {
+            const user = getUserFromSessionStorage();
+            // If the user is not in the session Storage, forward him to the login page, as a non-authenticated user doesn't have an account and therefore no account information.
+            if (!user) {
+                navbarHTML += `<a href="login.html" id="login">${link.name}</a>`;
+            } else {
+                navbarHTML += `<a href="${link.href}" id="${link.id}">${link.name}</a>`;
+            }
+        } else {
+            navbarHTML += `<a href="${link.href}" id="${link.id}">${link.name}</a>`;
+        }
     });
 
-    // Add the search input at the end of the navbar
     navbarHTML += `
         <label>
             <input placeholder="Search.." type="text">

@@ -30,6 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
             console.log("Logged in successfully");
+            await fetchCurrentUser();
             window.location.href = "/Library/Webpage/index.html";
         } catch (e) {
             console.error(e);
