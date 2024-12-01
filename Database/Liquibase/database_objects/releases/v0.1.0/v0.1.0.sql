@@ -201,7 +201,7 @@ ALTER TABLE `scrum_library`.`borrow_record`
 
 -- changeset arman:ar3
 ALTER TABLE `scrum_library`.`borrow_record`
-    ADD COLUMN `rating` DOUBLE AFTER `status`;
+    ADD COLUMN `rating` DOUBLE DEFAULT 0 AFTER `status`;
 
 -- changeset kevin:kev4
 ALTER TABLE `scrum_library`.`book`
@@ -217,3 +217,44 @@ ALTER TABLE `scrum_library`.`book`
 -- changeset arman:ar4
 ALTER TABLE `scrum_library`.`session`
     ADD COLUMN `deviceInfo` VARCHAR(300) NOT NULL AFTER `ip`;
+
+-- changeset arman:ar5
+SET GLOBAL log_bin_trust_function_creators = 1;
+
+-- changeset arman:ar6
+CREATE TRIGGER update_book_availableCopies_after_insert
+    AFTER INSERT
+    ON scrum_library.book_copy
+    FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book
+    SET total_copies = total_copies + 1
+    WHERE book_id = NEW.book_book_id;
+END;
+
+-- changeset arman:ar7
+CREATE TRIGGER update_book_rating_after_insert
+    AFTER INSERT
+    ON scrum_library.borrow_record
+    FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book AS b
+    SET b.sum_rating     = b.sum_rating + NEW.rating,
+        b.count_rating   = b.count_rating + 1,
+        b.average_rating = (b.sum_rating + NEW.rating) / (b.count_rating + 1),
+        b.times_borrowed = b.times_borrowed + 1
+    WHERE b.book_id = (SELECT bc.book_book_id
+                       FROM scrum_library.book_copy AS bc
+                       WHERE bc.book_copy_id = NEW.book_copy_book_copy_id);
+END;
+
+-- changeset arman:ar8
+CREATE TRIGGER update_book_availableCopies_after_delete
+    AFTER DELETE
+    ON scrum_library.book_copy
+    FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book
+    SET total_copies = total_copies - 1
+    WHERE book_id = OLD.book_book_id;
+END;
