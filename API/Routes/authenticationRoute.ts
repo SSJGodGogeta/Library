@@ -151,8 +151,7 @@ async function login(req: Request, res: Response) {
 
 async function currentUser(req: Request, res: Response) {
     try {
-        const user = req.body.user;
-        return sendResponseAsJson(res, 200, "Success", user);
+        return sendResponseAsJson(res, 200, "Success", req.body.user);
     } catch (error) {
         console.error("Error getting current user:", error);
         return sendResponseAsJson(res, 500, "Failed to fetch current user");
