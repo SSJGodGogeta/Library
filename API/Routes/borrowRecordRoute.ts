@@ -42,7 +42,7 @@ async function borrowBook(req: Request, res: Response) {
             // there are 0 available copies. If the book objects has saved a different value update it
             if (book.available_copies !== 0) {
                 book.available_copies = 0;
-                Book.saveBook(book);
+                await Book.saveBook(book);
             }
 
             return sendResponseAsJson(res, 404, "No available book copy found!");
@@ -63,16 +63,6 @@ async function borrowBook(req: Request, res: Response) {
         borrow_record.return_date = return_date;
 
         await BorrowRecord.save(borrow_record);
-
-        // save the found book copy as borrowed
-        available_book_copy.status = BorrowRecord_Techcode.BORROWED;
-        await Book_Copy.save(available_book_copy);
-
-        // save the available copies count in the book
-        if (book.available_copies || book.total_copies) {
-            book.available_copies = (book.available_copies ?? book.total_copies)! - 1;
-            await Book.saveBook(book);
-        }
 
         return sendResponseAsJson(res, 200, "Success", {borrow_record});
     } catch (error) {
