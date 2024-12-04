@@ -1,0 +1,179 @@
+openapi: 3.1.0
+info:
+  title: Library API
+  description: >
+    The Library Management API provides a comprehensive suite of endpoints to manage all aspects of a library system.
+    This API is designed to facilitate the operations of libraries, including catalog management, borrowing systems, 
+    user accounts, and administrative functions. It allows integration with web and mobile applications to provide 
+    seamless interaction for library staff, members, and system administrators.
+  version: 1.0.0
+servers:
+  - url: https://api.database.com
+paths:
+  /authentication/register:
+    post:
+      summary: User register
+      description: Create a new user and return the session token as a cookie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: jon_doe@example.com
+                password:
+                  type: string
+                  example: jon2012
+                first_name:
+                  type: string
+                  example: Jon
+                last_name:
+                  type: string
+                  example: Doe
+              required:
+                - email
+                - password
+                - first_name
+                - last_name
+      responses:
+        '200':
+          description: Success. The session token is returned as a cookie.
+          headers:
+            Set-Cookie:
+              description: A session token set as a cookie. This cookie should be included in subsequent requests.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Success
+        '422':
+          description: There are missing fields or fields with invalid type.
+        '500':
+          description: Internal server error.
+  /authentication/login:
+    post:
+      summary: User login
+      description: Authenticate an existing user and return a session token as a cookie.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: jon_doe@example.com
+                password:
+                  type: string
+                  example: jon2012
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Success. The session token is returned as a cookie.
+          headers:
+            Set-Cookie:
+              description: A session token set as a cookie. This cookie should be included in subsequent requests.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Success
+        '401':
+          description: Invalid credentials.
+        '404':
+          description: User not found. Please register.
+        '500':
+          description: Internal server error.
+  /authentication/currentUser:
+    get:
+      summary: Current user
+      description: Returns the currently signed in user, based on the session token.
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Success
+                  entities:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Session not found.
+        '422':
+          description: No session token provided.
+        '500':
+          description: Internal server error.
+  /book/:
+    get:
+      summary: List books
+      description: Returns a list of all books.
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Success
+                  entities:
+                    $ref: '#/components/schemas/UserArray'
+        '422':
+          description: No session token provided.
+        '500':
+          description: Internal server error.
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          format: int64
+          example: 129
+        email:
+          type: string
+          format: email
+          example: jon_doe@example.com
+        password:
+          type: string
+        first_name:
+          type: string
+          example: Jon
+        last_name:
+          type: string
+          example: Doe
+        image_url:
+          type: string
+          example: https://example.com/image.png
+        permissions:
+          type: String
+          example: STUDENT
+
+    UserArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/User'

@@ -1,6 +1,4 @@
 document.addEventListener("DOMContentLoaded", async function () {
-    console.log("executing")
-
     try {
         // get the current url
         const urlParams = new URLSearchParams(window.location.search);
@@ -25,6 +23,29 @@ document.addEventListener("DOMContentLoaded", async function () {
         const { entities } = await response.json();
         let book = entities;
 
+        // check if the user (if one is logged in) already has a copy of the book borrowed
+        const user = getUserFromSessionStorage();
+        let current_borrow_record = null;
+        if (user) {
+            const current_borrow_record_response = await fetch(`http://localhost:3000/borrowRecord/myRecords/book/${book_id}`,
+                {
+                    method: "GET",
+                    credentials: 'include', // allow receiving cookies
+                }
+            );
+            if (!current_borrow_record_response.ok) {
+                if (current_borrow_record_response.status == 401) {
+                    window.location.href = "/Webpage/login.html";
+                    return;
+
+                }
+                throw new Error("Network response was not ok " + response.statusText);
+            }
+
+            const { entities } = await current_borrow_record_response.json();
+            current_borrow_record = entities.current_borrow_record;
+        }
+
         // Get the table body where rows will be inserted
         const bookDetailsContainer: HTMLDivElement | null = document.getElementById("book-details-container") as HTMLDivElement | null;
         if (!bookDetailsContainer) {
@@ -44,8 +65,9 @@ document.addEventListener("DOMContentLoaded", async function () {
                 <p>(${book.count_rating} Reviews)</p>
             </div>
             <div class="borrow-button-container">
-                <button ${book.available_copies <= 0 ? 'disabled' : ''}>Borrow</button>
-                <button>Reserve</button>
+                <button id="btn-borrow" ${current_borrow_record || book.available_copies <= 0 ? 'disabled' : ''} onclick="borrowBook(${book.book_id})">Borrow</button>
+                <button id="btn-reserve" ${current_borrow_record !== null ? 'disabled' : ''}>Reserve</button>
+                ${current_borrow_record ? `<button>Return</button>` : ``}
             </div>
             <p>${book.description}</p>
             

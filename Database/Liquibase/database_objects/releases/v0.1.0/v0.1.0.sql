@@ -349,3 +349,36 @@ BEGIN
         bc.status = NEW.status
     WHERE bc.book_copy_id =  NEW.book_copy_book_copy_id;
 END;
+
+-- changeset kevin:kev12
+-- [Purpose]: update the available copy count of a book if a borrow record gets deleted
+-- under normal conditions this trigger will not be executed, to guarantee a complete history
+DROP TRIGGER IF EXISTS update_book_after_borrow_delete;
+
+CREATE TRIGGER update_book_after_borrow_delete
+        AFTER DELETE ON scrum_library.borrow_record
+        FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book AS b
+    SET
+        -- update the available copies if the deleted borrow record had a status of BORROWED
+        b.available_copies = b.available_copies + IF(OLD.status = 'BORROWED', 1, 0)
+    WHERE b.book_id = (
+        SELECT bc.book_book_id
+        FROM scrum_library.book_copy AS bc
+        WHERE bc.book_copy_id = OLD.book_copy_book_copy_id
+    );
+END;
+
+-- [Purpose]: update the status of the book copy if a borrow record gets deleted
+-- under normal conditions this trigger will not be executed, to guarantee a complete history
+DROP TRIGGER IF EXISTS update_book_copy_after_borrow_delete;
+
+CREATE TRIGGER update_book_copy_after_borrow_delete
+    AFTER DELETE ON scrum_library.borrow_record
+    FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book_copy AS bc
+    SET bc.status = IF(OLD.status = 'BORROWED', 'NOT_BORROWED', bc.status)
+    WHERE bc.book_copy_id = OLD.book_copy_book_copy_id;
+END;
