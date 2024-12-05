@@ -20,7 +20,29 @@ const router = Router();
 router.post("/borrow", authenticate, borrowBook);
 router.get("/myRecords/book/:book_id", authenticate, myRecordsBook);
 
-async function getBookAndRecord(res: Response, book_id: number, user: User) {
+/**
+ * Fetches a book by its ID and checks if the user currently has a borrowed copy of the book.
+ *
+ * @async
+ * @function getBookAndRecord
+ * @param {Response} res - The HTTP response object to send responses to the client.
+ * @param {number} book_id - The ID of the book to retrieve.
+ * @param {User} user - The user making the request, used to check borrowing records.
+ * @returns {Promise<{ book: Book, current_borrow_record: BorrowRecord | null } | void>}
+ *   - Returns an object containing the book and the current borrow record if successful.
+ *   - Sends a JSON response with an error message and status code if the request fails validation or data is not found.
+ * @throws Error Will propagate any unhandled exceptions from the database queries.
+ *
+ * @example
+ * const { book, current_borrow_record } = await getBookAndRecord(res, 123, user);
+ * if (book) {
+ *   console.log(`Book title: ${book.title}`);
+ * }
+ * if (current_borrow_record) {
+ *   console.log(`Borrowed on: ${current_borrow_record.borrow_date}`);
+ * }
+ */
+async function getBookAndRecord(res: Response, book_id: number, user: User): Promise<{ book: Book; current_borrow_record: BorrowRecord | null; } | void> {
     if (isNaN(book_id)) return sendResponseAsJson(res, 422, "book_id must be a valid integer!");
 
     // get the book requested by the user
@@ -115,6 +137,8 @@ async function myRecordsBook(req: Request, res: Response) {
         const book_and_record = await getBookAndRecord(res, book_id, req.body.user);
         if (!book_and_record) return; // the getBookAndRecord function exited and already returned a status code
         const { current_borrow_record } = book_and_record;
+
+        if (!current_borrow_record) return sendResponseAsJson(res, 404, "No active borrow record found!");
 
         return sendResponseAsJson(res, 200, "Success", { current_borrow_record })
     } catch (error) {

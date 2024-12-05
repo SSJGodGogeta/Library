@@ -39,11 +39,15 @@ document.addEventListener("DOMContentLoaded", async function () {
                     return;
 
                 }
-                throw new Error("Network response was not ok " + response.statusText);
+                if (current_borrow_record_response.status != 404) {
+                    throw new Error("Network response was not ok " + response.statusText);
+                } else {
+                    console.log("No active record found")
+                }
+            } else {
+                const { entities } = await current_borrow_record_response.json();
+                current_borrow_record = entities.current_borrow_record;
             }
-
-            const { entities } = await current_borrow_record_response.json();
-            current_borrow_record = entities.current_borrow_record;
         }
 
         // Get the table body where rows will be inserted
