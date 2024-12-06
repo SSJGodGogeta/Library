@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         // extract the book id out of the parameters
         const book_id = urlParams.get('book_id');
 
+        console.log(book_id);
+
         const response = await fetch(`http://localhost:3000/book/${book_id}`,
             {
                 method: "GET",
@@ -25,6 +27,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         // check if the user (if one is logged in) already has a copy of the book borrowed
         const user = getUserFromSessionStorage();
+
         let current_borrow_record = null;
         if (user) {
             const current_borrow_record_response = await fetch(`http://localhost:3000/borrowRecord/myRecords/book/${book_id}`,
@@ -39,15 +42,11 @@ document.addEventListener("DOMContentLoaded", async function () {
                     return;
 
                 }
-                if (current_borrow_record_response.status != 404) {
-                    throw new Error("Network response was not ok " + response.statusText);
-                } else {
-                    console.log("No active record found")
-                }
-            } else {
-                const { entities } = await current_borrow_record_response.json();
-                current_borrow_record = entities.current_borrow_record;
+                throw new Error("Network response was not ok " + response.statusText);
             }
+
+            const { entities } = await current_borrow_record_response.json();
+            current_borrow_record = entities.current_borrow_record;
         }
 
         // Get the table body where rows will be inserted

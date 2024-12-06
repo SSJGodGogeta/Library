@@ -21,41 +21,62 @@ router.post("/borrow", authenticate, borrowBook);
 router.get("/myRecords/book/:book_id", authenticate, myRecordsBook);
 
 /**
- * Fetches a book by its ID and checks if the user currently has a borrowed copy of the book.
+ * Retrieves a book by its ID and sends a response if the book is not found.
  *
  * @async
- * @function getBookAndRecord
- * @param {Response} res - The HTTP response object to send responses to the client.
+ * @function getBook
+ * @param {Response} res - The HTTP response object to send responses.
  * @param {number} book_id - The ID of the book to retrieve.
- * @param {User} user - The user making the request, used to check borrowing records.
- * @returns {Promise<{ book: Book, current_borrow_record: BorrowRecord | null } | void>}
- *   - Returns an object containing the book and the current borrow record if successful.
- *   - Sends a JSON response with an error message and status code if the request fails validation or data is not found.
- * @throws Error Will propagate any unhandled exceptions from the database queries.
+ * @returns {Promise<Book | void>} A promise resolving to the retrieved book or void if not found or invalid.
+ *
+ * @throws {Error} Throws an error if the database query fails.
  *
  * @example
- * const { book, current_borrow_record } = await getBookAndRecord(res, 123, user);
+ * // Example usage
+ * const book = await getBookAndRecord(response, 123);
  * if (book) {
  *   console.log(`Book title: ${book.title}`);
  * }
- * if (current_borrow_record) {
- *   console.log(`Borrowed on: ${current_borrow_record.borrow_date}`);
- * }
  */
-async function getBookAndRecord(res: Response, book_id: number, user: User): Promise<{ book: Book; current_borrow_record: BorrowRecord | null; } | void> {
+async function getBook(res: Response, book_id: number): Promise<Book | void> {
     if (isNaN(book_id)) return sendResponseAsJson(res, 422, "book_id must be a valid integer!");
 
     // get the book requested by the user
     let book: Book | undefined = await Book.getBookByKey('book_id', book_id);
     if (!book) return sendResponseAsJson(res, 404, "No book found!")
 
-    // check if the user currently has a copy of the book borrowed
-    let current_borrow_record: BorrowRecord | null = await BorrowRecord.findOne({
+    return book;
+}
+
+/**
+ * Retrieves the borrow record for a specific book and user, filtering by active borrowing status.
+ *
+ * @async
+ * @function getBorrowRecord
+ * @param {number} book_id - The ID of the book to check the borrow record for.
+ * @param {User} user - The user whose borrow record is to be retrieved.
+ * @returns {Promise<BorrowRecord | null>} A promise resolving to the borrow record if found, or null otherwise.
+ *
+ * @throws {Error} Throws an error if the database query fails.
+ *
+ * @example
+ * // Example usage
+ * const borrowRecord = await getBorrowRecord(123, currentUser);
+ * if (borrowRecord) {
+ *   console.log(`Borrow record ID: ${borrowRecord.id}`);
+ * } else {
+ *   console.log('No active borrow record found for this book and user.');
+ * }
+ */
+async function getBorrowRecord(book_id: number, user: User): Promise<BorrowRecord | null> {
+    return await BorrowRecord.findOne({
         where: {
             status: BorrowRecord_Techcode.BORROWED,
             user: user,
             book_copy: {
-                book: book,
+                book: {
+                    book_id: book_id,
+                },
             },
         },
         relations: {
@@ -65,8 +86,6 @@ async function getBookAndRecord(res: Response, book_id: number, user: User): Pro
             },
         },
     });
-
-    return { book, current_borrow_record };
 }
 
 async function borrowBook(req: Request, res: Response) {
@@ -76,9 +95,10 @@ async function borrowBook(req: Request, res: Response) {
 
         const book_id: number = parseInt(req.body.book_id);
 
-        const book_and_record = await getBookAndRecord(res, book_id, req.body.user);
-        if (!book_and_record) return; // the getBookAndRecord function exited and already returned a status code
-        const { book, current_borrow_record } = book_and_record;
+        const book = await getBook(res, book_id);
+        if (!book) return; // the getBookAndRecord function exited and already returned a status code
+
+        const current_borrow_record = await getBorrowRecord(book_id, req.body.user);
 
         // check if the user already has
         if (current_borrow_record) return sendResponseAsJson(res, 409, "The User already has a copy of this book");
@@ -87,7 +107,9 @@ async function borrowBook(req: Request, res: Response) {
         let available_book_copy: Book_Copy | null = await Book_Copy.findOne({
             where: {
                 status: BorrowRecord_Techcode.NOT_BORROWED,
-                book: book,
+                book: {
+                    book_id: book_id,
+                },
             },
             relations: {
                 book: true,
@@ -134,11 +156,8 @@ async function myRecordsBook(req: Request, res: Response) {
     try {
         const book_id = parseInt(req.params.book_id);
 
-        const book_and_record = await getBookAndRecord(res, book_id, req.body.user);
-        if (!book_and_record) return; // the getBookAndRecord function exited and already returned a status code
-        const { current_borrow_record } = book_and_record;
-
-        if (!current_borrow_record) return sendResponseAsJson(res, 404, "No active borrow record found!");
+        const current_borrow_record: BorrowRecord | null = await getBorrowRecord(book_id, req.body.user);
+        // if (!current_borrow_record) return sendResponseAsJson(res, 404, "No borrow record found");
 
         return sendResponseAsJson(res, 200, "Success", { current_borrow_record })
     } catch (error) {

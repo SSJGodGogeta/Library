@@ -25,7 +25,7 @@ router.post("/logout", authenticate, logout);
  *
  * @example
  * // Example usage
- * const createdAt = new Date('2024-12-01T10:00:00'); // Session created on December 1, 2024
+ * const createdAt = new Date('2024-12-01T10:00:00'); // Session created on December 1, 2024,
  * const expirationDays = 7;
  *
  * const expired = isSessionExpired(createdAt, expirationDays);
@@ -56,9 +56,8 @@ export function isSessionExpired(createdAt: Date, days: number): boolean {
  *
  * @throws {Error} If there is an issue saving the session to the database.
  */
-
 async function createNewSession(req: Request, user: User): Promise<Session> {
-    // get user, user agent and check if its the same as the one stored in the db.
+    // get user, user agent and check if it's the same as the one stored in the db.
     const userAgent = req.headers['user-agent'] || 'unknown';
     const {ua} = UAParser(userAgent);
     const ip: string | undefined = req.ip;
@@ -104,7 +103,6 @@ async function createNewSession(req: Request, user: User): Promise<Session> {
  *     (set to `strict` which may block cross-site workflows like OAuth2).
  *   - `maxAge`: Sets the cookie's expiry time to 30 days.
  */
-
 function setSessionCookie(res: Response, token: string) {
     res.cookie('session_token', token, {
         httpOnly: true, // js cant access the cookie (prevent XSS Attacks)
