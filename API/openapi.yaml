@@ -296,6 +296,33 @@ paths:
           description: No session token provided.
         '500':
           description: Internal server error.
+  /borrowRecord/myRecords:
+    get:
+      summary: List all active records
+      description: returns a list with all the active borrow records for an authenticated user
+      tags:
+        - Borrow record
+      security:
+        - cookieAuth: [ ]
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Success
+                  entities:
+                    $ref: '#/components/schemas/BorrowRecordArray'
+        '401':
+          description: Unauthenticated
+        '422':
+          description: Missing or malformed fields.
+        '500':
+          description: Internal server error.
   /borrowRecord/myRecords/book/:book_id:
     get:
       summary: Get by book
