@@ -169,7 +169,7 @@ main {
 }
 
 
-#book-list {
+.book-container-list {
     padding-left: 0;
     list-style: none;
 }
@@ -271,4 +271,8 @@ main {
 .borrow-button-container>button:disabled {
     cursor: not-allowed;
     background-color: #bbbbbb;
+}
+
+.return-info {
+    color: red;
 }

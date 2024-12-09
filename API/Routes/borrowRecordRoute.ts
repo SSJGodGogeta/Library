@@ -18,6 +18,7 @@ import {User} from "../../Database/Mapper/Entities/user.js";
 const router = Router();
 
 router.post("/borrow", authenticate, borrowBook);
+router.get("/myRecords/", authenticate, myRecords);
 router.get("/myRecords/book/:book_id", authenticate, myRecordsBook);
 
 /**
@@ -146,6 +147,19 @@ async function borrowBook(req: Request, res: Response) {
         await Book_Copy.resetBookCopyCache();
 
         return sendResponseAsJson(res, 200, "Success", {borrow_record});
+    } catch (error) {
+        console.error(`Error procession borrow request:`, error);
+        return sendResponseAsJson(res, 500, "Failed process borrow request.");
+    }
+}
+
+async function myRecords(req: Request, res: Response) {
+    try {
+        // get all active borrow_records for a user
+        const borrow_records: BorrowRecord[] = await BorrowRecord.getBorrowRecordsFromCacheOrDB();
+        const active_borrow_record: BorrowRecord[] = borrow_records.filter((record) => record.user.user_id === req.body.user.user_id);
+
+        return sendResponseAsJson(res, 200, "Success", active_borrow_record);
     } catch (error) {
         console.error(`Error procession borrow request:`, error);
         return sendResponseAsJson(res, 500, "Failed process borrow request.");

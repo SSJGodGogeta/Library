@@ -1,4 +1,26 @@
 /**
+ * Formats a date string into a human-readable format without the time.
+ *
+ * The function converts an ISO 8601 date string into a format like "December 19, 2024".
+ *
+ * @param {string} dateString - The ISO 8601 date string to format (e.g., "2024-12-19T20:56:10.000Z").
+ * @returns {string} - The formatted date string without the time.
+ *
+ * @example
+ * const formattedDate = formatDateWithoutTime("2024-12-19T20:56:10.000Z");
+ * console.log(formattedDate); // Output: "December 19, 2024"
+ */
+function formatDateWithoutTime(dateString: string) {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    }).format(date);
+}
+
+
+/**
  * Determines the image name for a star based on its index and the average rating.
  *
  * @param {number} starIndex - The index of the star (1-based) being evaluated.
@@ -225,4 +247,90 @@ async function logoutUser(): Promise<void> {
     window.location.href = "/Library/Webpage/login.html";
 }
 
-//TODO: Implement all other routes here as well to use in other .ts files.
+/**
+ * Redirects to the book details page of a specified book.
+ * Goes to /Library/Webpage/book_details.html?book_id=$book_id
+ *
+ * @param {number} book_id - The id of the book
+ *
+ * @returns {void}
+ *
+ * @example
+ * ```
+ * routeToBookDetails(2);
+ * ```
+ */
+function routeToBookDetails(book_id: number): void {
+    window.location.href = "/Library/Webpage/book_details.html?book_id=" + book_id;
+}
+
+/**
+ * Generates an HTML `<li>` element representing a book with its details and rating.
+ *
+ * @param {Book} book - The book object containing all necessary information.
+ * @returns {HTMLLIElement} - An HTML list item element containing the book's details.
+ *
+ * @example
+ * ```
+ * generateBookContainer(my_book);
+ * ```
+ */
+function generateBookContainer(book: any): HTMLLIElement {
+    const book_item: HTMLLIElement = document.createElement('li');
+    book_item.innerHTML = `
+               <div class="book-container" onclick="routeToBookDetails('${book.book_id}')">
+                    <img src="${book.cover_url ?? "Images/book-cover-placeholder.png"}" alt="book cover" height="200px">
+                    <div class="book-info">
+                        <h2>${book.title}</h2>
+                        <p class="author-info">${book.author}</p>
+                        <p class="isbn-info">ISBN: ${book.isbn}</p>
+                        <p class="book-overview-description">${book.description}</p>
+                        <p><b>Average Rating:</b></p>
+                        <div class="rating-container">
+                            <img src="Images/${getStarImageName(1, book.average_rating)}" alt="star">
+                            <img src="Images/${getStarImageName(2, book.average_rating)}" alt="star">
+                            <img src="Images/${getStarImageName(3, book.average_rating)}" alt="star">
+                            <img src="Images/${getStarImageName(4, book.average_rating)}" alt="star">
+                            <img src="Images/${getStarImageName(5, book.average_rating)}" alt="star">
+                            <p>(${book.count_rating} Reviews)</p>
+                        </div>
+                    </div>
+               </div>
+                `;
+
+    return book_item;
+}
+
+/**
+ * Generates an HTML `<li>` element for a borrowed book, including return information.
+ *
+ * This function uses `generateBookContainer` to create the base book container and
+ * then appends a paragraph containing the return information.
+ *
+ * @param {BorrowRecord} borrow_record - The borrow record containing a `book_copy` object with book data
+ *                              and a `return_date` for the borrowed book.
+ * @returns {HTMLLIElement} - An HTML list item element containing the book's details and return info.
+ *
+ * @requires generateBookContainer - Depends on `generateBookContainer` to create the base book container.
+ * @requires formatDateWithoutTime - Depends on `generateBookContainer` to create the base book container.
+ *
+ * @example
+ * ```
+ * const bookContainer = generateMyBookContainer(borrowRecord);
+ * document.body.appendChild(bookContainer);
+ * ```
+ */
+function generateMyBookContainer(borrow_record: any): HTMLLIElement {
+    const book_item = generateBookContainer(borrow_record.book_copy.book);
+
+    const bookInfoDiv = book_item.querySelector('.book-info');
+
+    if (bookInfoDiv) {
+        const returnInfoParagraph = document.createElement('p');
+        returnInfoParagraph.className = 'return-info';
+        returnInfoParagraph.innerHTML = `<b>Return date:</b> ${formatDateWithoutTime(borrow_record.return_date)}`;
+        bookInfoDiv.appendChild(returnInfoParagraph);
+    }
+
+    return book_item;
+}

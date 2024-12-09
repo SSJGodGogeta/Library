@@ -41,7 +41,8 @@ export class BorrowRecord extends BaseEntity {
             relations: {
                 book_copy: {
                     book: true
-                }
+                },
+                user: true,
             }
         });
         return borrowRecords;

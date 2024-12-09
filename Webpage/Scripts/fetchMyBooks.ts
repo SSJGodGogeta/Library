@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", async function () {
     try {
-        const response = await fetch(`http://localhost:3000/book`,
+        const response = await fetch(`http://localhost:3000/borrowRecord/myRecords/`,
             {
                 method: "GET",
                 credentials: 'include', // allow receiving cookies
@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         const { entities } = await response.json();
 
         // Get the table body where rows will be inserted
-        const book_list = document.getElementById('book-list');
+        const book_list = document.getElementById('my-book-list');
         if (!book_list) {
             console.warn("No book_list div found.");
             return;
@@ -26,9 +26,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         book_list.innerHTML = ""; // Clear existing rows
 
-        for (const book of entities) {
+        for (const borrowRecord of entities) {
             // generate book container element
-            const book_element: HTMLLIElement = generateBookContainer(book);
+            const book_element: HTMLLIElement = generateMyBookContainer(borrowRecord);
 
             book_list.appendChild(book_element);
         }// End of inner for loop
