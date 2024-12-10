@@ -3,3 +3,8 @@ Dist/
 Database/Liquibase/database_objects/output_local.sql
 .idea/dataSources.xml
 .idea/sqldialects.xml
+/.idea/dataSources.local.xml
+/.idea/Library.iml
+/.idea/modules.xml
+/.idea/vcs.xml
+/.idea/workspace.xml
