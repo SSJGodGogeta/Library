@@ -1,5 +1,7 @@
 import {BaseEntity, Column, Entity, PrimaryColumn,} from 'typeorm';
 import {Availability_Techcode} from "../Techcodes/Availability_Techcode.js";
+import {sendResponseAsJson} from "../../../API/routeTools.js";
+import {Response} from "express";
 
 @Entity('book')
 export class Book extends BaseEntity {
@@ -80,6 +82,34 @@ export class Book extends BaseEntity {
     static async saveBook(book: Book): Promise<void> {
         await book.save();
         await this.resetBookCache();
+    }
+
+    /**
+     * Retrieves a book by its ID and sends a response if the book is not found.
+     *
+     * @async
+     * @function getBook
+     * @param {Response} res - The HTTP response object to send responses.
+     * @param {number} book_id - The ID of the book to retrieve.
+     * @returns {Promise<Book | void>} A promise resolving to the retrieved book or void if not found or invalid.
+     *
+     * @throws {Error} Throws an error if the database query fails.
+     *
+     * @example
+     * // Example usage
+     * const book = await getBookAndRecord(response, 123);
+     * if (book) {
+     *   console.log(`Book title: ${book.title}`);
+     * }
+     */
+    static async getBook(res: Response, book_id: number): Promise<Book | void> {
+        if (isNaN(book_id)) return sendResponseAsJson(res, 422, "book_id must be a valid integer!");
+
+        // get the book requested by the user
+        let book: Book | undefined = await Book.getBookByKey('book_id', book_id);
+        if (!book) return sendResponseAsJson(res, 404, "No book found!")
+
+        return book;
     }
 }
 

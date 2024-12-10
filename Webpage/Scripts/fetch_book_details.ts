@@ -3,51 +3,14 @@ document.addEventListener("DOMContentLoaded", async function () {
         // get the current url
         const urlParams = new URLSearchParams(window.location.search);
         // extract the book id out of the parameters
-        const book_id = urlParams.get('book_id');
+        const book_id = parseInt(urlParams.get('book_id')!);
 
-        console.log(book_id);
-
-        const response = await fetch(`http://localhost:3000/book/${book_id}`,
-            {
-                method: "GET",
-                credentials: 'include', // allow receiving cookies
-            }
-        );
-        if (!response.ok) {
-            if (response.status == 401) {
-                window.location.href = "/Webpage/login.html";
-                return;
-
-            }
-            throw new Error("Network response was not ok " + response.statusText);
-        }
-
-        const { entities } = await response.json();
-        let book = entities;
+        let book = await fetchBook(book_id);
 
         // check if the user (if one is logged in) already has a copy of the book borrowed
         const user = getUserFromSessionStorage();
 
-        let current_borrow_record = null;
-        if (user) {
-            const current_borrow_record_response = await fetch(`http://localhost:3000/borrowRecord/myRecords/book/${book_id}`,
-                {
-                    method: "GET",
-                    credentials: 'include', // allow receiving cookies
-                }
-            );
-            if (!current_borrow_record_response.ok) {
-                if (current_borrow_record_response.status == 401) {
-                    window.location.href = "/Webpage/login.html";
-                    return;
-
-                }
-                throw new Error("Network response was not ok " + response.statusText);
-            }
-
-            const { entities } = await current_borrow_record_response.json();
-            current_borrow_record = entities.current_borrow_record;
-        }
+        let current_borrow_record = await fetchBorrowRecordForBook(book_id, user);
 
         // Get the table body where rows will be inserted
         const bookDetailsContainer: HTMLDivElement | null = document.getElementById("book-details-container") as HTMLDivElement | null;

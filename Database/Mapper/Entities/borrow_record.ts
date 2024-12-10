@@ -64,6 +64,46 @@ export class BorrowRecord extends BaseEntity {
         await borrowRecord.save();
         await this.resetBorrowRecordsCache();
     }
+
+    /**
+     * Retrieves the borrow record for a specific book and user, filtering by active borrowing status.
+     *
+     * @async
+     * @function getActiveBorrowRecordForBook
+     * @param {number} book_id - The ID of the book to check the borrow record for.
+     * @param {User} user - The user whose borrow record is to be retrieved.
+     * @returns {Promise<BorrowRecord | null>} A promise resolving to the borrow record if found, or null otherwise.
+     *
+     * @throws {Error} Throws an error if the database query fails.
+     *
+     * @example
+     * // Example usage
+     * const borrowRecord = await getBorrowRecord(123, currentUser);
+     * if (borrowRecord) {
+     *   console.log(`Borrow record ID: ${borrowRecord.id}`);
+     * } else {
+     *   console.log('No active borrow record found for this book and user.');
+     * }
+     */
+    static async getActiveBorrowRecordForBook(book_id: number, user: User): Promise<BorrowRecord | null> {
+        return await BorrowRecord.findOne({
+            where: {
+                status: BorrowRecord_Techcode.BORROWED,
+                user: user,
+                book_copy: {
+                    book: {
+                        book_id: book_id,
+                    },
+                },
+            },
+            relations: {
+                user: true,
+                book_copy: {
+                    book: true,
+                },
+            },
+        });
+    }
 }
 
 let borrowRecords: BorrowRecord[] | null = null;

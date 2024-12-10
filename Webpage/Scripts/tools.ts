@@ -334,3 +334,133 @@ function generateMyBookContainer(borrow_record: any): HTMLLIElement {
 
     return book_item;
 }
+
+async function fetchBooks() {
+    const response = await fetch(`http://localhost:3000/book`,
+        {
+            method: "GET",
+            credentials: 'include', // allow receiving cookies
+        }
+    );
+    if (!response.ok) {
+        if (response.status == 401) {
+            window.location.href = "/Webpage/login.html";
+            return;
+
+        }
+        throw new Error("Network response was not ok " + response.statusText);
+    }
+
+    const { entities } = await response.json();
+    return entities;
+}
+
+async function fetchBook(book_id: number) {
+    const response = await fetch(`http://localhost:3000/book/${book_id}`,
+        {
+            method: "GET",
+            credentials: 'include', // allow receiving cookies
+        }
+    );
+    if (!response.ok) {
+        if (response.status == 401) {
+            window.location.href = "/Webpage/login.html";
+            return;
+
+        }
+        throw new Error("Network response was not ok " + response.statusText);
+    }
+
+    const { entities } = await response.json();
+    return entities;
+}
+
+async function fetchMyBooks() {
+    const response = await fetch(`http://localhost:3000/borrowRecord/myRecords/`,
+        {
+            method: "GET",
+            credentials: 'include', // allow receiving cookies
+        }
+    );
+    if (!response.ok) {
+        if (response.status == 401) {
+            window.location.href = "/Webpage/login.html";
+            return;
+
+        }
+        throw new Error("Network response was not ok " + response.statusText);
+    }
+
+    const { entities } = await response.json();
+    return entities;
+}
+
+async function fetchBorrowRecordForBook(book_id: number | null, user: any) {
+    if (user) {
+        const current_borrow_record_response = await fetch(`http://localhost:3000/borrowRecord/myRecords/book/${book_id}`,
+            {
+                method: "GET",
+                credentials: 'include', // allow receiving cookies
+            }
+        );
+        if (!current_borrow_record_response.ok) {
+            if (current_borrow_record_response.status == 401) {
+                window.location.href = "/Webpage/login.html";
+                return;
+
+            }
+            throw new Error("Network response was not ok " + current_borrow_record_response.statusText);
+        }
+
+        const { entities } = await current_borrow_record_response.json();
+        return entities.current_borrow_record;
+    }
+}
+
+/**
+ * Sends a request to borrow a book by its ID.
+ * Handles authentication and reloads the page upon success.
+ *
+ * @param {number} book_id - The ID of the book to be borrowed.
+ * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+ *
+ * @throws {Error} - Throws an error if the network response is not ok,
+ *                   excluding unauthorized responses which redirect to the login page.
+ *
+ * @remarks
+ * - If the user is not authenticated (HTTP 401), the function redirects to the login page.
+ * - Reloads the page upon successful borrowing.
+ *
+ * @example
+ * ```
+ * try {
+ *   await borrowBook(123);
+ * } catch (error) {
+ *   console.error("Failed to borrow book:", error);
+ * }
+ * ```
+ */
+async function borrowBook(book_id: number): Promise<void> {
+
+    const response = await fetch(`http://localhost:3000/borrowRecord/borrow`,
+        {
+            method: "POST",
+            credentials: 'include', // allow receiving cookies
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({book_id}),
+        }
+    );
+
+    if (!response.ok) {
+        if (response.status == 401) {
+            window.location.href = "/Webpage/login.html";
+            return;
+
+        }
+        throw new Error("Network response was not ok " + response.statusText);
+    }
+
+    window.location.reload();
+}
