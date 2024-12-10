@@ -16,15 +16,48 @@ router.post("/login", login);
 router.get("/currentUser", authenticate, currentUser);
 router.post("/logout", authenticate, logout);
 
-
+/**
+ * Determines if a session is expired based on its creation date and the expiration period in days.
+ *
+ * @param {Date} createdAt - The date when the session was created.
+ * @param {number} days - The number of days the session is valid.
+ * @returns {boolean} `true` if the session is expired, otherwise `false`.
+ *
+ * @example
+ * // Example usage
+ * const createdAt = new Date('2024-12-01T10:00:00'); // Session created on December 1, 2024,
+ * const expirationDays = 7;
+ *
+ * const expired = isSessionExpired(createdAt, expirationDays);
+ * console.log(expired); // Output: true or false depending on the current date
+ */
 export function isSessionExpired(createdAt: Date, days: number): boolean {
     const now = Date.now(); // Current timestamp in milliseconds
     const expirationTime = createdAt.getTime() + days * 24 * 60 * 60 * 1000; // Add days in milliseconds
     return now > expirationTime;
 }
 
+/**
+ * Creates a new session for a user or updates an existing session if it matches the device and IP.
+ *
+ * @async
+ * @function createNewSession
+ * @param {Request} req - The HTTP request object containing headers and IP address.
+ * @param {User} user - The user object for whom the session is being created or updated.
+ * @returns {Promise<Session>} A promise that resolves to the created or updated session object.
+ *
+ * @description
+ * - Checks if there is an active session for the user.
+ * - If an active session exists and matches the current device and IP,
+ *   checks if the session is expired:
+ *   - If not expired, updates the `last_used` timestamp and returns the session.
+ *   - If expired, removes the old session and creates a new one.
+ * - If no active session exists, creates a new session and stores it in the database.
+ *
+ * @throws {Error} If there is an issue saving the session to the database.
+ */
 async function createNewSession(req: Request, user: User): Promise<Session> {
-    // get user, user agent and check if its the same as the one stored in the db.
+    // get user, user agent and check if it's the same as the one stored in the db.
     const userAgent = req.headers['user-agent'] || 'unknown';
     const {ua} = UAParser(userAgent);
     const ip: string | undefined = req.ip;
@@ -55,6 +88,21 @@ async function createNewSession(req: Request, user: User): Promise<Session> {
 
 }
 
+/**
+ * Sets a secure session cookie in the HTTP response.
+ *
+ * @function setSessionCookie
+ * @param {Response} res - The HTTP response object to which the cookie will be added.
+ * @param {string} token - The session token to be stored in the cookie.
+ *
+ * @description
+ * - Configures the cookie with the following properties:
+ *   - `httpOnly`: Prevents JavaScript access to the cookie to mitigate XSS attacks.
+ *   - `secure`: Ensures the cookie is sent only over HTTPS connections.
+ *   - `sameSite`: Restricts the cookie to the same site to enhance security
+ *     (set to `strict` which may block cross-site workflows like OAuth2).
+ *   - `maxAge`: Sets the cookie's expiry time to 30 days.
+ */
 function setSessionCookie(res: Response, token: string) {
     res.cookie('session_token', token, {
         httpOnly: true, // js cant access the cookie (prevent XSS Attacks)
@@ -64,7 +112,24 @@ function setSessionCookie(res: Response, token: string) {
     });
 }
 
-function validateCredentials(res: Response, email: string, password: string) {
+/**
+ * Validates user credentials and sends appropriate error responses if validation fails.
+ *
+ * @function validateCredentials
+ * @param {Response} res - The HTTP response object used to send validation error messages.
+ * @param {string} email - The email address to validate.
+ * @param {string} password - The password to validate.
+ *
+ * @description
+ * - Checks if the email is provided and follows a valid format:
+ *   - If not provided, sends a 422 response with an "Email is required" message.
+ *   - If invalid, sends a 422 response with an "Email has invalid format" message.
+ * - Checks if the password is provided:
+ *   - If not provided, sends a 422 response with a "Password is required" message.
+ *
+ * @returns {void} This function sends a response directly and does not return a value.
+ */
+function validateCredentials(res: Response, email: string, password: string): void {
     if (!email) return sendResponseAsJson(res, 422, "Email is required");
     if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) return sendResponseAsJson(res, 422, "Email has invalid format");
     if (!password) return sendResponseAsJson(res, 422, "Password is required");
@@ -151,8 +216,7 @@ async function login(req: Request, res: Response) {
 
 async function currentUser(req: Request, res: Response) {
     try {
-        const user = req.body.user;
-        return sendResponseAsJson(res, 200, "Success", user);
+        return sendResponseAsJson(res, 200, "Success", req.body.user);
     } catch (error) {
         console.error("Error getting current user:", error);
         return sendResponseAsJson(res, 500, "Failed to fetch current user");

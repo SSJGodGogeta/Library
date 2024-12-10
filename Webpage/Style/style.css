@@ -2,18 +2,19 @@
 /*@import url('https://fonts.googleapis.com/css?family=Oswald:500');*/
 * {
     font-family: Arial, serif;
+    line-height: 1.6;
 }
 
 body {
     margin: 0;
     padding: 0;
-    background: #f4f4f4  no-repeat fixed 0 50%;
+    background: #f4f4f4 no-repeat fixed 0 50%;
     background-size: cover;
 
 }
 
 .background {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -23,7 +24,7 @@ body {
     z-index: -1;
 }
 
-header>nav{
+#navbar > nav {
     width: 100%;
     position: fixed;
     text-align: center;
@@ -31,20 +32,20 @@ header>nav{
     padding-bottom: 8px
 }
 
-header>nav a{
+#navbar > nav a {
     font-family: monospace, sans-serif;
     font-weight: 450;
     text-transform: uppercase;
     text-decoration: none;
     color: black;
-    font-size:18px;
-    letter-spacing:1px;
-    position:relative;
-    display:inline-block;
+    font-size: 18px;
+    letter-spacing: 1px;
+    position: relative;
+    display: inline-block;
     margin: 10px 20px 0;
 }
 
-header > nav a:before {
+#navbar > nav a:before {
     content: '';
     position: absolute;
     width: 0;
@@ -54,7 +55,7 @@ header > nav a:before {
     left: 0;
 }
 
-header > nav a:hover:before {
+#navbar > nav a:hover:before {
     animation: in 0.2s cubic-bezier(1, 0, 0.58, 0.97) 1 both;
 }
 
@@ -95,7 +96,7 @@ nav input[type=text] {
 
 /*-------------Main Body-------------*/
 
-body{
+body {
     display: flex;
 }
 
@@ -117,7 +118,7 @@ main {
     width: 80%; /* Ensure the limiter takes full width of the main container */
     background: #f9f9f9;
     border-radius: 10px;
-    padding: 15px;
+    padding: 30px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
@@ -168,7 +169,7 @@ main {
 }
 
 
-#book-list {
+.book-container-list {
     padding-left: 0;
     list-style: none;
 }
@@ -183,12 +184,39 @@ main {
     margin-bottom: 20px;
 }
 
+.book-container:hover {
+    cursor: pointer;
+    background-color: #f5f5f5;
+}
+
+ .isbn-info {
+    color: #777777;
+}
+
+.author-info  {
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+.author-info:hover   {
+    text-decoration: underline;
+}
+
+.book-overview-description {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* number of lines to show */
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
 .book-info {
     margin-left: 40px;
 }
 
-.book-info>h2 {
+.book-info > h2 {
     margin-top: 0;
+    margin-bottom: 5px;
 }
 
 .rating-container {
@@ -197,11 +225,54 @@ main {
     align-items: center;
 }
 
-.rating-container>img {
+.rating-container > img {
     height: 25px;
     width: 25px;
 }
 
-.rating-container>p {
+.rating-container > p {
     margin-left: 20px;
+}
+
+#book-details-container>h1 {
+    margin-bottom: 0;
+    margin-top: 20px;
+}
+
+#book-details-container>h3 {
+    margin-top: 40px;
+    margin-bottom: 10px;
+}
+
+#book-details-container>p {
+    margin-bottom: 0;
+    margin-top: 0;
+}
+
+#book-details-container>.rating-container {
+    margin-bottom: 20px;
+    margin-top: 0;
+}
+
+.borrow-button-container {
+    margin-bottom: 20px;
+}
+
+.borrow-button-container>button {
+    cursor: pointer;
+    margin-right: 10px;
+    background-color: #007bff;
+    color: white;
+    border-style: none;
+    padding: 8px 25px;
+    border-radius: 5px;
+}
+
+.borrow-button-container>button:disabled {
+    cursor: not-allowed;
+    background-color: #bbbbbb;
+}
+
+.return-info {
+    color: red;
 }

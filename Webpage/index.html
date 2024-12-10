@@ -8,67 +8,24 @@
     <link href="Style/style.css" rel="stylesheet" type="text/css">
 </head>
 <body>
+<script src="/Dist/Webpage/Scripts/tools.js"></script>
 
 <header>
-    <img alt="Background" class="background" src="Images/Background.jpg">
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="book.html">Books</a>
-        <a href="#">New Releases</a>
-        <a href="#">My Books</a>
-        <a href="#">Account</a>
-        <label>
-            <input placeholder="Search.." type="text">
-        </label>
-    </nav>
+    <div id="navbar">
+        <script src="../Dist/Webpage/navigation.js"></script>
+    </div>
 </header>
 
 <main>
     <div class="limiter">
-        <h1>Hello User &#128075</h1>
+        <h1 id="greetUser">Hello There &#128075</h1>
         <h2>Activities</h2>
-        <div class="row">
-            <div class="activity">
-                <div class="picture">
-                    <img alt="activity 1" src="Images/activity1.jpg">
-                </div>
-                <div class="info">
-                    <p>Unga Bunga</p>
-                </div>
-                <button>Read More</button>
-            </div>
-            <div class="activity">
-                <div class="picture">
-                    <img alt="activity 2" src="Images/activity1.jpg">
-                </div>
-                <div class="info">
-                    <p>Unga Bunga</p>
-                </div>
-                <button>Read More</button>
-            </div>
-            <div class="activity">
-                <div class="picture">
-                    <img alt="activity 3" src="Images/activity1.jpg">
-                </div>
-                <div class="info">
-                    <p>Unga Bunga</p>
-                </div>
-                <button>Read More</button>
-            </div>
-            <div class="activity">
-                <div class="picture">
-                    <img alt="activity 4" src="Images/activity1.jpg">
-                </div>
-                <div class="info">
-                    <p>Unga Bunga</p>
-                </div>
-                <button>Read More</button>
-            </div>
-        </div>
+        <div class="row" id="activities"></div>
         <h2>Recommendations</h2>
     </div>
 
 </main>
 
+<script src="../Dist/Webpage/Scripts/homePage.js"></script>
 </body>
 </html>
