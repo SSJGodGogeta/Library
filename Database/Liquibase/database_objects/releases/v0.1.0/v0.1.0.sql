@@ -258,3 +258,127 @@ BEGIN
     SET total_copies = total_copies - 1
     WHERE book_id = OLD.book_book_id;
 END;
+
+-- changeset kevin:kev9
+DROP TRIGGER IF EXISTS update_book_rating_after_insert;
+
+-- [Purpose]: update the times borrowed in the book
+-- [Purpose]: if rating information is present, update the rating information in the book
+-- [Purpose]: update the available copies in the book
+CREATE TRIGGER update_book_statistics_after_insert
+    AFTER INSERT ON scrum_library.borrow_record
+    FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book AS b
+    SET
+        -- update the times borrowed in the book
+        b.times_borrowed = b.times_borrowed + 1,
+
+        -- update the available copies count (if the status is BORROWED)
+        b.available_copies = b.available_copies - IF(NEW.status = 'BORROWED', 1, 0),
+
+        -- update the rating information in the book if the borrow record has rating information
+        b.sum_rating = b.sum_rating + IF(NEW.rating IS NOT NULL, NEW.rating, 0),
+        b.count_rating = b.count_rating + IF(NEW.rating IS NOT NULL, 1, 0),
+        b.average_rating = IF(b.count_rating > 0, b.sum_rating / b.count_rating, NULL)
+    WHERE b.book_id = (
+        SELECT bc.book_book_id
+        FROM scrum_library.book_copy AS bc
+        WHERE bc.book_copy_id = NEW.book_copy_book_copy_id
+    );
+END;
+
+-- [Purpose]: if rating information is present (and it wasn't present before), update the rating information in the book
+CREATE TRIGGER update_book_statistics_after_update
+    AFTER UPDATE ON scrum_library.borrow_record
+    FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book AS b
+    SET
+        -- update the available copies if the status changed from NOT_BORROWED to BORROWED
+        b.available_copies = b.available_copies + IF(NEW.status = 'NOT_BORROWED' AND OLD.status = 'BORROWED', 1, 0),
+
+        -- update the rating information in the book if the borrow record has new rating information
+        b.sum_rating = b.sum_rating + IF(NEW.rating IS NOT NULL AND OLD.rating IS NULL, NEW.rating, 0),
+        b.count_rating = b.count_rating + IF(NEW.rating IS NOT NULL AND OLD.rating IS NULL, 1, 0),
+        b.average_rating = IF(b.count_rating > 0, b.sum_rating / b.count_rating, NULL)
+    WHERE b.book_id = (
+        SELECT bc.book_book_id
+        FROM scrum_library.book_copy AS bc
+        WHERE bc.book_copy_id = NEW.book_copy_book_copy_id
+    );
+END;
+
+-- changeset kevin:kev10
+DROP TRIGGER IF EXISTS update_book_availableCopies_after_delete;
+
+-- [Purpose]: update the total_copies and available_copies count in the book
+CREATE TRIGGER update_book_availableCopies_after_delete
+    AFTER DELETE
+    ON scrum_library.book_copy
+    FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book
+    SET
+        total_copies = total_copies - 1,
+        available_copies = available_copies -1
+    WHERE book_id = OLD.book_book_id;
+END;
+
+-- [Purpose]: update the status of the book copy when a new borrow record is inserted
+CREATE TRIGGER update_book_copy_status_after_insert
+    AFTER INSERT ON scrum_library.borrow_record
+    FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book_copy AS bc
+    SET
+        bc.status = NEW.status
+    WHERE bc.book_copy_id =  NEW.book_copy_book_copy_id;
+END;
+
+-- changeset kevin:kev11
+-- [Purpose]: update the status of the book copy when a borrow record is updated
+DROP TRIGGER IF EXISTS update_book_copy_status_after_update;
+
+CREATE TRIGGER update_book_copy_status_after_update
+    AFTER UPDATE ON scrum_library.borrow_record
+    FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book_copy AS bc
+    SET
+        bc.status = NEW.status
+    WHERE bc.book_copy_id =  NEW.book_copy_book_copy_id;
+END;
+
+-- changeset kevin:kev12
+-- [Purpose]: update the available copy count of a book if a borrow record gets deleted
+-- under normal conditions this trigger will not be executed, to guarantee a complete history
+DROP TRIGGER IF EXISTS update_book_after_borrow_delete;
+
+CREATE TRIGGER update_book_after_borrow_delete
+        AFTER DELETE ON scrum_library.borrow_record
+        FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book AS b
+    SET
+        -- update the available copies if the deleted borrow record had a status of BORROWED
+        b.available_copies = b.available_copies + IF(OLD.status = 'BORROWED', 1, 0)
+    WHERE b.book_id = (
+        SELECT bc.book_book_id
+        FROM scrum_library.book_copy AS bc
+        WHERE bc.book_copy_id = OLD.book_copy_book_copy_id
+    );
+END;
+
+-- [Purpose]: update the status of the book copy if a borrow record gets deleted
+-- under normal conditions this trigger will not be executed, to guarantee a complete history
+DROP TRIGGER IF EXISTS update_book_copy_after_borrow_delete;
+
+CREATE TRIGGER update_book_copy_after_borrow_delete
+    AFTER DELETE ON scrum_library.borrow_record
+    FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book_copy AS bc
+    SET bc.status = IF(OLD.status = 'BORROWED', 'NOT_BORROWED', bc.status)
+    WHERE bc.book_copy_id = OLD.book_copy_book_copy_id;
+END;
