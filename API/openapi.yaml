@@ -369,7 +369,7 @@ components:
     cookieAuth:
       type: apiKey
       in: cookie
-      name: session_token
+      name: sessionToken
   schemas:
     User:
       type: object

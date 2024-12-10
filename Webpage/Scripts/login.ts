@@ -1,15 +1,15 @@
 document.addEventListener("DOMContentLoaded", () => {
     // load the email-address and the password field
-    let email_address_input: HTMLInputElement = document.getElementById("email") as HTMLInputElement;
-    let password_input: HTMLInputElement = document.getElementById("password") as HTMLInputElement;
-    let login_button: HTMLButtonElement = document.getElementById("loginButton") as HTMLButtonElement;
+    let emailAddressInput: HTMLInputElement = document.getElementById("email") as HTMLInputElement;
+    let passwordInput: HTMLInputElement = document.getElementById("password") as HTMLInputElement;
+    let loginButton: HTMLButtonElement = document.getElementById("loginButton") as HTMLButtonElement;
     let loginError: HTMLParagraphElement = document.getElementById("loginError") as HTMLParagraphElement;
     loginError.style.display = "none";
 
     async function handleLogin() {
         try {
-            const email: String = email_address_input.value!.trim().toLowerCase(); // trim and lowercase the email address
-            const password: String = password_input.value!; // read the password
+            const email: String = emailAddressInput.value!.trim().toLowerCase(); // trim and lowercase the email address
+            const password: String = passwordInput.value!; // read the password
             if (email.length == 0 || password.length == 0) return;
             const response = await fetch(`http://localhost:3000/authentication/login`, {
                 method: "POST",
@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    login_button.onclick = async function () {
+    loginButton.onclick = async function () {
         await handleLogin();
     }
     document.addEventListener('keydown', async function (event) {

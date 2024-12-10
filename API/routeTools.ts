@@ -60,9 +60,10 @@ function createEntityRoutes<Entity>(
         try {
             const entityId = parseInt(req.params.id);
             // Cast key name dynamically to a keyof Entity
+            //TODO this needs to be changed after renaming the entity attributes of typeorm
             const entity = await EntityModel.getByKey(
-                `${entityName}_id` as keyof Entity, // Type assertion ensures this is treated as keyof Entity
-                entityId as Entity[keyof Entity]   // Type-safe value
+                `${entityName}_id` as keyof Entity, // Type assertion ensures this is treated as key of Entity
+                entityId as Entity[keyof Entity]   // Type-safe value of key
             );
             if (!entity) sendResponseAsJson(res, 404, "No Entities found!");
             else {

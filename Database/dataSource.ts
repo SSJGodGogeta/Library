@@ -10,7 +10,7 @@ export const dataSource: DataSource = new DataSource({
     password: envConfig.DB_PASSWORD,
     database: envConfig.DB_NAME,
     synchronize: false,
-    logging: true,
+    logging: !envConfig.STAGE_BUILD,
     entities: ["Dist/Database/Mapper/Entities/*.js"],
     subscribers: [],
 });

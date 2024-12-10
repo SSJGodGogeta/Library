@@ -1,7 +1,7 @@
 import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn,} from 'typeorm';
 
 import {Book} from "./book.js"
-import {BorrowRecord_Techcode} from "../Techcodes/BorrowRecord_Techcode.js"
+import {BorrowRecordTechcode} from "../Techcodes/BorrowRecordTechcode.js"
 
 @Entity('book_copy')
 export class Book_Copy extends BaseEntity {
@@ -9,7 +9,7 @@ export class Book_Copy extends BaseEntity {
     book_copy_id!: number;
 
     @Column({length: '50', nullable: false})
-    status!: BorrowRecord_Techcode;
+    status!: BorrowRecordTechcode;
 
     @ManyToOne('Book', (book: Book) => book.book_id)
     @JoinColumn({

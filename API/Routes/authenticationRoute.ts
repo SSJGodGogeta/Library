@@ -5,7 +5,7 @@ import {UAParser} from 'ua-parser-js';
 import {authenticate} from "../authenticationMiddleware.js";
 import {User} from "../../Database/Mapper/Entities/user.js";
 import {Session} from "../../Database/Mapper/Entities/session.js";
-import {Permission_Techcode} from "../../Database/Mapper/Techcodes/Permission_Techcode.js";
+import {PermissionTechcode} from "../../Database/Mapper/Techcodes/PermissionTechcode.js";
 import {routes, sendResponseAsJson} from "../routeTools.js";
 
 const router = Router();
@@ -104,7 +104,7 @@ async function createNewSession(req: Request, user: User): Promise<Session> {
  *   - `maxAge`: Sets the cookie's expiry time to 30 days.
  */
 function setSessionCookie(res: Response, token: string) {
-    res.cookie('session_token', token, {
+    res.cookie('sessionToken', token, {
         httpOnly: true, // js cant access the cookie (prevent XSS Attacks)
         secure: true, // Only send over HTTPS
         sameSite: 'strict', // save but will not support cross site workflows like oauth2
@@ -138,14 +138,14 @@ function validateCredentials(res: Response, email: string, password: string): vo
 async function register(req: Request, res: Response) {
     try {
         // get the email and the password, provided in the body
-        let {email, password, first_name, last_name} = req.body;
+        let {email, password, firstName, lastName} = req.body;
         // check if the all necessary data was provided
         validateCredentials(res, email, password);
-        if (!first_name) return sendResponseAsJson(res, 422, "First name is required");
-        if (!last_name) return sendResponseAsJson(res, 422, "Last name is required");
+        if (!firstName) return sendResponseAsJson(res, 422, "First name is required");
+        if (!lastName) return sendResponseAsJson(res, 422, "Last name is required");
 
         // hash the provided password using the bcrypt.js package
-        const hashed_password: string = bcrypt.hashSync(String(password), 10)
+        const hashedPassword: string = bcrypt.hashSync(String(password), 10)
 
         const userAlreadyExists = await User.getUserByKey("email", email);
         if (userAlreadyExists) {
@@ -155,10 +155,10 @@ async function register(req: Request, res: Response) {
         const user: User = new User();
 
         user.email = email;
-        user.password = hashed_password;
-        user.first_name = first_name;
-        user.last_name = last_name;
-        user.permissions = Permission_Techcode.STUDENT;
+        user.password = hashedPassword;
+        user.first_name = firstName;
+        user.last_name = lastName;
+        user.permissions = PermissionTechcode.STUDENT;
 
         await User.saveUser(user);
         // generate the session and store it in the database
@@ -230,7 +230,7 @@ async function logout(req: Request, res: Response) {
         await session.remove();
 
         // Clear the cookie from the client
-        res.clearCookie("session_token", {
+        res.clearCookie("sessionToken", {
             httpOnly: true,
             secure: false, // Use true if HTTPS in production
             sameSite: "lax",

@@ -1,7 +1,7 @@
 import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn,} from 'typeorm';
 import {User} from './user.js';
 import {Book_Copy} from './book_copy.js';
-import {BorrowRecord_Techcode} from '../Techcodes/BorrowRecord_Techcode.js';
+import {BorrowRecordTechcode} from '../Techcodes/BorrowRecordTechcode.js';
 
 @Entity('borrow_record')
 export class BorrowRecord extends BaseEntity {
@@ -15,7 +15,7 @@ export class BorrowRecord extends BaseEntity {
     return_date!: Date;
 
     @Column({length: '50', nullable: false})
-    status!: BorrowRecord_Techcode;
+    status!: BorrowRecordTechcode;
 
     @Column({type: "double", nullable: true})
     rating?: number;
@@ -70,7 +70,7 @@ export class BorrowRecord extends BaseEntity {
      *
      * @async
      * @function getActiveBorrowRecordForBook
-     * @param {number} book_id - The ID of the book to check the borrow record for.
+     * @param {number} bookId - The ID of the book to check the borrow record for.
      * @param {User} user - The user whose borrow record is to be retrieved.
      * @returns {Promise<BorrowRecord | null>} A promise resolving to the borrow record if found, or null otherwise.
      *
@@ -85,14 +85,14 @@ export class BorrowRecord extends BaseEntity {
      *   console.log('No active borrow record found for this book and user.');
      * }
      */
-    static async getActiveBorrowRecordForBook(book_id: number, user: User): Promise<BorrowRecord | null> {
+    static async getActiveBorrowRecordForBook(bookId: number, user: User): Promise<BorrowRecord | null> {
         return await BorrowRecord.findOne({
             where: {
-                status: BorrowRecord_Techcode.BORROWED,
+                status: BorrowRecordTechcode.BORROWED,
                 user: user,
                 book_copy: {
                     book: {
-                        book_id: book_id,
+                        book_id: bookId,
                     },
                 },
             },

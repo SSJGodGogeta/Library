@@ -3,23 +3,38 @@ document.addEventListener("DOMContentLoaded", async function () {
         // get the current url
         const urlParams = new URLSearchParams(window.location.search);
         // extract the book id out of the parameters
-        const book_id = parseInt(urlParams.get('book_id')!);
+        const bookId = parseInt(urlParams.get('bookId')!);
 
-        let book = await fetchBook(book_id);
+        let book = await fetchBook(bookId);
 
         // check if the user (if one is logged in) already has a copy of the book borrowed
         const user = getUserFromSessionStorage();
 
-        let current_borrow_record = await fetchBorrowRecordForBook(book_id, user);
-
+        const currentBorrowRecord = await fetchBorrowRecordForBook(bookId, user);
+        console.log(currentBorrowRecord);
         // Get the table body where rows will be inserted
         const bookDetailsContainer: HTMLDivElement | null = document.getElementById("book-details-container") as HTMLDivElement | null;
         if (!bookDetailsContainer) {
             console.warn("No book-details-container div found.");
             return;
         }
+        if (!book) {
+            console.warn("Book not found");
+            return;
+        }
+        if (!currentBorrowRecord) {
+            console.warn("Current Borrow Record not found");
+            //return;
+        }
+        generateBookDetails(bookDetailsContainer, book, currentBorrowRecord);
 
-        bookDetailsContainer.innerHTML = `
+    } catch (error) {
+        console.error("Failed to fetch book:", error);
+    }
+});
+
+function generateBookDetails(bookDetailsContainer: HTMLDivElement, book: Book, currentBorrowRecord: BorrowRecord | undefined) {
+    bookDetailsContainer.innerHTML = `
             <img src="${book.cover_url}" alt="book cover" height="300px">
             <h1>${book.title}</h1>
             <div class="rating-container">
@@ -31,9 +46,9 @@ document.addEventListener("DOMContentLoaded", async function () {
                 <p>(${book.count_rating} Reviews)</p>
             </div>
             <div class="borrow-button-container">
-                <button id="btn-borrow" ${current_borrow_record || book.available_copies <= 0 ? 'disabled' : ''} onclick="borrowBook(${book.book_id})">Borrow</button>
-                <button id="btn-reserve" ${current_borrow_record !== null ? 'disabled' : ''}>Reserve</button>
-                ${current_borrow_record ? `<button>Return</button>` : ``}
+                <button id="btn-borrow" ${currentBorrowRecord || book.available_copies! <= 0 ? 'disabled' : ''} onclick="borrowBook(${book.book_id})">Borrow</button>
+                <button id="btn-reserve" ${currentBorrowRecord !== null ? 'disabled' : ''}>Reserve</button>
+                ${currentBorrowRecord ? `<button>Return</button>` : ``}
             </div>
             <p>${book.description}</p>
             
@@ -41,8 +56,8 @@ document.addEventListener("DOMContentLoaded", async function () {
             <p><b>ISBN:</b> ${book.isbn}</p>
             <p><b>Author:</b> ${book.author}</p>
             <p><b>Publisher:</b> ${book.publisher ?? "unknown"}</p>
-            <p><b>Language:</b> ${book.language ?? "unknown"}</p>
-            <p><b>Version:</b> ${book.version ?? 1}</p>
+            <p><b>Language:</b> ${book.language_code ?? "unknown"}</p>
+            <p><b>Version:</b> ${book.edition ?? 1}</p>
             <p><b>Release:</b> ${book.year ?? "unknown"}</p>
             
             <h3>Information for borrowing the book:</h3>
@@ -52,8 +67,5 @@ document.addEventListener("DOMContentLoaded", async function () {
             <br>
             
             <p>If there is no copy available to borrow, you can reserve one instead.</p>
-        `
-    } catch (error) {
-        console.error("Failed to fetch book:", error);
-    }
-});
+        `;
+}

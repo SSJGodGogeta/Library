@@ -1,7 +1,7 @@
 import {Book} from "../../Database/Mapper/Entities/book.js";
 import {Book_Copy} from "../../Database/Mapper/Entities/book_copy.js";
-import {BorrowRecord_Techcode} from "../../Database/Mapper/Techcodes/BorrowRecord_Techcode.js";
-import {Availability_Techcode} from "../../Database/Mapper/Techcodes/Availability_Techcode.js";
+import {BorrowRecordTechcode} from "../../Database/Mapper/Techcodes/BorrowRecordTechcode.js";
+import {AvailabilityTechcode} from "../../Database/Mapper/Techcodes/AvailabilityTechcode.js";
 import {Request, Response, Router} from "express";
 
 import {routes, sendResponseAsJson} from "../routeTools.js";
@@ -37,8 +37,8 @@ async function validateDatabase() {
     for (let i = 0; i <= books.length; i++) {
         if (!books[i]) continue;
         const bookTotalCopiesById: Book_Copy[] = bookCopies.filter(copy => copy.book.book_id == i + 1);
-        const bookAvailableCopiesById: Book_Copy[] = bookCopies.filter(copy => copy.book.book_id == i + 1 && copy.status == BorrowRecord_Techcode.NOT_BORROWED);
-        const availability: Availability_Techcode = bookCopies.some(bookCopy => bookCopy.status == BorrowRecord_Techcode.NOT_BORROWED) ? Availability_Techcode.AVAILABLE : Availability_Techcode.NOT_AVAILABLE;
+        const bookAvailableCopiesById: Book_Copy[] = bookCopies.filter(copy => copy.book.book_id == i + 1 && copy.status == BorrowRecordTechcode.NOT_BORROWED);
+        const availability: AvailabilityTechcode = bookCopies.some(bookCopy => bookCopy.status == BorrowRecordTechcode.NOT_BORROWED) ? AvailabilityTechcode.AVAILABLE : AvailabilityTechcode.NOT_AVAILABLE;
 
         if (availability != books[i].availability) {
             books[i].availability = availability;

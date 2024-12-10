@@ -32,7 +32,7 @@ const elements = {
 
 async function loadNavbar(): Promise<void> {
     let navbarHTML = `
-        <img alt="Background" class="background" src="Images/Background.jpg">
+        <img alt="Background" class="background" src="Images/background.jpg">
         <nav>`;
     Object.values(elements).forEach(link => {
         if (link == elements.myAccountLink) {

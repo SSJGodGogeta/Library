@@ -8,8 +8,8 @@ async function loadHomePage() {
     if (greetUser) {
         const user = getUserFromSessionStorage();
         if (user && user.loggedIn) {
-            console.warn(`User logged in as: ${user.first_name}`);
-            greetUser.innerHTML = `Hello ${user.first_name} ${user.last_name} &#128075`
+            console.warn(`User logged in as: ${user.firstName}`);
+            greetUser.innerHTML = `Hello ${user.firstName} ${user.lastName} &#128075`
         } else {
             console.warn(`User not logged in!`);
         }
