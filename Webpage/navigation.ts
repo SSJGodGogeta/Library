@@ -21,7 +21,7 @@ const elements = {
     myBooksLink: {
         id: "myBooksLink",
         name: "My Books",
-        href: "my_book.html"
+        href: "myBook.html"
     },
     myAccountLink: {
         id: "myAccountLink",

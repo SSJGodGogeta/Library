@@ -249,7 +249,7 @@ async function logoutUser(): Promise<void> {
 
 /**
  * Redirects to the book details page of a specified book.
- * Goes to /Library/Webpage/book_details.html?book_id=$book_id
+ * Goes to /Library/Webpage/bookDetails.html?book_id=$book_id
  *
  * @param {number} book_id - The id of the book
  *
@@ -261,7 +261,7 @@ async function logoutUser(): Promise<void> {
  * ```
  */
 function routeToBookDetails(book_id: number): void {
-    window.location.href = "/Library/Webpage/book_details.html?book_id=" + book_id;
+    window.location.href = "/Library/Webpage/bookDetails.html?book_id=" + book_id;
 }
 
 /**
@@ -272,7 +272,7 @@ function routeToBookDetails(book_id: number): void {
  *
  * @example
  * ```
- * generateBookContainer(my_book);
+ * generateBookContainer(myBook);
  * ```
  */
 function generateBookContainer(book: any): HTMLLIElement {
@@ -351,7 +351,7 @@ async function fetchBooks() {
         throw new Error("Network response was not ok " + response.statusText);
     }
 
-    const { entities } = await response.json();
+    const {entities} = await response.json();
     return entities;
 }
 
@@ -371,7 +371,7 @@ async function fetchBook(book_id: number) {
         throw new Error("Network response was not ok " + response.statusText);
     }
 
-    const { entities } = await response.json();
+    const {entities} = await response.json();
     return entities;
 }
 
@@ -391,7 +391,7 @@ async function fetchMyBooks() {
         throw new Error("Network response was not ok " + response.statusText);
     }
 
-    const { entities } = await response.json();
+    const {entities} = await response.json();
     return entities;
 }
 
@@ -412,7 +412,7 @@ async function fetchBorrowRecordForBook(book_id: number | null, user: any) {
             throw new Error("Network response was not ok " + current_borrow_record_response.statusText);
         }
 
-        const { entities } = await current_borrow_record_response.json();
+        const {entities} = await current_borrow_record_response.json();
         return entities.current_borrow_record;
     }
 }
