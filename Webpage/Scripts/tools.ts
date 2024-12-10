@@ -441,7 +441,6 @@ async function fetchBorrowRecordForBook(book_id: number | null, user: any) {
  * ```
  */
 async function borrowBook(book_id: number): Promise<void> {
-
     const response = await fetch(`http://localhost:3000/borrowRecord/borrow`,
         {
             method: "POST",
@@ -463,4 +462,29 @@ async function borrowBook(book_id: number): Promise<void> {
     }
 
     window.location.reload();
+}
+
+async function generateBookList(options?: { only_borrowed_books: boolean }) {
+    try {
+        const only_borrowed_books: boolean = options?.only_borrowed_books ?? false;
+        const books = only_borrowed_books ? await fetchMyBooks() : await fetchBooks();
+
+        // Get the table body where rows will be inserted
+        const book_list = document.getElementById('book-list');
+        if (!book_list) {
+            console.warn("No book_list div found.");
+            return;
+        }
+
+        book_list.innerHTML = ""; // Clear existing rows
+
+        for (const book of books) {
+            // generate book container element
+            const book_element: HTMLLIElement = only_borrowed_books ? generateMyBookContainer(book) : generateBookContainer(book);
+
+            book_list.appendChild(book_element);
+        }// End of inner for loop
+    } catch (error) {
+        console.error("Failed to fetch books:", error);
+    }
 }

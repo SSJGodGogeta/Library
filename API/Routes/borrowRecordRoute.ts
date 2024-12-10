@@ -84,7 +84,7 @@ async function myRecordsBook(req: Request, res: Response) {
     try {
         const book_id = parseInt(req.params.book_id);
 
-        const current_borrow_record: BorrowRecord | null = await fetchBorrowRecordForBook(book_id, req.body.user);
+        const current_borrow_record: BorrowRecord | null = await BorrowRecord.getActiveBorrowRecordForBook(book_id, req.body.user);
         // if (!current_borrow_record) return sendResponseAsJson(res, 404, "No borrow record found");
 
         return sendResponseAsJson(res, 200, "Success", { current_borrow_record })
