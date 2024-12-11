@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 });
 
-function generateBookDetails(bookDetailsContainer: HTMLDivElement, book: Book, currentBorrowRecord: BorrowRecord | undefined) {
+function generateBookDetails(bookDetailsContainer: HTMLDivElement, book: Book, currentBorrowRecord: BorrowRecord | null) {
     bookDetailsContainer.innerHTML = `
             <img src="${book.cover_url}" alt="book cover" height="300px">
             <h1>${book.title}</h1>

@@ -99,11 +99,7 @@ async function fetchCurrentUser(): Promise<void> {
     }
 
     try {
-        const response = await fetch(`http://localhost:3000/authentication/currentUser`, {
-            method: "GET",
-            credentials: 'include',
-        });
-        const {entities} = await response.json();
+        const entities = await fetchRoute<User>('/authentication/currentUser');
 
         if (!entities) {
             console.error("User is not logged in");
@@ -145,19 +141,9 @@ async function fetchCurrentUser(): Promise<void> {
  * - Upon logout, the function redirects the user to `/Library/Webpage/login.html`.
  */
 async function logoutUser(): Promise<void> {
-    const response = await fetch(`http://localhost:3000/authentication/logout`, {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        credentials: 'include' // allow receiving cookies
-    });
-    const {message} = await response.json();
+    // Use fetchAPI for the logout request
+    const {message} = await fetchRoute<{ message: string }>('/authentication/logout', 'POST');
 
-    if (!response.ok) {
-        console.error(message);
-        return;
-    }
     console.log(`Logout: ${message}`);
 
     user.firstName = "";
@@ -188,86 +174,22 @@ function routeToBookDetails(bookId: number): void {
 }
 
 async function fetchBooks() {
-    const response = await fetch(`http://localhost:3000/book`,
-        {
-            method: "GET",
-            credentials: 'include', // allow receiving cookies
-        }
-    );
-    if (!response.ok) {
-        if (response.status == 401) {
-            window.location.href = "/Webpage/login.html";
-            return;
-
-        }
-        throw new Error("Network response was not ok " + response.statusText);
-    }
-
-    const {entities} = await response.json();
-    return entities as Book[];
+    return fetchRoute<Book[]>('/book');
 }
 
 async function fetchBook(bookId: number) {
-    const response = await fetch(`http://localhost:3000/book/${bookId}`,
-        {
-            method: "GET",
-            credentials: 'include', // allow receiving cookies
-        }
-    );
-    if (!response.ok) {
-        if (response.status == 401) {
-            window.location.href = "/Webpage/login.html";
-            return;
-
-        }
-        throw new Error("Network response was not ok " + response.statusText);
-    }
-
-    const {entities} = await response.json();
-    console.log(entities);
-    return entities as Book;
+    return fetchRoute<Book>(`/book/${bookId}`);
 }
 
 async function fetchMyRecords() {
-    const response = await fetch(`http://localhost:3000/borrowRecord/myRecords/`,
-        {
-            method: "GET",
-            credentials: 'include', // allow receiving cookies
-        }
-    );
-    if (!response.ok) {
-        if (response.status == 401) {
-            window.location.href = "/Webpage/login.html";
-            return;
-
-        }
-        throw new Error("Network response was not ok " + response.statusText);
-    }
-
-    const {entities} = await response.json();
-    return entities as BorrowRecord[];
+    return fetchRoute<BorrowRecord[]>(`/borrowRecord/myRecords/`);
 }
 
 async function fetchBorrowRecordForBook(bookId: number | null, user: any) {
     if (user) {
-        const currentBorrowRecordResponse = await fetch(`http://localhost:3000/borrowRecord/myRecords/book/${bookId}`,
-            {
-                method: "GET",
-                credentials: 'include', // allow receiving cookies
-            }
-        );
-        if (!currentBorrowRecordResponse.ok) {
-            if (currentBorrowRecordResponse.status == 401) {
-                window.location.href = "/Webpage/login.html";
-                return;
-
-            }
-            throw new Error("Network response was not ok:\nStatus text:" + currentBorrowRecordResponse.statusText);
-        }
-
-        const {entities} = await currentBorrowRecordResponse.json();
-        return entities.currentBorrowRecord as BorrowRecord;
+        return fetchRoute<BorrowRecord>(`/borrowRecord/myRecords/book/${bookId}`, "GET", undefined, "currentBorrowRecord");
     }
+    return null;
 }
 
 /**
@@ -294,25 +216,31 @@ async function fetchBorrowRecordForBook(bookId: number | null, user: any) {
  * ```
  */
 async function borrowBook(bookId: number): Promise<void> {
-    const response = await fetch(`http://localhost:3000/borrowRecord/borrow`,
-        {
-            method: "POST",
-            credentials: 'include', // allow receiving cookies
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({bookId}),
-        }
-    );
-
-    if (!response.ok) {
-        if (response.status == 401) {
-            window.location.href = "/Webpage/login.html";
-            return;
-
-        }
-        throw new Error("Network response was not ok " + response.statusText);
-    }
-
+    await fetchRoute<void>("/borrowRecord/borrow", "POST", {bookId});
     window.location.reload();
+}
+
+async function fetchRoute<T>(endpoint: string, method: "GET" | "POST" = "GET", body?: any, responseKey: string = "entities"): Promise<T> {
+    const url = `http://localhost:3000${endpoint}`;
+    const options: RequestInit = {
+        method,
+        credentials: 'include', // allow receiving cookies
+    };
+    if (body) {
+        options.headers = {
+            'Content-Type': 'application/json',
+        };
+        options.body = JSON.stringify(body);
+    }
+    const response = await fetch(url, options);
+    if (!response.ok) {
+        if (response.status === 401) {
+            window.location.href = "/Webpage/login.html";
+            return Promise.reject(new Error("Unauthorized, redirected to login."));
+        }
+        throw new Error(`Network response was not ok:\nStatus: ${response.statusText}`);
+    }
+    const json = await response.json();
+    // Extract the desired key from the response JSON
+    return json[responseKey] as T;
 }
