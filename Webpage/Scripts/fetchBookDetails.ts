@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         const user = getUserFromSessionStorage();
 
         const currentBorrowRecord = await fetchBorrowRecordForBook(bookId, user);
-        console.log(currentBorrowRecord);
         // Get the table body where rows will be inserted
         const bookDetailsContainer: HTMLDivElement | null = document.getElementById("book-details-container") as HTMLDivElement | null;
         if (!bookDetailsContainer) {
@@ -22,10 +21,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             console.warn("Book not found");
             return;
         }
-        if (!currentBorrowRecord) {
-            console.warn("Current Borrow Record not found");
-            //return;
-        }
+        if (!currentBorrowRecord) console.warn("Current Borrow Record not found");
         generateBookDetails(bookDetailsContainer, book, currentBorrowRecord);
 
     } catch (error) {
@@ -46,7 +42,7 @@ function generateBookDetails(bookDetailsContainer: HTMLDivElement, book: Book, c
                 <p>(${book.count_rating} Reviews)</p>
             </div>
             <div class="borrow-button-container">
-                <button id="btn-borrow" ${currentBorrowRecord || book.available_copies! <= 0 ? 'disabled' : ''} onclick="borrowBook(${book.book_id})">Borrow</button>
+                <button id="btn-borrow" ${currentBorrowRecord !== null || book.available_copies! <= 0 ? 'disabled' : ''} onclick="borrowBook(${book.book_id})">Borrow</button>
                 <button id="btn-reserve" ${currentBorrowRecord !== null ? 'disabled' : ''}>Reserve</button>
                 ${currentBorrowRecord ? `<button>Return</button>` : ``}
             </div>

@@ -66,7 +66,7 @@ async function validateDatabase() {
     };
 }
 
-router.get("/", authenticate, checkDatabase);
+router.get("", authenticate, checkDatabase);
 
 async function checkDatabase(_req: Request, res: Response) {
     try {

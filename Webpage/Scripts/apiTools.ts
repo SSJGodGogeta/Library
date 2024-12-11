@@ -62,6 +62,42 @@ interface Session {
     user: User
 }
 
+const backendRoutes = {
+    authentication: {
+        register: "/authentication/register",
+        login: "/authentication/login",
+        currentUser: "/authentication/currentUser",
+        logout: "/authentication/logout",
+    },
+    bookCopy: {
+        all: "/bookCopy",
+        byBookCopyId: "/bookCopy/",
+    },
+    book: {
+        all: "/book",
+        byBookId: "/book/",
+        byAuthorId: "/book/author/",
+    },
+    borrowRecord: {
+        borrow: "/borrowRecord/borrow",
+        myRecords: "/borrowRecord/myRecords/",
+        myRecordsBookByBookId: "/borrowRecord/myRecords/book/",
+    },
+    reservation: {
+        all: "/reservation",
+        byReservationId: "/reservation/",
+    },
+    session: {
+        all: "/session",
+        bySessionId: "/session/",
+    },
+    user: {
+        all: "/user",
+        byUserId: "/user/",
+    },
+    validateDB: "/validateDB",
+} as const;
+
 /**
  * Fetches the current user's data from the server and synchronizes it with the session storage.
  *
@@ -99,7 +135,7 @@ async function fetchCurrentUser(): Promise<void> {
     }
 
     try {
-        const entities = await fetchRoute<User>('/authentication/currentUser');
+        const entities = await fetchRoute<User>(backendRoutes.authentication.currentUser);
 
         if (!entities) {
             console.error("User is not logged in");
@@ -142,9 +178,9 @@ async function fetchCurrentUser(): Promise<void> {
  */
 async function logoutUser(): Promise<void> {
     // Use fetchAPI for the logout request
-    const {message} = await fetchRoute<{ message: string }>('/authentication/logout', 'POST');
+    const response = await fetchRoute<{ message: string }>(backendRoutes.authentication.logout, 'POST');
 
-    console.log(`Logout: ${message}`);
+    if (response && response.message) console.log(`Logout: ${response.message}`);
 
     user.firstName = "";
     user.lastName = "";
@@ -169,25 +205,24 @@ async function logoutUser(): Promise<void> {
  * ```
  */
 function routeToBookDetails(bookId: number): void {
-    //TODO: Create a function that gets all routes from one route and stores them in a object.
     window.location.href = "/Library/Webpage/bookDetails.html?bookId=" + bookId;
 }
 
 async function fetchBooks() {
-    return fetchRoute<Book[]>('/book');
+    return fetchRoute<Book[]>(backendRoutes.book.all);
 }
 
 async function fetchBook(bookId: number) {
-    return fetchRoute<Book>(`/book/${bookId}`);
+    return fetchRoute<Book>(`${backendRoutes.book.byBookId + bookId}`);
 }
 
 async function fetchMyRecords() {
-    return fetchRoute<BorrowRecord[]>(`/borrowRecord/myRecords/`);
+    return fetchRoute<BorrowRecord[]>(backendRoutes.borrowRecord.myRecords);
 }
 
 async function fetchBorrowRecordForBook(bookId: number | null, user: any) {
     if (user) {
-        return fetchRoute<BorrowRecord>(`/borrowRecord/myRecords/book/${bookId}`, "GET", undefined, "currentBorrowRecord");
+        return fetchRoute<BorrowRecord>(`${backendRoutes.borrowRecord.myRecordsBookByBookId + bookId}`, "GET", undefined);
     }
     return null;
 }
@@ -216,14 +251,27 @@ async function fetchBorrowRecordForBook(bookId: number | null, user: any) {
  * ```
  */
 async function borrowBook(bookId: number): Promise<void> {
-    await fetchRoute<void>("/borrowRecord/borrow", "POST", {bookId});
+    await fetchRoute<boolean>(`${backendRoutes.borrowRecord.borrow}`, "POST", {bookId}).catch(error => {
+        console.log(`An error occurred: ${error}`)
+    });
     window.location.reload();
 }
 
-async function fetchRoute<T>(endpoint: string, method: "GET" | "POST" = "GET", body?: any, responseKey: string = "entities"): Promise<T> {
+/**
+ * Utility function to create fetch functions for a given endpoint
+ * @param {string} endpoint - The endpoint where to request data. Use the backendRoutes object in this class.
+ * @param {string} method - Method of the request. By default, set to "GET".
+ * @param {string} body - The body of the request. It has to be an object!.
+ * @param {string} responseKey - The key of the object to return.
+ * By default, responseKey is set to "entities". This corresponds to the key "entities" in the routeTools.ts => sendResponseAsJson()
+ * If you (for some reason) get the idea of changing it or not using the sendResponseAsJson() function and using the base functions...
+ * Don't forget to fetch the results correctly using this function and specifying the responseKey explicitly.
+ */
+async function fetchRoute<T>(endpoint: string, method: "GET" | "POST" = "GET", body?: any, responseKey: string = "entities"): Promise<T | null> {
     const url = `http://localhost:3000${endpoint}`;
+    console.log(`Using route: ${url} with method: ${method} and body: ${JSON.stringify(body)}`);
     const options: RequestInit = {
-        method,
+        method: method,
         credentials: 'include', // allow receiving cookies
     };
     if (body) {
@@ -232,15 +280,26 @@ async function fetchRoute<T>(endpoint: string, method: "GET" | "POST" = "GET", b
         };
         options.body = JSON.stringify(body);
     }
-    const response = await fetch(url, options);
-    if (!response.ok) {
-        if (response.status === 401) {
-            window.location.href = "/Webpage/login.html";
-            return Promise.reject(new Error("Unauthorized, redirected to login."));
+    let json: any;
+    try {
+        const response = await fetch(url, options);
+        json = await response.json();
+        if (!response.ok) {
+            if (response.status === 401) {
+                window.location.href = "/Webpage/login.html";
+                await Promise.reject(new Error("Unauthorized, redirected to login."));
+                return null;
+            }
+            return null;
+            throw new Error(json.message || `Network response was not ok: ${response.statusText}`);
         }
-        throw new Error(`Network response was not ok:\nStatus: ${response.statusText}`);
+    } catch (error: any) {
+        console.error("Error occurred during fetch:", error);
+        await Promise.reject(error);
+        return null;
     }
-    const json = await response.json();
     // Extract the desired key from the response JSON
+    console.warn("JSON:", json);
+    console.warn("Response key:", json[responseKey]);
     return json[responseKey] as T;
 }

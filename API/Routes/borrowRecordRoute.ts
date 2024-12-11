@@ -11,7 +11,7 @@ import {PermissionTechcode} from "../../Database/Mapper/Techcodes/PermissionTech
 const router = Router();
 
 router.post("/borrow", authenticate, borrowBook);
-router.get("/myRecords/", authenticate, myRecords);
+router.get("/myRecords", authenticate, myRecords);
 router.get("/myRecords/book/:bookId", authenticate, myRecordsBook);
 
 async function borrowBook(req: Request, res: Response) {
@@ -104,7 +104,7 @@ async function myRecordsBook(req: Request, res: Response) {
         const bookId = parseInt(req.params.bookId);
         if (isNaN(bookId)) return sendResponseAsJson(res, 404, "BookId is required!");
         const currentBorrowRecord: BorrowRecord | null = await BorrowRecord.getActiveBorrowRecordForBook(bookId, req.body.user);
-        return sendResponseAsJson(res, 200, "Success", {currentBorrowRecord})
+        return sendResponseAsJson(res, 200, "Success", currentBorrowRecord)
     } catch (error) {
         console.error(`Error procession borrow request:`, error);
         return sendResponseAsJson(res, 500, "Failed process borrow request.");
