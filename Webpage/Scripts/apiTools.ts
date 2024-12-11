@@ -299,7 +299,6 @@ async function fetchRoute<T>(endpoint: string, method: "GET" | "POST" = "GET", b
         return null;
     }
     // Extract the desired key from the response JSON
-    console.warn("JSON:", json);
-    console.warn("Response key:", json[responseKey]);
+    console.log("JSON:", json);
     return json[responseKey] as T;
 }
