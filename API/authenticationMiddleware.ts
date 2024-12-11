@@ -1,30 +1,8 @@
 import {NextFunction, Request, Response} from "express";
 import {Session} from "../Database/Mapper/Entities/session.js";
 import {sendResponseAsJson} from "./routeTools.js";
-import {isSessionExpired} from "./Routes/authenticationRoute.js";
-
-/**
- * Calculates the absolute difference in minutes between two Date objects.
- *
- * @param {Date} date1 - The first date object.
- * @param {Date} date2 - The second date object.
- * @returns {number} The absolute difference between the two dates in minutes.
- *
- * @example
- * // Example usage
- * const date1 = new Date('2024-12-05T10:00:00');
- * const date2 = new Date('2024-12-05T10:45:00');
- *
- * const difference = getDifferenceInMinutes(date1, date2);
- * console.log(difference); // Output: 45
- */
-function getDifferenceInMinutes(date1: Date, date2: Date): number {
-    const time1 = date1.getTime(); // Convert date1 to a timestamp in milliseconds
-    const time2 = date2.getTime(); // Convert date2 to a timestamp in milliseconds
-
-    const diffInMilliseconds = Math.abs(time1 - time2); // Get the absolute difference
-    return Math.floor(diffInMilliseconds / (1000 * 60)); // Convert milliseconds to minutes
-}
+import {isSessionExpired} from "./Routes/tools/isSessionExpired.js";
+import {getDifferenceInMinutes} from "./Routes/tools/getDifferenceInMinutes.js"
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -39,7 +17,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
         if (!session) {
             return sendResponseAsJson(res, 401, "Session not found");
         }
-        if (isSessionExpired(session.last_used, 1)) {
+        if (isSessionExpired(session.last_used, new Date(), 1)) {
             await session.remove();
             await Session.saveSession(session);
             return sendResponseAsJson(res, 401, "Session expired");

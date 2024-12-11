@@ -7,6 +7,7 @@ import {User} from "../../Database/Mapper/Entities/user.js";
 import {Session} from "../../Database/Mapper/Entities/session.js";
 import {PermissionTechcode} from "../../Database/Mapper/Techcodes/PermissionTechcode.js";
 import {routes, sendResponseAsJson} from "../routeTools.js";
+import {isSessionExpired} from "./tools/isSessionExpired.js";
 
 const router = Router();
 
@@ -15,27 +16,6 @@ router.post("/register", register);
 router.post("/login", login);
 router.get("/currentUser", authenticate, currentUser);
 router.post("/logout", authenticate, logout);
-
-/**
- * Determines if a session is expired based on its creation date and the expiration period in days.
- *
- * @param {Date} createdAt - The date when the session was created.
- * @param {number} days - The number of days the session is valid.
- * @returns {boolean} `true` if the session is expired, otherwise `false`.
- *
- * @example
- * // Example usage
- * const createdAt = new Date('2024-12-01T10:00:00'); // Session created on December 1, 2024,
- * const expirationDays = 7;
- *
- * const expired = isSessionExpired(createdAt, expirationDays);
- * console.log(expired); // Output: true or false depending on the current date
- */
-export function isSessionExpired(createdAt: Date, days: number): boolean {
-    const now = Date.now(); // Current timestamp in milliseconds
-    const expirationTime = createdAt.getTime() + days * 24 * 60 * 60 * 1000; // Add days in milliseconds
-    return now > expirationTime;
-}
 
 /**
  * Creates a new session for a user or updates an existing session if it matches the device and IP.
@@ -64,7 +44,7 @@ async function createNewSession(req: Request, user: User): Promise<Session> {
     const activeSession: Session | null = await Session.getSessionByUserId(user.user_id);
     // if session exists:
     if (activeSession && activeSession.deviceInfo == ua && activeSession.ip == ip) {
-        if (!isSessionExpired(activeSession.last_used, 1)) {
+        if (!isSessionExpired(activeSession.last_used, new Date(), 1)) {
             activeSession.last_used = new Date();
             await Session.saveSession(activeSession);
             console.warn("User has already an active session.");
