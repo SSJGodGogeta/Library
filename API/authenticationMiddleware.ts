@@ -1,8 +1,8 @@
 import {NextFunction, Request, Response} from "express";
 import {Session} from "../Database/Mapper/Entities/session.js";
-import {sendResponseAsJson} from "./routeTools.js";
 import {isSessionExpired} from "./Routes/tools/isSessionExpired.js";
 import {getDifferenceInMinutes} from "./Routes/tools/getDifferenceInMinutes.js"
+import {sendResponseAsJson} from "./Routes/tools/sendResponseAsJson.js";
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {

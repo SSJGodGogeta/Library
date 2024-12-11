@@ -1,10 +1,11 @@
-import {routes, sendResponseAsJson} from "../routeTools.js";
+import {routes} from "../routeTools.js";
 import {BorrowRecord} from "../../Database/Mapper/Entities/borrow_record.js";
 import {Request, Response, Router} from "express";
 import {authenticate} from "../authenticationMiddleware.js";
 import {Book_Copy} from "../../Database/Mapper/Entities/book_copy.js";
 import {BorrowRecordTechcode} from "../../Database/Mapper/Techcodes/BorrowRecordTechcode.js";
 import {Book} from "../../Database/Mapper/Entities/book.js";
+import {sendResponseAsJson} from "./tools/sendResponseAsJson.js";
 
 const router = Router();
 

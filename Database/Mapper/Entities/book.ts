@@ -1,7 +1,7 @@
 import {BaseEntity, Column, Entity, PrimaryColumn,} from 'typeorm';
 import {AvailabilityTechcode} from "../Techcodes/AvailabilityTechcode.js";
-import {sendResponseAsJson} from "../../../API/routeTools.js";
 import {Response} from "express";
+import {sendResponseAsJson} from "../../../API/Routes/tools/sendResponseAsJson.js";
 
 @Entity('book')
 export class Book extends BaseEntity {
