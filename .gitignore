@@ -13,3 +13,4 @@ Database/Liquibase/database_objects/output_local.sql
 /.idea/dataSources/fe382b80-7926-4410-b52d-cac1261f5395/storage_v2/_src_/schema/performance_schema.kIw0nw.meta
 /.idea/dataSources/fe382b80-7926-4410-b52d-cac1261f5395/storage_v2/_src_/schema/scrum_library.tjuSyQ.meta
 /.idea/dataSources/fe382b80-7926-4410-b52d-cac1261f5395/storage_v2/_src_/schema/scrum_library.tjuSyQ.zip
+.env
