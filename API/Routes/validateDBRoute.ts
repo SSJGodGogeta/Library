@@ -4,8 +4,9 @@ import {BorrowRecordTechcode} from "../../Database/Mapper/Techcodes/BorrowRecord
 import {AvailabilityTechcode} from "../../Database/Mapper/Techcodes/AvailabilityTechcode.js";
 import {Request, Response, Router} from "express";
 
-import {routes, sendResponseAsJson} from "../routeTools.js";
+import {routes} from "../routeTools.js";
 import {authenticate} from "../authenticationMiddleware.js";
+import {sendResponseAsJson} from "./tools/sendResponseAsJson.js";
 
 
 const router = Router();

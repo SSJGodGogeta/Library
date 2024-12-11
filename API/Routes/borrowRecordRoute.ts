@@ -1,4 +1,4 @@
-import {routes, sendResponseAsJson} from "../routeTools.js";
+import {routes} from "../routeTools.js";
 import {BorrowRecord} from "../../Database/Mapper/Entities/borrow_record.js";
 import {Request, Response, Router} from "express";
 import {authenticate} from "../authenticationMiddleware.js";
@@ -7,6 +7,7 @@ import {BorrowRecordTechcode} from "../../Database/Mapper/Techcodes/BorrowRecord
 import {Book} from "../../Database/Mapper/Entities/book.js";
 import {User} from "../../Database/Mapper/Entities/user.js";
 import {PermissionTechcode} from "../../Database/Mapper/Techcodes/PermissionTechcode.js";
+import {sendResponseAsJson} from "./tools/sendResponseAsJson.js";
 
 const router = Router();
 

@@ -1,7 +1,8 @@
-import createEntityRoutes, {routes, sendResponseAsJson} from "../routeTools.js";
+import createEntityRoutes, {routes} from "../routeTools.js";
 import {Book} from "../../Database/Mapper/Entities/book.js";
 import {authenticate} from "../authenticationMiddleware.js";
 import {Request, Response} from "express";
+import {sendResponseAsJson} from "./tools/sendResponseAsJson.js";
 
 
 const bookRoutes = createEntityRoutes<Book>(

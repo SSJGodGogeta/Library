@@ -19,7 +19,6 @@ function formatDateWithoutTime(dateString: string): string {
     }).format(date);
 }
 
-
 /**
  * Determines the image name for a star based on its index and the average rating.
  *

@@ -19,6 +19,7 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
     "skipLibCheck": true,
+    "types": ["vitest/importMeta"],
     "lib": ["dom", "es2022"]
   },
   "include": ["./**/*.ts"],
