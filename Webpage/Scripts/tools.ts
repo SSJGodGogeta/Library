@@ -10,7 +10,7 @@
  * const formattedDate = formatDateWithoutTime("2024-12-19T20:56:10.000Z");
  * console.log(formattedDate); // Output: "December 19, 2024"
  */
-function formatDateWithoutTime(dateString: string) {
+function formatDateWithoutTime(dateString: string): string {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('en-US', {
         year: 'numeric',
@@ -27,9 +27,9 @@ function formatDateWithoutTime(dateString: string) {
  * @param {number | undefined} averageRating - The average rating, which can be undefined.
  *                                             Defaults to 0 if not provided.
  * @returns {string} - The file name of the star image:
- *                     - `"Full_Star_Yellow.png"` if the star is fully filled.
- *                     - `"Half_Star_Yellow.png"` if the star is half-filled.
- *                     - `"Empty_Star_Yellow.png"` if the star is empty.
+ *                     - `"fullStarYellow.png"` if the star is fully filled.
+ *                     - `"halfStarYellow.png"` if the star is half-filled.
+ *                     - `"emptyStarYellow.png"` if the star is empty.
  *
  * @remarks
  * - If `averageRating` is undefined, it is treated as 0.
@@ -42,24 +42,24 @@ function formatDateWithoutTime(dateString: string) {
  * ```
  * // Example 1: Full star
  * const imageName = getStarImageName(1, 4.5);
- * console.log(imageName); // Output: "Full_Star_Yellow.png"
+ * console.log(imageName); // Output: "fullStarYellow.png"
  *
  * // Example 2: Half star
  * const imageName = getStarImageName(5, 4.5);
- * console.log(imageName); // Output: "Half_Star_Yellow.png"
+ * console.log(imageName); // Output: "halfStarYellow.png"
  *
  * // Example 3: Empty star
  * const imageName = getStarImageName(6, 4.5);
- * console.log(imageName); // Output: "Empty_Star_Yellow.png"
+ * console.log(imageName); // Output: "emptyStarYellow.png"
  * ```
  */
 function getStarImageName(
     starIndex: number,
     averageRating: number | undefined
 ): string {
-    if ((averageRating ?? 0) >= starIndex) return "Full_Star_Yellow.png";
-    if ((averageRating ?? 0) <= starIndex - 1) return "Empty_Star_Yellow.png";
-    return "Half_Star_Yellow.png";
+    if ((averageRating ?? 0) >= starIndex) return "fullStarYellow.png";
+    if ((averageRating ?? 0) <= starIndex - 1) return "emptyStarYellow.png";
+    return "halfStarYellow.png";
 }
 
 /**
@@ -86,8 +86,8 @@ function delay(ms: number): Promise<void> {
 }
 
 let user = {
-    first_name: "",
-    last_name: "",
+    firstName: "",
+    lastName: "",
     loggedIn: false,
     email: "",
 }
@@ -99,7 +99,7 @@ let user = {
  *
  * @example
  * ```
- * const newUser = { first_name: "John", last_name: "Doe", loggedIn: true, email: "john.doe@example.com" };
+ * const newUser = { firstName: "John", lastName: "Doe", loggedIn: true, email: "john.doe@example.com" };
  * saveUserToSessionStorage(newUser);
  * ```
  */
@@ -116,7 +116,7 @@ function saveUserToSessionStorage(user1: typeof user) {
  * ```
  * const currentUser = getUserFromSessionStorage();
  * if (currentUser) {
- *     console.log(`User ${currentUser.first_name} is logged in.`);
+ *     console.log(`User ${currentUser.firstName} is logged in.`);
  * } else {
  *     console.log("No user is currently stored.");
  * }
@@ -124,7 +124,7 @@ function saveUserToSessionStorage(user1: typeof user) {
  */
 function getUserFromSessionStorage(): typeof user | null {
     const storedUser = sessionStorage.getItem('currentUser');
-    return storedUser ? JSON.parse(storedUser) : null;
+    return storedUser ? JSON.parse(storedUser) as typeof user : null;
 }
 
 /**
@@ -141,130 +141,6 @@ function clearUserFromSessionStorage() {
 }
 
 /**
- * Fetches the current user's data from the server and synchronizes it with the session storage.
- *
- * - If the user is already stored in the session storage, the in-memory `user` object is updated,
- *   and no server request is made.
- * - If no user data is stored, the function fetches the current user data from the server and updates
- *   both the in-memory `user` object and the session storage.
- *
- * @returns {Promise<void>} - A promise that resolves when the operation is complete.
- *
- * @throws {Error} - Logs an error if the fetch request fails or the response is invalid.
- *
- * @example
- * ```
- * await fetchCurrentUser();
- * if (user.loggedIn) {
- *     console.log(`Welcome, ${user.first_name} ${user.last_name}!`);
- * } else {
- *     console.log("No user is logged in.");
- * }
- * ```
- *
- * @remarks
- * - This function assumes the presence of the `user` object and related helper functions like
- *   `getUserFromSessionStorage` and `saveUserToSessionStorage`.
- * - The server endpoint (`http://localhost:3000/authentication/currentUser`) must return a JSON
- *   response with an `entities` object containing the user's details.
- */
-async function fetchCurrentUser(): Promise<void> {
-    const storedUser = getUserFromSessionStorage();
-    if (storedUser) {
-        console.warn("User already fetched and stored for this session.");
-        Object.assign(user, storedUser); // Synchronize the in-memory `user` object with the stored data
-        return;
-    }
-
-    try {
-        const response = await fetch(`http://localhost:3000/authentication/currentUser`, {
-            method: "GET",
-            credentials: 'include',
-        });
-        const {entities} = await response.json();
-
-        if (!entities) {
-            console.error("User is not logged in");
-            return;
-        }
-
-        user.loggedIn = true;
-        user.first_name = entities.first_name;
-        user.last_name = entities.last_name;
-        user.email = entities.email;
-
-        saveUserToSessionStorage(user);
-        console.warn("Finished fetching and saving user.");
-    } catch (error) {
-        console.error(error);
-    }
-}
-
-/**
- * Logs out the current user by making a request to the server and clearing user data.
- *
- * - Sends a logout request to the server endpoint.
- * - Clears the in-memory `user` object and removes it from session storage.
- * - Redirects the user to the login page upon successful logout.
- *
- * @returns {Promise<void>} - A promise that resolves when the operation is complete.
- *
- * @throws {Error} - Logs an error message if the logout request fails or the server response is invalid.
- *
- * @example
- * ```
- * await logoutUser();
- * console.log("User has been logged out successfully.");
- * ```
- *
- * @remarks
- * - Assumes the existence of a global `user` object that holds the current user's state.
- * - The server endpoint (`http://localhost:3000/authentication/logout`) must return a JSON response with a `message` field.
- * - Upon logout, the function redirects the user to `/Library/Webpage/login.html`.
- */
-async function logoutUser(): Promise<void> {
-    const response = await fetch(`http://localhost:3000/authentication/logout`, {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        credentials: 'include' // allow receiving cookies
-    });
-    const {message} = await response.json();
-
-    if (!response.ok) {
-        console.error(message);
-        return;
-    }
-    console.log(`Logout: ${message}`);
-
-    user.first_name = "";
-    user.last_name = "";
-    user.loggedIn = false;
-    user.email = "";
-    clearUserFromSessionStorage();
-    console.warn("User logged out and local storage cleared.");
-    window.location.href = "/Library/Webpage/login.html";
-}
-
-/**
- * Redirects to the book details page of a specified book.
- * Goes to /Library/Webpage/book_details.html?book_id=$book_id
- *
- * @param {number} book_id - The id of the book
- *
- * @returns {void}
- *
- * @example
- * ```
- * routeToBookDetails(2);
- * ```
- */
-function routeToBookDetails(book_id: number): void {
-    window.location.href = "/Library/Webpage/book_details.html?book_id=" + book_id;
-}
-
-/**
  * Generates an HTML `<li>` element representing a book with its details and rating.
  *
  * @param {Book} book - The book object containing all necessary information.
@@ -272,14 +148,14 @@ function routeToBookDetails(book_id: number): void {
  *
  * @example
  * ```
- * generateBookContainer(my_book);
+ * generateBookContainer(myBook);
  * ```
  */
-function generateBookContainer(book: any): HTMLLIElement {
-    const book_item: HTMLLIElement = document.createElement('li');
-    book_item.innerHTML = `
+function generateBookContainer(book: Book): HTMLLIElement {
+    const bookItem: HTMLLIElement = document.createElement('li');
+    bookItem.innerHTML = `
                <div class="book-container" onclick="routeToBookDetails('${book.book_id}')">
-                    <img src="${book.cover_url ?? "Images/book-cover-placeholder.png"}" alt="book cover" height="200px">
+                    <img src="${book.cover_url ?? "Images/bookCoverPlaceholder.png"}" alt="book cover" height="200px">
                     <div class="book-info">
                         <h2>${book.title}</h2>
                         <p class="author-info">${book.author}</p>
@@ -298,7 +174,7 @@ function generateBookContainer(book: any): HTMLLIElement {
                </div>
                 `;
 
-    return book_item;
+    return bookItem;
 }
 
 /**
@@ -307,7 +183,7 @@ function generateBookContainer(book: any): HTMLLIElement {
  * This function uses `generateBookContainer` to create the base book container and
  * then appends a paragraph containing the return information.
  *
- * @param {BorrowRecord} borrow_record - The borrow record containing a `book_copy` object with book data
+ * @param {BorrowRecord} borrowRecord - The borrow record containing a `book_copy` object with book data
  *                              and a `return_date` for the borrowed book.
  * @returns {HTMLLIElement} - An HTML list item element containing the book's details and return info.
  *
@@ -320,169 +196,43 @@ function generateBookContainer(book: any): HTMLLIElement {
  * document.body.appendChild(bookContainer);
  * ```
  */
-function generateMyBookContainer(borrow_record: any): HTMLLIElement {
-    const book_item = generateBookContainer(borrow_record.book_copy.book);
+function generateMyBookContainer(borrowRecord: BorrowRecord): HTMLLIElement {
+    const bookItem = generateBookContainer(borrowRecord.book_copy.book);
 
-    const bookInfoDiv = book_item.querySelector('.book-info');
+    const bookInfoDiv = bookItem.querySelector('.book-info');
 
     if (bookInfoDiv) {
         const returnInfoParagraph = document.createElement('p');
         returnInfoParagraph.className = 'return-info';
-        returnInfoParagraph.innerHTML = `<b>Return date:</b> ${formatDateWithoutTime(borrow_record.return_date)}`;
+        returnInfoParagraph.innerHTML = `<b>Return date:</b> ${formatDateWithoutTime(borrowRecord.return_date.toString())}`;
         bookInfoDiv.appendChild(returnInfoParagraph);
     }
 
-    return book_item;
+    return bookItem;
 }
 
-async function fetchBooks() {
-    const response = await fetch(`http://localhost:3000/book`,
-        {
-            method: "GET",
-            credentials: 'include', // allow receiving cookies
-        }
-    );
-    if (!response.ok) {
-        if (response.status == 401) {
-            window.location.href = "/Webpage/login.html";
-            return;
-
-        }
-        throw new Error("Network response was not ok " + response.statusText);
-    }
-
-    const { entities } = await response.json();
-    return entities;
-}
-
-async function fetchBook(book_id: number) {
-    const response = await fetch(`http://localhost:3000/book/${book_id}`,
-        {
-            method: "GET",
-            credentials: 'include', // allow receiving cookies
-        }
-    );
-    if (!response.ok) {
-        if (response.status == 401) {
-            window.location.href = "/Webpage/login.html";
-            return;
-
-        }
-        throw new Error("Network response was not ok " + response.statusText);
-    }
-
-    const { entities } = await response.json();
-    return entities;
-}
-
-async function fetchMyBooks() {
-    const response = await fetch(`http://localhost:3000/borrowRecord/myRecords/`,
-        {
-            method: "GET",
-            credentials: 'include', // allow receiving cookies
-        }
-    );
-    if (!response.ok) {
-        if (response.status == 401) {
-            window.location.href = "/Webpage/login.html";
-            return;
-
-        }
-        throw new Error("Network response was not ok " + response.statusText);
-    }
-
-    const { entities } = await response.json();
-    return entities;
-}
-
-async function fetchBorrowRecordForBook(book_id: number | null, user: any) {
-    if (user) {
-        const current_borrow_record_response = await fetch(`http://localhost:3000/borrowRecord/myRecords/book/${book_id}`,
-            {
-                method: "GET",
-                credentials: 'include', // allow receiving cookies
-            }
-        );
-        if (!current_borrow_record_response.ok) {
-            if (current_borrow_record_response.status == 401) {
-                window.location.href = "/Webpage/login.html";
-                return;
-
-            }
-            throw new Error("Network response was not ok " + current_borrow_record_response.statusText);
-        }
-
-        const { entities } = await current_borrow_record_response.json();
-        return entities.current_borrow_record;
-    }
-}
-
-/**
- * Sends a request to borrow a book by its ID.
- * Handles authentication and reloads the page upon success.
- *
- * @param {number} book_id - The ID of the book to be borrowed.
- * @returns {Promise<void>} - A promise that resolves when the operation is complete.
- *
- * @throws {Error} - Throws an error if the network response is not ok,
- *                   excluding unauthorized responses which redirect to the login page.
- *
- * @remarks
- * - If the user is not authenticated (HTTP 401), the function redirects to the login page.
- * - Reloads the page upon successful borrowing.
- *
- * @example
- * ```
- * try {
- *   await borrowBook(123);
- * } catch (error) {
- *   console.error("Failed to borrow book:", error);
- * }
- * ```
- */
-async function borrowBook(book_id: number): Promise<void> {
-    const response = await fetch(`http://localhost:3000/borrowRecord/borrow`,
-        {
-            method: "POST",
-            credentials: 'include', // allow receiving cookies
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({book_id}),
-        }
-    );
-
-    if (!response.ok) {
-        if (response.status == 401) {
-            window.location.href = "/Webpage/login.html";
-            return;
-
-        }
-        throw new Error("Network response was not ok " + response.statusText);
-    }
-
-    window.location.reload();
-}
-
-async function generateBookList(options?: { only_borrowed_books: boolean }) {
+async function generateBookList(options?: { onlyBorrowedBooks: boolean }) {
     try {
-        const only_borrowed_books: boolean = options?.only_borrowed_books ?? false;
-        const books = only_borrowed_books ? await fetchMyBooks() : await fetchBooks();
-
+        const onlyBorrowedBooks: boolean = options?.onlyBorrowedBooks ?? false;
+        const result = onlyBorrowedBooks ? await fetchMyRecords() : await fetchBooks();
         // Get the table body where rows will be inserted
-        const book_list = document.getElementById('book-list');
-        if (!book_list) {
+        const bookList = document.getElementById('book-list');
+        if (!bookList) {
             console.warn("No book_list div found.");
             return;
         }
 
-        book_list.innerHTML = ""; // Clear existing rows
-
-        for (const book of books) {
+        bookList.innerHTML = ""; // Clear existing rows
+        if (!result) {
+            console.error("generateBookList.result is undefined");
+            return;
+        }
+        if (isFetchResponse(result)) return;
+        for (const book of result) {
             // generate book container element
-            const book_element: HTMLLIElement = only_borrowed_books ? generateMyBookContainer(book) : generateBookContainer(book);
+            const bookElement: HTMLLIElement = onlyBorrowedBooks ? generateMyBookContainer(book as BorrowRecord) : generateBookContainer(book as Book);
 
-            book_list.appendChild(book_element);
+            bookList.appendChild(bookElement);
         }// End of inner for loop
     } catch (error) {
         console.error("Failed to fetch books:", error);

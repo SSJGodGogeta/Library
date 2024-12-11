@@ -5,7 +5,7 @@ import {
     BaseEntity,
 } from 'typeorm';
 
-import {Permission_Techcode} from "../Techcodes/Permission_Techcode.js";
+import {PermissionTechcode} from "../Techcodes/PermissionTechcode.js";
 
 @Entity('user')
 export class User extends BaseEntity {
@@ -28,7 +28,7 @@ export class User extends BaseEntity {
     imageurl?: string;
 
     @Column({length: 50, nullable: false})
-    permissions!: Permission_Techcode;
+    permissions!: PermissionTechcode;
 
     static async getUsersFromCacheOrDB(): Promise<User[]> {
         if (!users) users = await User.find();

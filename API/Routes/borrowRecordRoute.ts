@@ -3,34 +3,41 @@ import {BorrowRecord} from "../../Database/Mapper/Entities/borrow_record.js";
 import {Request, Response, Router} from "express";
 import {authenticate} from "../authenticationMiddleware.js";
 import {Book_Copy} from "../../Database/Mapper/Entities/book_copy.js";
-import {BorrowRecord_Techcode} from "../../Database/Mapper/Techcodes/BorrowRecord_Techcode.js";
+import {BorrowRecordTechcode} from "../../Database/Mapper/Techcodes/BorrowRecordTechcode.js";
 import {Book} from "../../Database/Mapper/Entities/book.js";
+import {User} from "../../Database/Mapper/Entities/user.js";
+import {PermissionTechcode} from "../../Database/Mapper/Techcodes/PermissionTechcode.js";
 
 const router = Router();
 
 router.post("/borrow", authenticate, borrowBook);
-router.get("/myRecords/", authenticate, myRecords);
-router.get("/myRecords/book/:book_id", authenticate, myRecordsBook);
+router.get("/myRecords", authenticate, myRecords);
+router.get("/myRecords/book/:bookId", authenticate, myRecordsBook);
 
 async function borrowBook(req: Request, res: Response) {
     try {
-        // check if the book_id is present and is a valid integer
-        if (!req.body.book_id) return sendResponseAsJson(res, 422, "book_id is required!")
+        // check if the bookId is present and is a valid integer
+        if (!req.body.bookId) return sendResponseAsJson(res, 422, "bookId is required!")
 
-        const book_id: number = parseInt(req.body.book_id);
+        const bookId: number = parseInt(req.body.bookId);
+        if (isNaN(bookId)) return sendResponseAsJson(res, 422, "bookId is NaN!")
 
-        const book = await Book.getBook(res, book_id);
-        if (!book) return; // the getBookAndRecord function exited and already returned a status code
-
-        const current_borrow_record = await BorrowRecord.getActiveBorrowRecordForBook(book_id, req.body.user);
+        const book = await Book.getBook(res, bookId);
+        if (!book) return sendResponseAsJson(res, 404, `Book by id: ${bookId} could not be found.`); // the getBookAndRecord function exited and already returned a status code
+        const user: User | undefined = (req.body.user as User) ?? undefined;
+        // From Arman: This case technically should never happen, because we have the authenticate check. However, if somehow it manages to bypass it, this would stop further execution.
+        // Its also for our safety to pass the correct object to the function below, cause req.body.user is not guaranteed to be of type User (it doesnt have a type at all)
+        // Additionally it saves us from further mistakes when accessing user.properties as we get the Webstorm auto complete feature
+        if (!user) return sendResponseAsJson(res, 401, "You have to login in order to borrow books");
+        const currentBorrowRecord = await BorrowRecord.getActiveBorrowRecordForBook(bookId, user);
 
         // check if the user already has
-        if (current_borrow_record) return sendResponseAsJson(res, 409, "The User already has a copy of this book");
+        if (currentBorrowRecord) return sendResponseAsJson(res, 409, "The User already has a copy of this book");
 
         // get a book copy that is currently not borrowed
-        let available_book_copy: Book_Copy | undefined = (await Book_Copy.getBookCopiesFromCacheOrDB()).find((copy) => copy.status == BorrowRecord_Techcode.NOT_BORROWED && copy.book.book_id == book_id);
+        let availableBookCopy: Book_Copy | undefined = (await Book_Copy.getBookCopiesFromCacheOrDB()).find((copy) => copy.status == BorrowRecordTechcode.NOT_BORROWED && copy.book.book_id == bookId);
 
-        if (!available_book_copy) {
+        if (!availableBookCopy) {
             // there are 0 available copies. If the book objects has saved a different value update it
             if (book.available_copies !== 0) {
                 book.available_copies = 0;
@@ -41,26 +48,38 @@ async function borrowBook(req: Request, res: Response) {
         }
 
         // create the new borrow record
-        const borrow_record: BorrowRecord = new BorrowRecord()
+        const borrowRecord: BorrowRecord = new BorrowRecord();
+        let borrowDate = new Date();
+        let returnDate = new Date();
+        switch (user.permissions) {
+            case PermissionTechcode.ADMIN:
+                returnDate.setDate(borrowDate.getDate() + 365);
+                break;
+            case PermissionTechcode.EMPLOYEE:
+            case PermissionTechcode.PROFESSOR:
+                returnDate.setDate(borrowDate.getDate() + 60);
+                break;
+            case PermissionTechcode.STUDENT:
+                returnDate.setDate(borrowDate.getDate() + 30);
+                break;
+            default:
+                return sendResponseAsJson(res, 404, `You dont have any registered permissions and therefore are not allowed to borrow a book.\nPlease contact a staff member.`);
+        }
 
-        let borrow_date = new Date();
 
-        let return_date = new Date();
-        return_date.setDate(borrow_date.getDate() + 14)
+        borrowRecord.status = BorrowRecordTechcode.BORROWED;
+        borrowRecord.book_copy = availableBookCopy;
+        borrowRecord.user = req.body.user;
+        borrowRecord.borrow_date = borrowDate;
+        borrowRecord.return_date = returnDate;
 
-        borrow_record.status = BorrowRecord_Techcode.BORROWED;
-        borrow_record.book_copy = available_book_copy;
-        borrow_record.user = req.body.user;
-        borrow_record.borrow_date = borrow_date;
-        borrow_record.return_date = return_date;
-
-        await BorrowRecord.saveBorrowRecord(borrow_record);
+        await BorrowRecord.saveBorrowRecord(borrowRecord);
 
         // clear cache for the books and book copies
         await Book.resetBookCache();
         await Book_Copy.resetBookCopyCache();
 
-        return sendResponseAsJson(res, 200, "Success", {borrow_record});
+        return sendResponseAsJson(res, 200, "Success", {borrowRecord});
     } catch (error) {
         console.error(`Error procession borrow request:`, error);
         return sendResponseAsJson(res, 500, "Failed process borrow request.");
@@ -69,11 +88,11 @@ async function borrowBook(req: Request, res: Response) {
 
 async function myRecords(req: Request, res: Response) {
     try {
-        // get all active borrow_records for a user
-        const borrow_records: BorrowRecord[] = await BorrowRecord.getBorrowRecordsFromCacheOrDB();
-        const active_borrow_record: BorrowRecord[] = borrow_records.filter((record) => record.user.user_id === req.body.user.user_id);
+        // get all active borrowRecords for a user
+        const borrowRecords: BorrowRecord[] = await BorrowRecord.getBorrowRecordsFromCacheOrDB();
+        const activeBorrowRecord: BorrowRecord[] = borrowRecords.filter((record) => record.user.user_id === req.body.user.user_id);
 
-        return sendResponseAsJson(res, 200, "Success", active_borrow_record);
+        return sendResponseAsJson(res, 200, "Success", activeBorrowRecord);
     } catch (error) {
         console.error(`Error procession borrow request:`, error);
         return sendResponseAsJson(res, 500, "Failed process borrow request.");
@@ -82,12 +101,10 @@ async function myRecords(req: Request, res: Response) {
 
 async function myRecordsBook(req: Request, res: Response) {
     try {
-        const book_id = parseInt(req.params.book_id);
-
-        const current_borrow_record: BorrowRecord | null = await BorrowRecord.getActiveBorrowRecordForBook(book_id, req.body.user);
-        // if (!current_borrow_record) return sendResponseAsJson(res, 404, "No borrow record found");
-
-        return sendResponseAsJson(res, 200, "Success", { current_borrow_record })
+        const bookId = parseInt(req.params.bookId);
+        if (isNaN(bookId)) return sendResponseAsJson(res, 404, "BookId is required!");
+        const currentBorrowRecord: BorrowRecord | null = await BorrowRecord.getActiveBorrowRecordForBook(bookId, req.body.user);
+        return sendResponseAsJson(res, 200, "Success", currentBorrowRecord)
     } catch (error) {
         console.error(`Error procession borrow request:`, error);
         return sendResponseAsJson(res, 500, "Failed process borrow request.");

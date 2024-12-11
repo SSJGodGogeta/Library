@@ -1,3 +1,3 @@
-document.addEventListener("DOMContentLoaded", async function() {
-    await generateBookList({ only_borrowed_books: false });
+document.addEventListener("DOMContentLoaded", async function () {
+    await generateBookList({onlyBorrowedBooks: false});
 });

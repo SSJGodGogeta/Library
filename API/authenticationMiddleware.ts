@@ -29,7 +29,7 @@ function getDifferenceInMinutes(date1: Date, date2: Date): number {
 export const authenticate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         // Retrieve the session token from the cookies send with the request
-        const token = req.cookies.session_token;
+        const token = req.cookies.sessionToken;
         if (!token) {
             return sendResponseAsJson(res, 422, "No session token provided");
         }

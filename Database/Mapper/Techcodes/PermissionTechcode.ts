@@ -1,4 +1,4 @@
-export enum Permission_Techcode {
+export enum PermissionTechcode {
     PROFESSOR = "PROFESSOR",
     STUDENT = "STUDENT",
     EMPLOYEE = "EMPLOYEE",

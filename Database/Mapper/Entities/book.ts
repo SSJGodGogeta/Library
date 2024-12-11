@@ -1,5 +1,5 @@
 import {BaseEntity, Column, Entity, PrimaryColumn,} from 'typeorm';
-import {Availability_Techcode} from "../Techcodes/Availability_Techcode.js";
+import {AvailabilityTechcode} from "../Techcodes/AvailabilityTechcode.js";
 import {sendResponseAsJson} from "../../../API/routeTools.js";
 import {Response} from "express";
 
@@ -54,7 +54,7 @@ export class Book extends BaseEntity {
     cover_url?: string;
 
     @Column({length: '50', nullable: false})
-    availability!: Availability_Techcode;
+    availability!: AvailabilityTechcode;
 
     static async getBooksFromCacheOrDB(): Promise<Book[]> {
         if (!books) books = await Book.find();
