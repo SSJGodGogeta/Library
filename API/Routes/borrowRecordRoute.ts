@@ -5,6 +5,8 @@ import {authenticate} from "../authenticationMiddleware.js";
 import {Book_Copy} from "../../Database/Mapper/Entities/book_copy.js";
 import {BorrowRecordTechcode} from "../../Database/Mapper/Techcodes/BorrowRecordTechcode.js";
 import {Book} from "../../Database/Mapper/Entities/book.js";
+import {User} from "../../Database/Mapper/Entities/user.js";
+import {PermissionTechcode} from "../../Database/Mapper/Techcodes/PermissionTechcode.js";
 
 const router = Router();
 
@@ -22,8 +24,12 @@ async function borrowBook(req: Request, res: Response) {
 
         const book = await Book.getBook(res, bookId);
         if (!book) return sendResponseAsJson(res, 404, `Book by id: ${bookId} could not be found.`); // the getBookAndRecord function exited and already returned a status code
-
-        const currentBorrowRecord = await BorrowRecord.getActiveBorrowRecordForBook(bookId, req.body.user);
+        const user: User | undefined = (req.body.user as User) ?? undefined;
+        // From Arman: This case technically should never happen, because we have the authenticate check. However, if somehow it manages to bypass it, this would stop further execution.
+        // Its also for our safety to pass the correct object to the function below, cause req.body.user is not guaranteed to be of type User (it doesnt have a type at all)
+        // Additionally it saves us from further mistakes when accessing user.properties as we get the Webstorm auto complete feature
+        if (!user) return sendResponseAsJson(res, 422, "You have to login in order to borrow books");
+        const currentBorrowRecord = await BorrowRecord.getActiveBorrowRecordForBook(bookId, user);
 
         // check if the user already has
         if (currentBorrowRecord) return sendResponseAsJson(res, 409, "The User already has a copy of this book");
@@ -42,12 +48,24 @@ async function borrowBook(req: Request, res: Response) {
         }
 
         // create the new borrow record
-        const borrowRecord: BorrowRecord = new BorrowRecord()
-
+        const borrowRecord: BorrowRecord = new BorrowRecord();
         let borrowDate = new Date();
-
         let returnDate = new Date();
-        returnDate.setDate(borrowDate.getDate() + 14)
+        switch (user.permissions) {
+            case PermissionTechcode.ADMIN:
+                returnDate.setDate(borrowDate.getDate() + 365);
+                break;
+            case PermissionTechcode.EMPLOYEE:
+            case PermissionTechcode.PROFESSOR:
+                returnDate.setDate(borrowDate.getDate() + 60);
+                break;
+            case PermissionTechcode.STUDENT:
+                returnDate.setDate(borrowDate.getDate() + 30);
+                break;
+            default:
+                return sendResponseAsJson(res, 404, `You dont have any registered permissions and therefore are not allowed to borrow a book.\nPlease contact a staff member.`);
+        }
+
 
         borrowRecord.status = BorrowRecordTechcode.BORROWED;
         borrowRecord.book_copy = availableBookCopy;
