@@ -140,33 +140,35 @@ function isFetchResponse(obj: any): obj is FetchResponse {
  * - The server endpoint (`http://localhost:3000/authentication/currentUser`) must return a JSON
  *   response with an `entities` object containing the user's details.
  */
-async function fetchCurrentUser(): Promise<void> {
+async function fetchCurrentUser(): Promise<typeof user | undefined> {
     const storedUser = getUserFromSessionStorage();
     if (storedUser) {
         console.warn("User already fetched and stored for this session.");
         Object.assign(user, storedUser); // Synchronize the in-memory `user` object with the stored data
-        return;
+        return storedUser;
     }
 
     try {
         const entities = await fetchRoute<User>(backendRoutes.authentication.currentUser);
         if (isFetchResponse(entities)) {
             console.error(`Fetch failed with code ${entities.code}: ${entities.message}`);
-            return;
+            return undefined;
         }
 
         if (!entities) {
             console.error("User is not logged in");
-            return;
+            return undefined;
         }
 
         user.loggedIn = true;
         user.firstName = entities.first_name;
         user.lastName = entities.last_name;
         user.email = entities.email;
+        user.permissions = entities.permissions;
 
         saveUserToSessionStorage(user);
         console.warn("Finished fetching and saving user.");
+        return user;
     } catch (error) {
         console.error(error);
     }
