@@ -28,7 +28,7 @@ async function borrowBook(req: Request, res: Response) {
         // From Arman: This case technically should never happen, because we have the authenticate check. However, if somehow it manages to bypass it, this would stop further execution.
         // Its also for our safety to pass the correct object to the function below, cause req.body.user is not guaranteed to be of type User (it doesnt have a type at all)
         // Additionally it saves us from further mistakes when accessing user.properties as we get the Webstorm auto complete feature
-        if (!user) return sendResponseAsJson(res, 422, "You have to login in order to borrow books");
+        if (!user) return sendResponseAsJson(res, 401, "You have to login in order to borrow books");
         const currentBorrowRecord = await BorrowRecord.getActiveBorrowRecordForBook(bookId, user);
 
         // check if the user already has
