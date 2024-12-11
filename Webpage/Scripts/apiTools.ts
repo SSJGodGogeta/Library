@@ -16,14 +16,14 @@ interface Book {
     sum_rating: number,
     count_rating: number,
     cover_url?: String,
-    availability: String
+    availability: "AVAILABLE" | "NOT_AVAILABLE" | "SOON_AVAILABLE",
 }
 
 interface BorrowRecord {
     borrow_record_id: number,
     borrow_date: Date,
     return_date: Date,
-    status: string,
+    status: "NOT_BORROWED" | "BORROWED",
     rating: number,
     book_copy: BookCopy,
     user: User,
@@ -31,7 +31,7 @@ interface BorrowRecord {
 
 interface BookCopy {
     book_copy_id: number,
-    status: string,
+    status: "NOT_BORROWED" | "BORROWED",
     book: Book,
 }
 
@@ -42,7 +42,7 @@ interface User {
     first_name: string,
     last_name: string,
     imageurl?: string,
-    permissions: string
+    permissions: "ADMIN" | "EMPLOYEE" | "STUDENT" | "PROFESSOR"
 }
 
 interface Reservation {
