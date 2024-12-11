@@ -16,24 +16,10 @@ document.addEventListener("DOMContentLoaded", () => {
             let lastName: string = lastNameInput.value!.trim(); // Trim the last name
             if (email.length == 0 || password.length == 0 || firstName.length == 0 || lastName.length == 0) return;
             // Send the registration data to the backend
-            const response = await fetch("http://localhost:3000/authentication/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email: email,
-                    password: password,
-                    first_name: firstName,
-                    last_name: lastName,
-                }),
-            });
-
-            const {message} = await response.json();
-
-            if (!response.ok) {
+            const response = await register(email, password, firstName, lastName);
+            if (response.code && response.code > 299) {
                 registerError.style.display = "block";
-                registerError.innerText = message;
+                registerError.innerText = `${response.code}: ${response.message}`;
                 return;
             }
 

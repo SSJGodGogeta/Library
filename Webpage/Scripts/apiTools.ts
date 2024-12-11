@@ -62,6 +62,11 @@ interface Session {
     user: User
 }
 
+interface FetchResponse {
+    message: string;
+    code: number;
+}
+
 const backendRoutes = {
     authentication: {
         register: "/authentication/register",
@@ -97,6 +102,15 @@ const backendRoutes = {
     },
     validateDB: "/validateDB",
 } as const;
+
+/**
+ * Type-guard function.
+ * @param obj object to check for.
+ * @return true if the object is of type FetchError.
+ */
+function isFetchResponse(obj: any): obj is FetchResponse {
+    return obj && typeof obj.code === "number" && typeof obj.message === "string";
+}
 
 /**
  * Fetches the current user's data from the server and synchronizes it with the session storage.
@@ -136,6 +150,10 @@ async function fetchCurrentUser(): Promise<void> {
 
     try {
         const entities = await fetchRoute<User>(backendRoutes.authentication.currentUser);
+        if (isFetchResponse(entities)) {
+            console.error(`Fetch failed with code ${entities.code}: ${entities.message}`);
+            return;
+        }
 
         if (!entities) {
             console.error("User is not logged in");
@@ -152,6 +170,22 @@ async function fetchCurrentUser(): Promise<void> {
     } catch (error) {
         console.error(error);
     }
+}
+
+async function login(email: string, password: string) {
+    return await fetchRoute<FetchResponse>(backendRoutes.authentication.login, 'POST', {
+        email: email,
+        password: password
+    });
+}
+
+async function register(email: string, password: string, firstName: string, lastName: string) {
+    return await fetchRoute<FetchResponse>(backendRoutes.authentication.register, 'POST', {
+        email: email,
+        password: password,
+        firstName: firstName,
+        lastName: lastName,
+    });
 }
 
 /**
@@ -176,10 +210,13 @@ async function fetchCurrentUser(): Promise<void> {
  * - The server endpoint (`http://localhost:3000/authentication/logout`) must return a JSON response with a `message` field.
  * - Upon logout, the function redirects the user to `/Library/Webpage/login.html`.
  */
-async function logoutUser(): Promise<void> {
+async function logoutUser(): Promise<any> {
     // Use fetchAPI for the logout request
     const response = await fetchRoute<{ message: string }>(backendRoutes.authentication.logout, 'POST');
-
+    if (isFetchResponse(response)) {
+        console.error(`Fetch failed with code ${response.code}: ${response.message}`);
+        return response;
+    }
     if (response && response.message) console.log(`Logout: ${response.message}`);
 
     user.firstName = "";
@@ -209,20 +246,40 @@ function routeToBookDetails(bookId: number): void {
 }
 
 async function fetchBooks() {
-    return fetchRoute<Book[]>(backendRoutes.book.all);
+    const response = fetchRoute<Book[]>(backendRoutes.book.all);
+    if (isFetchResponse(response)) {
+        console.error(`Fetch failed with code ${response.code}: ${response.message}`);
+        return response as FetchResponse;
+    }
+    return response;
 }
 
 async function fetchBook(bookId: number) {
-    return fetchRoute<Book>(`${backendRoutes.book.byBookId + bookId}`);
+    const response = fetchRoute<Book>(`${backendRoutes.book.byBookId + bookId}`);
+    if (isFetchResponse(response)) {
+        console.error(`Fetch failed with code ${response.code}: ${response.message}`);
+        return response as FetchResponse;
+    }
+    return response;
 }
 
 async function fetchMyRecords() {
-    return fetchRoute<BorrowRecord[]>(backendRoutes.borrowRecord.myRecords);
+    const response = fetchRoute<BorrowRecord[]>(backendRoutes.borrowRecord.myRecords);
+    if (isFetchResponse(response)) {
+        console.error(`Fetch failed with code ${response.code}: ${response.message}`);
+        return response as FetchResponse;
+    }
+    return response;
 }
 
 async function fetchBorrowRecordForBook(bookId: number | null, user: any) {
     if (user) {
-        return fetchRoute<BorrowRecord>(`${backendRoutes.borrowRecord.myRecordsBookByBookId + bookId}`, "GET", undefined);
+        const response = fetchRoute<BorrowRecord>(`${backendRoutes.borrowRecord.myRecordsBookByBookId + bookId}`, "GET", undefined);
+        if (isFetchResponse(response)) {
+            console.error(`Fetch failed with code ${response.code}: ${response.message}`);
+            return response as FetchResponse;
+        }
+        return response;
     }
     return null;
 }
@@ -250,10 +307,14 @@ async function fetchBorrowRecordForBook(bookId: number | null, user: any) {
  * }
  * ```
  */
-async function borrowBook(bookId: number): Promise<void> {
-    await fetchRoute<boolean>(`${backendRoutes.borrowRecord.borrow}`, "POST", {bookId}).catch(error => {
+async function borrowBook(bookId: number): Promise<void | FetchResponse> {
+    const response = await fetchRoute<boolean>(`${backendRoutes.borrowRecord.borrow}`, "POST", {bookId}).catch(error => {
         console.log(`An error occurred: ${error}`)
     });
+    if (isFetchResponse(response)) {
+        console.error(`Fetch failed with code ${response.code}: ${response.message}`);
+        return response as FetchResponse;
+    }
     window.location.reload();
 }
 
@@ -267,7 +328,7 @@ async function borrowBook(bookId: number): Promise<void> {
  * If you (for some reason) get the idea of changing it or not using the sendResponseAsJson() function and using the base functions...
  * Don't forget to fetch the results correctly using this function and specifying the responseKey explicitly.
  */
-async function fetchRoute<T>(endpoint: string, method: "GET" | "POST" = "GET", body?: any, responseKey: string = "entities"): Promise<T | null> {
+async function fetchRoute<T>(endpoint: string, method: "GET" | "POST" = "GET", body?: any, responseKey: string = "entities"): Promise<T | FetchResponse> {
     const url = `http://localhost:3000${endpoint}`;
     console.log(`Using route: ${url} with method: ${method} and body: ${JSON.stringify(body)}`);
     const options: RequestInit = {
@@ -285,20 +346,28 @@ async function fetchRoute<T>(endpoint: string, method: "GET" | "POST" = "GET", b
         const response = await fetch(url, options);
         json = await response.json();
         if (!response.ok) {
-            if (response.status === 401) {
-                window.location.href = "/Webpage/login.html";
+            console.log(response);
+            if (response.status === 401 && window.location.pathname != "/Library/Webpage/login.html") {
+                window.location.href = "/Library/Webpage/login.html";
                 await Promise.reject(new Error("Unauthorized, redirected to login."));
-                return null;
+                return {
+                    code: response.status,
+                    message: json.message || response.statusText
+                } as FetchResponse;
             }
-            return null;
             throw new Error(json.message || `Network response was not ok: ${response.statusText}`);
         }
+        if ((endpoint == backendRoutes.authentication.login) || endpoint == backendRoutes.authentication.register) return {
+            code: response.status,
+            message: json.message || response.statusText,
+        } as FetchResponse;
     } catch (error: any) {
-        console.error("Error occurred during fetch:", error);
         await Promise.reject(error);
-        return null;
+        return {
+            code: 505,
+            message: error.message,
+        } as FetchResponse;
     }
     // Extract the desired key from the response JSON
-    console.log("JSON:", json);
     return json[responseKey] as T;
 }

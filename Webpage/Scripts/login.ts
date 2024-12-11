@@ -8,25 +8,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function handleLogin() {
         try {
-            const email: String = emailAddressInput.value!.trim().toLowerCase(); // trim and lowercase the email address
-            const password: String = passwordInput.value!; // read the password
+            const email: string = emailAddressInput.value!.trim().toLowerCase(); // trim and lowercase the email address
+            const password: string = passwordInput.value!; // read the password
             if (email.length == 0 || password.length == 0) return;
-            const response = await fetch(`http://localhost:3000/authentication/login`, {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include', // allow receiving cookies
-                body: JSON.stringify({
-                    email: email,
-                    password: password,
-                }),
-            });
-            const {message} = await response.json();
-
-            if (!response.ok) {
+            const response = await login(email, password);
+            if (response.code && response.code > 299) {
                 loginError.style.display = "block";
-                loginError.innerText = message;
+                loginError.innerText = `${response.code}: ${response.message}`;
                 return;
             }
             console.log("Logged in successfully");

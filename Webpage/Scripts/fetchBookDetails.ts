@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             return;
         }
         if (!currentBorrowRecord) console.warn("Current Borrow Record not found");
+        if (isFetchResponse(book) || isFetchResponse(currentBorrowRecord)) return;
         generateBookDetails(bookDetailsContainer, book, currentBorrowRecord);
 
     } catch (error) {

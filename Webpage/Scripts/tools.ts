@@ -124,7 +124,7 @@ function saveUserToSessionStorage(user1: typeof user) {
  */
 function getUserFromSessionStorage(): typeof user | null {
     const storedUser = sessionStorage.getItem('currentUser');
-    return storedUser ? JSON.parse(storedUser) : null;
+    return storedUser ? JSON.parse(storedUser) as typeof user : null;
 }
 
 /**
@@ -227,6 +227,7 @@ async function generateBookList(options?: { onlyBorrowedBooks: boolean }) {
             console.error("generateBookList.result is undefined");
             return;
         }
+        if (isFetchResponse(result)) return;
         for (const book of result) {
             // generate book container element
             const bookElement: HTMLLIElement = onlyBorrowedBooks ? generateMyBookContainer(book as BorrowRecord) : generateBookContainer(book as Book);
