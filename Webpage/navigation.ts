@@ -68,10 +68,20 @@ async function loadNavbar(): Promise<void> {
     </nav>`;
 
     const navbarContainer: HTMLElement | null = document.getElementById('navbar');
-    if (navbarContainer) {
-        navbarContainer.innerHTML = navbarHTML;
+    if (!navbarContainer) {
+        console.error("Navbar container with ID 'navbar' not found.");
         return;
     }
-    console.error("Navbar container with ID 'navbar' not found.");
+    navbarContainer.innerHTML = navbarHTML;
+    let logoutButton: HTMLButtonElement = document.createElement("button");
+    logoutButton.type = "button";
+    logoutButton.id = "logoutButton";
+    logoutButton.innerText = "Logout";
+    document.body.appendChild(logoutButton);
+    logoutButton.addEventListener("click", async () => {
+        await logoutUser();
+        await delay(500);
+        window.location.href = "/Library/Webpage/login.html";
+    })
 
 }

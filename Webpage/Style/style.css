@@ -299,3 +299,28 @@ main {
 tr:nth-child(even) {
     background-color: rgb(0, 0, 0, 0.05);
 }
+
+#logoutButton {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    color: white;
+    background-color: rgba(255, 0, 68, 0.7);
+    border: 2px solid black;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    transition-duration: 0.4s;
+}
+
+#logoutButton:hover {
+    background-color: rgba(255, 0, 68, 1);
+    box-shadow: 0 12px 16px 0 rgba(255, 0, 68, 0.15), 0 17px 50px 0 rgba(255, 0, 68, 0.3);
+}
+
+#logoutButton:active {
+    box-shadow: 0 12px 16px 0 rgba(255, 0, 68, 0.15), 0 17px 50px 0 rgba(255, 0, 68, 0.3);
+    transform: translateY(4px);
+}
