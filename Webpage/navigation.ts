@@ -73,6 +73,9 @@ async function loadNavbar(): Promise<void> {
         return;
     }
     navbarContainer.innerHTML = navbarHTML;
+
+    // If there is no user stored in the session storage, there is no need to show a logout button.
+    if (!user) return;
     let logoutButton: HTMLButtonElement = document.createElement("button");
     logoutButton.type = "button";
     logoutButton.id = "logoutButton";

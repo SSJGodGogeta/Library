@@ -90,7 +90,6 @@ function setSessionCookie(res: Response, token: string) {
         httpOnly: true, // js cant access the cookie (prevent XSS Attacks)
         secure: true, // Only send over HTTPS
         sameSite: 'strict', // save but will not support cross site workflows like oauth2
-        maxAge: 30 * 24 * 60 * 60 * 1000 // Cookie expiry (30 * 24 hours in milliseconds)
     });
 }
 

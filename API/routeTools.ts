@@ -80,7 +80,6 @@ function createEntityRoutes<Entity>(
 }
 
 
-
 /**
  * Initializes and registers routes on the Express application.
  * This function loops through an array of routes and registers each route

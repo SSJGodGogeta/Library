@@ -85,6 +85,8 @@ const backendRoutes = {
     },
     borrowRecord: {
         borrow: "/borrowRecord/borrow",
+        return: "/borrowRecord/return",
+        reserve: "/borrowRecord/reserve",
         myRecords: "/borrowRecord/myRecords/",
         myRecordsBookByBookId: "/borrowRecord/myRecords/book/",
     },
@@ -319,13 +321,43 @@ async function fetchBorrowRecordForBook(bookId: number | null, user: any) {
  * ```
  */
 async function borrowBook(bookId: number): Promise<void | FetchResponse> {
-    const response = await fetchRoute<boolean>(`${backendRoutes.borrowRecord.borrow}`, "POST", {bookId}).catch(error => {
+    const response = await fetchRoute<BorrowRecord>(`${backendRoutes.borrowRecord.borrow}`, "POST", {bookId}).catch(error => {
         console.log(`An error occurred: ${error}`)
     });
     if (isFetchResponse(response)) {
         console.error(`Fetch failed with code ${response.code}: ${response.message}`);
         return response as FetchResponse;
     }
+    window.location.reload();
+}
+
+async function returnBook(bookId: number): Promise<void | FetchResponse> {
+    console.log(`Returning book: ${bookId}`);
+    const response = await fetchRoute<boolean>(`${backendRoutes.borrowRecord.return}`, "POST", {bookId}).catch(error => {
+        console.log(`An error occurred: ${error}`)
+    });
+    if (isFetchResponse(response)) {
+        console.error(`Fetch failed with code ${response.code}: ${response.message}`);
+        return response as FetchResponse;
+    }
+    console.warn("Overdue?:");
+    console.warn(response);
+    await delay(2500);
+    window.location.reload();
+}
+
+async function reserveBook(bookId: number): Promise<void | FetchResponse> {
+    console.log(`Reserving book: ${bookId}`);
+    const response = await fetchRoute<BorrowRecord>(`${backendRoutes.borrowRecord.reserve}`, "POST", {bookId}).catch(error => {
+        console.log(`An error occurred: ${error}`)
+    });
+    if (isFetchResponse(response)) {
+        console.error(`Fetch failed with code ${response.code}: ${response.message}`);
+        return response as FetchResponse;
+    }
+    console.warn("BorrowRecord:");
+    console.warn(response);
+    await delay(2500);
     window.location.reload();
 }
 

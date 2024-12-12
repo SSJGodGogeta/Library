@@ -1,3 +1,6 @@
+/**
+ * Only loads the details of a book (doesn't matter if it's a borrowed one or not)
+ */
 document.addEventListener("DOMContentLoaded", async function () {
     try {
         // get the current url
@@ -50,8 +53,8 @@ function generateBookDetails(bookDetailsContainer: HTMLDivElement, book: Book, c
             </div>
             <div class="borrow-button-container">
                 <button id="btn-borrow" ${currentBorrowRecord !== null || book.available_copies! <= 0 ? 'disabled' : ''} onclick="borrowBook(${book.book_id})">Borrow</button>
-                <button id="btn-reserve" ${currentBorrowRecord !== null ? 'disabled' : ''}>Reserve</button>
-                ${currentBorrowRecord ? `<button id="btn-return">Return</button>` : ``}
+                <button id="btn-reserve" ${currentBorrowRecord !== null ? 'disabled' : ''} onclick="reserveBook(${book.book_id})">Reserve</button>
+                ${currentBorrowRecord ? `<button id="btn-return" onclick="returnBook(${book.book_id})">Return</button>` : ``}
             </div>
             <p>${book.description}</p>
             
