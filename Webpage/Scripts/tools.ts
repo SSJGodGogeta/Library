@@ -39,23 +39,11 @@ function formatDateWithoutTime(dateString: string): string {
  *
  * @example
  * ```
- * // Example 1: Full star
- * const imageName = getStarImageName(1, 4.5);
- * console.log(imageName); // Output: "fullStarYellow.png"
- *
- * // Example 2: Half star
- * const imageName = getStarImageName(5, 4.5);
- * console.log(imageName); // Output: "halfStarYellow.png"
- *
- * // Example 3: Empty star
- * const imageName = getStarImageName(6, 4.5);
- * console.log(imageName); // Output: "emptyStarYellow.png"
+ * // Example : Full star
+ * const imageName = getStarImageName(1, 4.5); // Output: "fullStarYellow.png"
  * ```
  */
-function getStarImageName(
-    starIndex: number,
-    averageRating: number | undefined
-): string {
+function getStarImageName(starIndex: number, averageRating: number | undefined): string {
     if ((averageRating ?? 0) >= starIndex) return "fullStarYellow.png";
     if ((averageRating ?? 0) <= starIndex - 1) return "emptyStarYellow.png";
     return "halfStarYellow.png";
@@ -63,22 +51,8 @@ function getStarImageName(
 
 /**
  * Creates a delay for a specified duration in milliseconds.
- *
  * @param {number} ms - The number of milliseconds to wait before the promise resolves.
  * @returns {Promise<void>} - A promise that resolves after the specified delay.
- *
- * @example
- * ```
- * // Example 1: Basic delay usage
- * await delay(1000);
- * console.log("This logs after 1 second.");
- *
- * // Example 2: Using delay in a loop
- * for (let i = 0; i < 3; i++) {
- *     console.log(`Iteration ${i}`);
- *     await delay(500); // Wait 500ms between iterations
- * }
- * ```
  */
 function delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -94,14 +68,7 @@ let user = {
 
 /**
  * Saves a user object to the session storage.
- *
  * @param {typeof user} user1 - The user object to save to session storage.
- *
- * @example
- * ```
- * const newUser = { firstName: "John", lastName: "Doe", loggedIn: true, email: "john.doe@example.com" };
- * saveUserToSessionStorage(newUser);
- * ```
  */
 function saveUserToSessionStorage(user1: typeof user) {
     sessionStorage.setItem('currentUser', JSON.stringify(user1));
@@ -109,18 +76,7 @@ function saveUserToSessionStorage(user1: typeof user) {
 
 /**
  * Retrieves the user object from session storage.
- *
  * @returns {typeof user | null} - The retrieved user object or null if no user is stored.
- *
- * @example
- * ```
- * const currentUser = getUserFromSessionStorage();
- * if (currentUser) {
- *     console.log(`User ${currentUser.firstName} is logged in.`);
- * } else {
- *     console.log("No user is currently stored.");
- * }
- * ```
  */
 function getUserFromSessionStorage(): typeof user | null {
     const storedUser = sessionStorage.getItem('currentUser');
@@ -129,12 +85,6 @@ function getUserFromSessionStorage(): typeof user | null {
 
 /**
  * Clears the user object from session storage.
- *
- * @example
- * ```
- * clearUserFromSessionStorage();
- * console.log("User data cleared from session storage.");
- * ```
  */
 function clearUserFromSessionStorage() {
     sessionStorage.removeItem('currentUser');
@@ -142,16 +92,10 @@ function clearUserFromSessionStorage() {
 
 /**
  * Generates an HTML `<li>` element representing a book with its details and rating.
- *
  * @param {Book} book - The book object containing all necessary information.
  * @returns {HTMLLIElement} - An HTML list item element containing the book's details.
- *
- * @example
- * ```
- * generateBookContainer(myBook);
- * ```
  */
-function generateBookContainer(book: Book): HTMLLIElement {
+function generateAllBooksContainer(book: Book): HTMLLIElement {
     const bookItem: HTMLLIElement = document.createElement('li');
     bookItem.innerHTML = `
                <div class="book-container" onclick="routeToBookDetails('${book.book_id}')">
@@ -173,7 +117,6 @@ function generateBookContainer(book: Book): HTMLLIElement {
                     </div>
                </div>
                 `;
-
     return bookItem;
 }
 
@@ -187,18 +130,11 @@ function generateBookContainer(book: Book): HTMLLIElement {
  *                              and a `return_date` for the borrowed book.
  * @returns {HTMLLIElement} - An HTML list item element containing the book's details and return info.
  *
- * @requires generateBookContainer - Depends on `generateBookContainer` to create the base book container.
+ * @requires generateAllBooksContainer - Depends on `generateBookContainer` to create the base book container.
  * @requires formatDateWithoutTime - Depends on `generateBookContainer` to create the base book container.
- *
- * @example
- * ```
- * const bookContainer = generateMyBookContainer(borrowRecord);
- * document.body.appendChild(bookContainer);
- * ```
  */
 function generateMyBookContainer(borrowRecord: BorrowRecord): HTMLLIElement {
-    const bookItem = generateBookContainer(borrowRecord.book_copy.book);
-
+    const bookItem = generateAllBooksContainer(borrowRecord.book_copy.book);
     const bookInfoDiv = bookItem.querySelector('.book-info');
 
     if (bookInfoDiv) {
@@ -207,7 +143,6 @@ function generateMyBookContainer(borrowRecord: BorrowRecord): HTMLLIElement {
         returnInfoParagraph.innerHTML = `<b>Return date:</b> ${formatDateWithoutTime(borrowRecord.return_date.toString())}`;
         bookInfoDiv.appendChild(returnInfoParagraph);
     }
-
     return bookItem;
 }
 
@@ -218,7 +153,7 @@ async function generateBookList(options?: { onlyBorrowedBooks: boolean }) {
         // Get the table body where rows will be inserted
         const bookList = document.getElementById('book-list');
         if (!bookList) {
-            console.warn("No book_list div found.");
+            console.warn("No book-list div found.");
             return;
         }
 
@@ -230,7 +165,7 @@ async function generateBookList(options?: { onlyBorrowedBooks: boolean }) {
         if (isFetchResponse(result)) return;
         for (const book of result) {
             // generate book container element
-            const bookElement: HTMLLIElement = onlyBorrowedBooks ? generateMyBookContainer(book as BorrowRecord) : generateBookContainer(book as Book);
+            const bookElement: HTMLLIElement = onlyBorrowedBooks ? generateMyBookContainer(book as BorrowRecord) : generateAllBooksContainer(book as Book);
 
             bookList.appendChild(bookElement);
         }// End of inner for loop

@@ -261,11 +261,26 @@ main {
 .borrow-button-container > button {
     cursor: pointer;
     margin-right: 10px;
-    background-color: #007bff;
+    background-color: #3a9bff;
     color: white;
     border-style: none;
     padding: 8px 25px;
     border-radius: 5px;
+}
+
+.borrow-button-container > button:not(:disabled):hover {
+    transform: translateY(2px);
+    background-color: #007bff;
+}
+
+#btn-return {
+    background-color: rgb(255, 69, 69);
+    transition-duration: 0.4s;
+}
+
+#btn-return:not(:disabled):hover {
+    background-color: rgb(255, 17, 17);
+    transform: translateY(2px);
 }
 
 .borrow-button-container > button:disabled {

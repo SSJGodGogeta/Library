@@ -45,7 +45,7 @@ function generateBookDetails(bookDetailsContainer: HTMLDivElement, book: Book, c
             <div class="borrow-button-container">
                 <button id="btn-borrow" ${currentBorrowRecord !== null || book.available_copies! <= 0 ? 'disabled' : ''} onclick="borrowBook(${book.book_id})">Borrow</button>
                 <button id="btn-reserve" ${currentBorrowRecord !== null ? 'disabled' : ''}>Reserve</button>
-                ${currentBorrowRecord ? `<button>Return</button>` : ``}
+                ${currentBorrowRecord ? `<button id="btn-return">Return</button>` : ``}
             </div>
             <p>${book.description}</p>
             
