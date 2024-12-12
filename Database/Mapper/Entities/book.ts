@@ -1,5 +1,7 @@
 import {BaseEntity, Column, Entity, PrimaryColumn,} from 'typeorm';
-import {Availability_Techcode} from "../Techcodes/Availability_Techcode.js";
+import {AvailabilityTechcode} from "../Techcodes/AvailabilityTechcode.js";
+import {Response} from "express";
+import {sendResponseAsJson} from "../../../API/Routes/tools/sendResponseAsJson.js";
 
 @Entity('book')
 export class Book extends BaseEntity {
@@ -52,16 +54,17 @@ export class Book extends BaseEntity {
     cover_url?: string;
 
     @Column({length: '50', nullable: false})
-    availability!: Availability_Techcode;
+    availability!: AvailabilityTechcode;
 
     static async getBooksFromCacheOrDB(): Promise<Book[]> {
         if (!books) books = await Book.find();
         return books;
     }
 
-    static clearBookCache(): void {
+    static async resetBookCache(): Promise<void> {
         books = null;
-        console.log("Cleared Book cache");
+        console.log("Reset Book cache");
+        await this.getBooksFromCacheOrDB();
     }
 
     static async getBookByKey<K extends keyof Book>(keyName: K, keyValue: Book[K]): Promise<Book | undefined> {
@@ -74,6 +77,39 @@ export class Book extends BaseEntity {
         const books: Book[] = await Book.getBooksFromCacheOrDB();
         if (!books) return undefined;
         return books.filter(copy => copy[keyName] === keyValue);
+    }
+
+    static async saveBook(book: Book): Promise<void> {
+        await book.save();
+        await this.resetBookCache();
+    }
+
+    /**
+     * Retrieves a book by its ID and sends a response if the book is not found.
+     *
+     * @async
+     * @function getBook
+     * @param {Response} res - The HTTP response object to send responses.
+     * @param {number} book_id - The ID of the book to retrieve.
+     * @returns {Promise<Book | void>} A promise resolving to the retrieved book or void if not found or invalid.
+     *
+     * @throws {Error} Throws an error if the database query fails.
+     *
+     * @example
+     * // Example usage
+     * const book = await getBookAndRecord(response, 123);
+     * if (book) {
+     *   console.log(`Book title: ${book.title}`);
+     * }
+     */
+    static async getBook(res: Response, book_id: number): Promise<Book | void> {
+        if (isNaN(book_id)) return sendResponseAsJson(res, 422, "book_id must be a valid integer!");
+
+        // get the book requested by the user
+        let book: Book | undefined = await Book.getBookByKey('book_id', book_id);
+        if (!book) return sendResponseAsJson(res, 404, "No book found!")
+
+        return book;
     }
 }
 

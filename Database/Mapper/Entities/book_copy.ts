@@ -1,7 +1,7 @@
 import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn,} from 'typeorm';
 
 import {Book} from "./book.js"
-import {BorrowRecord_Techcode} from "../Techcodes/BorrowRecord_Techcode.js"
+import {BorrowRecordTechcode} from "../Techcodes/BorrowRecordTechcode.js"
 
 @Entity('book_copy')
 export class Book_Copy extends BaseEntity {
@@ -9,7 +9,7 @@ export class Book_Copy extends BaseEntity {
     book_copy_id!: number;
 
     @Column({length: '50', nullable: false})
-    status!: BorrowRecord_Techcode;
+    status!: BorrowRecordTechcode;
 
     @ManyToOne('Book', (book: Book) => book.book_id)
     @JoinColumn({
@@ -28,9 +28,10 @@ export class Book_Copy extends BaseEntity {
         return bookCopies;
     }
 
-    static clearBookCopyCache(): void {
+    static async resetBookCopyCache(): Promise<void> {
         bookCopies = null;
-        console.log("Cleared Book copy cache");
+        console.log("Reset Book copy cache");
+        await this.getBookCopiesFromCacheOrDB();
     }
 
     static async getBookCopyByKey<K extends keyof Book_Copy>(keyName: K, keyValue: Book_Copy[K]): Promise<Book_Copy | undefined> {
@@ -43,6 +44,11 @@ export class Book_Copy extends BaseEntity {
         const bookCopies: Book_Copy[] = await Book_Copy.getBookCopiesFromCacheOrDB();
         if (!bookCopies) return undefined;
         return bookCopies.filter(copy => copy[keyName] === keyValue);
+    }
+
+    static async saveBookCopy(bookCopy: Book_Copy): Promise<void> {
+        await bookCopy.save();
+        await this.resetBookCopyCache();
     }
 }
 

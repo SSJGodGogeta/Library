@@ -1,4 +1,4 @@
-export enum BorrowRecord_Techcode {
+export enum BorrowRecordTechcode {
     BORROWED = "BORROWED",
     NOT_BORROWED = "NOT_BORROWED",
 }

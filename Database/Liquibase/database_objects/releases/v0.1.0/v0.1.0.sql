@@ -7,39 +7,42 @@
 -- Model: New Model    Version: 1.0
 -- MySQL Workbench Forward Engineering
 
-SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
-SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
-SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+SET @OLD_UNIQUE_CHECKS = @@UNIQUE_CHECKS, UNIQUE_CHECKS = 0;
+SET @OLD_FOREIGN_KEY_CHECKS = @@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS = 0;
+SET @OLD_SQL_MODE = @@SQL_MODE, SQL_MODE =
+        'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
 -- -----------------------------------------------------
 -- Schema scrum_library
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `scrum_library` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci ;
-USE `scrum_library` ;
+CREATE SCHEMA IF NOT EXISTS `scrum_library` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE `scrum_library`;
 
 -- -----------------------------------------------------
 -- Table `scrum_library`.`book`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `scrum_library`.`book` ;
+DROP TABLE IF EXISTS `scrum_library`.`book`;
 
-CREATE TABLE IF NOT EXISTS `scrum_library`.`book` (
-                                                  `book_id` INT NOT NULL AUTO_INCREMENT,
-                                                  `title` VARCHAR(60) NOT NULL,
-    `description` VARCHAR(2000) NULL,
-    `publisher` VARCHAR(30) NULL DEFAULT NULL,
-    `author` VARCHAR(60) NULL DEFAULT NULL,
-    `year` INT NULL DEFAULT NULL,
-    `edition` INT NULL DEFAULT NULL,
-    `isbn` VARCHAR(13) NOT NULL,
-    `language_code` CHAR(3) NULL DEFAULT NULL,
-    `total_copies` INT NULL DEFAULT NULL,
-    `available_copies` INT NULL DEFAULT NULL,
-    `average_rating` FLOAT NULL DEFAULT NULL,
-    `times_borrowed` INT NULL DEFAULT NULL,
-    `availability` VARCHAR(50) NOT NULL,
+CREATE TABLE IF NOT EXISTS `scrum_library`.`book`
+(
+    `book_id`          INT           NOT NULL AUTO_INCREMENT,
+    `title`            VARCHAR(60)   NOT NULL,
+    `description`      VARCHAR(2000) NULL,
+    `publisher`        VARCHAR(30)   NULL DEFAULT NULL,
+    `author`           VARCHAR(60)   NULL DEFAULT NULL,
+    `year`             INT           NULL DEFAULT NULL,
+    `edition`          INT           NULL DEFAULT NULL,
+    `isbn`             VARCHAR(13)   NOT NULL,
+    `language_code`    CHAR(3)       NULL DEFAULT NULL,
+    `total_copies`     INT           NULL DEFAULT NULL,
+    `available_copies` INT           NULL DEFAULT NULL,
+    `average_rating`   FLOAT         NULL DEFAULT NULL,
+    `times_borrowed`   INT           NULL DEFAULT NULL,
+    `availability`     VARCHAR(50)   NOT NULL,
     PRIMARY KEY (`book_id`),
     UNIQUE INDEX `book_isbn_UNIQUE` (`isbn` ASC) VISIBLE,
-    UNIQUE INDEX `book_id_UNIQUE` (`book_id` ASC) VISIBLE)
+    UNIQUE INDEX `book_id_UNIQUE` (`book_id` ASC) VISIBLE
+)
     ENGINE = InnoDB
     DEFAULT CHARACTER SET = utf8mb4
     COLLATE = utf8mb4_0900_ai_ci
@@ -49,20 +52,22 @@ CREATE TABLE IF NOT EXISTS `scrum_library`.`book` (
 -- -----------------------------------------------------
 -- Table `scrum_library`.`book_copy`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `scrum_library`.`book_copy` ;
+DROP TABLE IF EXISTS `scrum_library`.`book_copy`;
 
-CREATE TABLE IF NOT EXISTS `scrum_library`.`book_copy` (
-                                                       `book_copy_id` INT NOT NULL AUTO_INCREMENT,
-                                                       `status` VARCHAR(50) NOT NULL,
-    `book_book_id` INT NOT NULL,
+CREATE TABLE IF NOT EXISTS `scrum_library`.`book_copy`
+(
+    `book_copy_id` INT         NOT NULL AUTO_INCREMENT,
+    `status`       VARCHAR(50) NOT NULL,
+    `book_book_id` INT         NOT NULL,
     PRIMARY KEY (`book_copy_id`),
     UNIQUE INDEX `book_copy_UNIQUE` (`book_copy_id` ASC) VISIBLE,
     INDEX `fk_book_copy_book1_idx` (`book_book_id` ASC) VISIBLE,
     CONSTRAINT `fk_book_copy_book1`
-    FOREIGN KEY (`book_book_id`)
-    REFERENCES `scrum_library`.`book` (`book_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+        FOREIGN KEY (`book_book_id`)
+            REFERENCES `scrum_library`.`book` (`book_id`)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION
+)
     ENGINE = InnoDB
     DEFAULT CHARACTER SET = utf8mb4
     COLLATE = utf8mb4_0900_ai_ci
@@ -72,19 +77,21 @@ CREATE TABLE IF NOT EXISTS `scrum_library`.`book_copy` (
 -- -----------------------------------------------------
 -- Table `scrum_library`.`user`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `scrum_library`.`user` ;
+DROP TABLE IF EXISTS `scrum_library`.`user`;
 
-CREATE TABLE IF NOT EXISTS `scrum_library`.`user` (
-                                                  `user_id` INT NOT NULL AUTO_INCREMENT,
-                                                  `email` VARCHAR(75) NOT NULL,
-    `password` VARCHAR(100) NOT NULL,
-    `first_name` VARCHAR(50) NOT NULL,
-    `last_name` VARCHAR(50) NOT NULL,
-    `imageurl` VARCHAR(500) NULL DEFAULT NULL,
-    `permissions` VARCHAR(50) NOT NULL,
+CREATE TABLE IF NOT EXISTS `scrum_library`.`user`
+(
+    `user_id`     INT          NOT NULL AUTO_INCREMENT,
+    `email`       VARCHAR(75)  NOT NULL,
+    `password`    VARCHAR(100) NOT NULL,
+    `first_name`  VARCHAR(50)  NOT NULL,
+    `last_name`   VARCHAR(50)  NOT NULL,
+    `imageurl`    VARCHAR(500) NULL DEFAULT NULL,
+    `permissions` VARCHAR(50)  NOT NULL,
     PRIMARY KEY (`user_id`),
     UNIQUE INDEX `user_id_UNIQUE` (`user_id` ASC) VISIBLE,
-    UNIQUE INDEX `user_email_UNIQUE` (`email` ASC) VISIBLE)
+    UNIQUE INDEX `user_email_UNIQUE` (`email` ASC) VISIBLE
+)
     ENGINE = InnoDB
     DEFAULT CHARACTER SET = utf8mb4
     COLLATE = utf8mb4_0900_ai_ci
@@ -94,28 +101,30 @@ CREATE TABLE IF NOT EXISTS `scrum_library`.`user` (
 -- -----------------------------------------------------
 -- Table `scrum_library`.`borrow_record`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `scrum_library`.`borrow_record` ;
+DROP TABLE IF EXISTS `scrum_library`.`borrow_record`;
 
-CREATE TABLE IF NOT EXISTS `scrum_library`.`borrow_record` (
-                                                           `borrow_record_id` INT NOT NULL AUTO_INCREMENT,
-                                                           `borrow_date` DATETIME NOT NULL,
-                                                           `return_date` DATETIME NOT NULL,
-                                                           `book_copy_book_copy_id` INT NOT NULL,
-                                                           `user_user_id` INT NOT NULL,
-                                                           PRIMARY KEY (`borrow_record_id`),
+CREATE TABLE IF NOT EXISTS `scrum_library`.`borrow_record`
+(
+    `borrow_record_id`       INT      NOT NULL AUTO_INCREMENT,
+    `borrow_date`            DATETIME NOT NULL,
+    `return_date`            DATETIME NOT NULL,
+    `book_copy_book_copy_id` INT      NOT NULL,
+    `user_user_id`           INT      NOT NULL,
+    PRIMARY KEY (`borrow_record_id`),
     UNIQUE INDEX `borrow_record_id_UNIQUE` (`borrow_record_id` ASC) VISIBLE,
     INDEX `fk_borrow_record_book_copy1_idx` (`book_copy_book_copy_id` ASC) VISIBLE,
     INDEX `fk_borrow_record_user1_idx` (`user_user_id` ASC) VISIBLE,
     CONSTRAINT `fk_borrow_record_book_copy1`
-    FOREIGN KEY (`book_copy_book_copy_id`)
-    REFERENCES `scrum_library`.`book_copy` (`book_copy_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+        FOREIGN KEY (`book_copy_book_copy_id`)
+            REFERENCES `scrum_library`.`book_copy` (`book_copy_id`)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION,
     CONSTRAINT `fk_borrow_record_user1`
-    FOREIGN KEY (`user_user_id`)
-    REFERENCES `scrum_library`.`user` (`user_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+        FOREIGN KEY (`user_user_id`)
+            REFERENCES `scrum_library`.`user` (`user_id`)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION
+)
     ENGINE = InnoDB
     DEFAULT CHARACTER SET = utf8mb4
     COLLATE = utf8mb4_0900_ai_ci
@@ -125,27 +134,29 @@ CREATE TABLE IF NOT EXISTS `scrum_library`.`borrow_record` (
 -- -----------------------------------------------------
 -- Table `scrum_library`.`reservation`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `scrum_library`.`reservation` ;
+DROP TABLE IF EXISTS `scrum_library`.`reservation`;
 
-CREATE TABLE IF NOT EXISTS `scrum_library`.`reservation` (
-                                                         `reservation_id` INT NOT NULL AUTO_INCREMENT,
-                                                         `reservation_date` DATETIME NOT NULL,
-                                                         `book_book_id` INT NOT NULL,
-                                                         `user_user_id` INT NOT NULL,
-                                                         PRIMARY KEY (`reservation_id`),
+CREATE TABLE IF NOT EXISTS `scrum_library`.`reservation`
+(
+    `reservation_id`   INT      NOT NULL AUTO_INCREMENT,
+    `reservation_date` DATETIME NOT NULL,
+    `book_book_id`     INT      NOT NULL,
+    `user_user_id`     INT      NOT NULL,
+    PRIMARY KEY (`reservation_id`),
     UNIQUE INDEX `reservation_id_UNIQUE` (`reservation_id` ASC) VISIBLE,
     INDEX `fk_reservation_book1_idx` (`book_book_id` ASC) VISIBLE,
     INDEX `fk_reservation_user1_idx` (`user_user_id` ASC) VISIBLE,
     CONSTRAINT `fk_reservation_book1`
-    FOREIGN KEY (`book_book_id`)
-    REFERENCES `scrum_library`.`book` (`book_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+        FOREIGN KEY (`book_book_id`)
+            REFERENCES `scrum_library`.`book` (`book_id`)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION,
     CONSTRAINT `fk_reservation_user1`
-    FOREIGN KEY (`user_user_id`)
-    REFERENCES `scrum_library`.`user` (`user_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+        FOREIGN KEY (`user_user_id`)
+            REFERENCES `scrum_library`.`user` (`user_id`)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION
+)
     ENGINE = InnoDB
     DEFAULT CHARACTER SET = utf8mb4
     COLLATE = utf8mb4_0900_ai_ci
@@ -155,48 +166,219 @@ CREATE TABLE IF NOT EXISTS `scrum_library`.`reservation` (
 -- -----------------------------------------------------
 -- Table `scrum_library`.`session`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `scrum_library`.`session` ;
+DROP TABLE IF EXISTS `scrum_library`.`session`;
 
-CREATE TABLE IF NOT EXISTS `scrum_library`.`session` (
-                                                     `session_id` INT NOT NULL AUTO_INCREMENT,
-                                                     `ip` VARCHAR(40) NOT NULL,
-    `token` VARCHAR(255) NOT NULL,
-    `created` DATETIME NOT NULL,
-    `last_used` DATETIME NOT NULL,
-    `user_user_id` INT NOT NULL,
+CREATE TABLE IF NOT EXISTS `scrum_library`.`session`
+(
+    `session_id`   INT          NOT NULL AUTO_INCREMENT,
+    `ip`           VARCHAR(40)  NOT NULL,
+    `token`        VARCHAR(255) NOT NULL,
+    `created`      DATETIME     NOT NULL,
+    `last_used`    DATETIME     NOT NULL,
+    `user_user_id` INT          NOT NULL,
     PRIMARY KEY (`session_id`),
     UNIQUE INDEX `session_id_UNIQUE` (`session_id` ASC) VISIBLE,
     INDEX `fk_session_user_idx` (`user_user_id` ASC) VISIBLE,
     CONSTRAINT `fk_session_user`
-    FOREIGN KEY (`user_user_id`)
-    REFERENCES `scrum_library`.`user` (`user_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+        FOREIGN KEY (`user_user_id`)
+            REFERENCES `scrum_library`.`user` (`user_id`)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION
+)
     ENGINE = InnoDB
     DEFAULT CHARACTER SET = utf8mb4
     COLLATE = utf8mb4_0900_ai_ci
     COMMENT = 'table that stores the login session for the users';
 
 
-SET SQL_MODE=@OLD_SQL_MODE;
-SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
-SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+SET SQL_MODE = @OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS = @OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS = @OLD_UNIQUE_CHECKS;
 
 -- changeset kevin:kev2
 ALTER TABLE `scrum_library`.`borrow_record`
-ADD COLUMN `status` VARCHAR(50) NOT NULL AFTER `return_date`;
+    ADD COLUMN `status` VARCHAR(50) NOT NULL AFTER `return_date`;
 
 -- changeset arman:ar3
 ALTER TABLE `scrum_library`.`borrow_record`
-ADD COLUMN `rating` DOUBLE  AFTER `status`;
+    ADD COLUMN `rating` DOUBLE DEFAULT 0 AFTER `status`;
 
 -- changeset kevin:kev4
 ALTER TABLE `scrum_library`.`book`
-ADD COLUMN `sum_rating` FLOAT NOT NULL AFTER `times_borrowed`;
+    ADD COLUMN `sum_rating` FLOAT NOT NULL AFTER `times_borrowed`;
 
 ALTER TABLE `scrum_library`.`book`
-ADD COLUMN `count_rating` INT NOT NULL AFTER `sum_rating`;
+    ADD COLUMN `count_rating` INT NOT NULL AFTER `sum_rating`;
 
 -- changeset kevin:kev5
 ALTER TABLE `scrum_library`.`book`
-ADD COLUMN `cover_url` TEXT AFTER `count_rating`;
+    ADD COLUMN `cover_url` TEXT AFTER `count_rating`;
+
+-- changeset arman:ar4
+ALTER TABLE `scrum_library`.`session`
+    ADD COLUMN `deviceInfo` VARCHAR(300) NOT NULL AFTER `ip`;
+
+-- changeset arman:ar5
+SET GLOBAL log_bin_trust_function_creators = 1;
+
+-- changeset arman:ar6
+CREATE TRIGGER update_book_availableCopies_after_insert
+    AFTER INSERT
+    ON scrum_library.book_copy
+    FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book
+    SET total_copies = total_copies + 1
+    WHERE book_id = NEW.book_book_id;
+END;
+
+-- changeset arman:ar7
+CREATE TRIGGER update_book_rating_after_insert
+    AFTER INSERT
+    ON scrum_library.borrow_record
+    FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book AS b
+    SET b.sum_rating     = b.sum_rating + NEW.rating,
+        b.count_rating   = b.count_rating + 1,
+        b.average_rating = (b.sum_rating + NEW.rating) / (b.count_rating + 1),
+        b.times_borrowed = b.times_borrowed + 1
+    WHERE b.book_id = (SELECT bc.book_book_id
+                       FROM scrum_library.book_copy AS bc
+                       WHERE bc.book_copy_id = NEW.book_copy_book_copy_id);
+END;
+
+-- changeset arman:ar8
+CREATE TRIGGER update_book_availableCopies_after_delete
+    AFTER DELETE
+    ON scrum_library.book_copy
+    FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book
+    SET total_copies = total_copies - 1
+    WHERE book_id = OLD.book_book_id;
+END;
+
+-- changeset kevin:kev9
+DROP TRIGGER IF EXISTS update_book_rating_after_insert;
+
+-- [Purpose]: update the times borrowed in the book
+-- [Purpose]: if rating information is present, update the rating information in the book
+-- [Purpose]: update the available copies in the book
+CREATE TRIGGER update_book_statistics_after_insert
+    AFTER INSERT ON scrum_library.borrow_record
+    FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book AS b
+    SET
+        -- update the times borrowed in the book
+        b.times_borrowed = b.times_borrowed + 1,
+
+        -- update the available copies count (if the status is BORROWED)
+        b.available_copies = b.available_copies - IF(NEW.status = 'BORROWED', 1, 0),
+
+        -- update the rating information in the book if the borrow record has rating information
+        b.sum_rating = b.sum_rating + IF(NEW.rating IS NOT NULL, NEW.rating, 0),
+        b.count_rating = b.count_rating + IF(NEW.rating IS NOT NULL, 1, 0),
+        b.average_rating = IF(b.count_rating > 0, b.sum_rating / b.count_rating, NULL)
+    WHERE b.book_id = (
+        SELECT bc.book_book_id
+        FROM scrum_library.book_copy AS bc
+        WHERE bc.book_copy_id = NEW.book_copy_book_copy_id
+    );
+END;
+
+-- [Purpose]: if rating information is present (and it wasn't present before), update the rating information in the book
+CREATE TRIGGER update_book_statistics_after_update
+    AFTER UPDATE ON scrum_library.borrow_record
+    FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book AS b
+    SET
+        -- update the available copies if the status changed from NOT_BORROWED to BORROWED
+        b.available_copies = b.available_copies + IF(NEW.status = 'NOT_BORROWED' AND OLD.status = 'BORROWED', 1, 0),
+
+        -- update the rating information in the book if the borrow record has new rating information
+        b.sum_rating = b.sum_rating + IF(NEW.rating IS NOT NULL AND OLD.rating IS NULL, NEW.rating, 0),
+        b.count_rating = b.count_rating + IF(NEW.rating IS NOT NULL AND OLD.rating IS NULL, 1, 0),
+        b.average_rating = IF(b.count_rating > 0, b.sum_rating / b.count_rating, NULL)
+    WHERE b.book_id = (
+        SELECT bc.book_book_id
+        FROM scrum_library.book_copy AS bc
+        WHERE bc.book_copy_id = NEW.book_copy_book_copy_id
+    );
+END;
+
+-- changeset kevin:kev10
+DROP TRIGGER IF EXISTS update_book_availableCopies_after_delete;
+
+-- [Purpose]: update the total_copies and available_copies count in the book
+CREATE TRIGGER update_book_availableCopies_after_delete
+    AFTER DELETE
+    ON scrum_library.book_copy
+    FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book
+    SET
+        total_copies = total_copies - 1,
+        available_copies = available_copies -1
+    WHERE book_id = OLD.book_book_id;
+END;
+
+-- [Purpose]: update the status of the book copy when a new borrow record is inserted
+CREATE TRIGGER update_book_copy_status_after_insert
+    AFTER INSERT ON scrum_library.borrow_record
+    FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book_copy AS bc
+    SET
+        bc.status = NEW.status
+    WHERE bc.book_copy_id =  NEW.book_copy_book_copy_id;
+END;
+
+-- changeset kevin:kev11
+-- [Purpose]: update the status of the book copy when a borrow record is updated
+DROP TRIGGER IF EXISTS update_book_copy_status_after_update;
+
+CREATE TRIGGER update_book_copy_status_after_update
+    AFTER UPDATE ON scrum_library.borrow_record
+    FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book_copy AS bc
+    SET
+        bc.status = NEW.status
+    WHERE bc.book_copy_id =  NEW.book_copy_book_copy_id;
+END;
+
+-- changeset kevin:kev12
+-- [Purpose]: update the available copy count of a book if a borrow record gets deleted
+-- under normal conditions this trigger will not be executed, to guarantee a complete history
+DROP TRIGGER IF EXISTS update_book_after_borrow_delete;
+
+CREATE TRIGGER update_book_after_borrow_delete
+        AFTER DELETE ON scrum_library.borrow_record
+        FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book AS b
+    SET
+        -- update the available copies if the deleted borrow record had a status of BORROWED
+        b.available_copies = b.available_copies + IF(OLD.status = 'BORROWED', 1, 0)
+    WHERE b.book_id = (
+        SELECT bc.book_book_id
+        FROM scrum_library.book_copy AS bc
+        WHERE bc.book_copy_id = OLD.book_copy_book_copy_id
+    );
+END;
+
+-- [Purpose]: update the status of the book copy if a borrow record gets deleted
+-- under normal conditions this trigger will not be executed, to guarantee a complete history
+DROP TRIGGER IF EXISTS update_book_copy_after_borrow_delete;
+
+CREATE TRIGGER update_book_copy_after_borrow_delete
+    AFTER DELETE ON scrum_library.borrow_record
+    FOR EACH ROW
+BEGIN
+    UPDATE scrum_library.book_copy AS bc
+    SET bc.status = IF(OLD.status = 'BORROWED', 'NOT_BORROWED', bc.status)
+    WHERE bc.book_copy_id = OLD.book_copy_book_copy_id;
+END;

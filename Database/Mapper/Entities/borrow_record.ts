@@ -1,7 +1,7 @@
 import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn,} from 'typeorm';
 import {User} from './user.js';
 import {Book_Copy} from './book_copy.js';
-import {BorrowRecord_Techcode} from '../Techcodes/BorrowRecord_Techcode.js';
+import {BorrowRecordTechcode} from '../Techcodes/BorrowRecordTechcode.js';
 
 @Entity('borrow_record')
 export class BorrowRecord extends BaseEntity {
@@ -15,7 +15,7 @@ export class BorrowRecord extends BaseEntity {
     return_date!: Date;
 
     @Column({length: '50', nullable: false})
-    status!: BorrowRecord_Techcode;
+    status!: BorrowRecordTechcode;
 
     @Column({type: "double", nullable: true})
     rating?: number;
@@ -41,21 +41,68 @@ export class BorrowRecord extends BaseEntity {
             relations: {
                 book_copy: {
                     book: true
-                }
+                },
+                user: true,
             }
         });
         return borrowRecords;
     }
 
-    static clearBorrowRecordsCache(): void {
+    static async resetBorrowRecordsCache(): Promise<void> {
         borrowRecords = null;
-        console.log("Cleared Borrow records cache");
+        console.log("Reset Borrow records cache");
+        await this.getBorrowRecordsFromCacheOrDB();
     }
 
     static async getBorrowRecordsByKey<K extends keyof BorrowRecord>(keyName: K, keyValue: BorrowRecord[K]): Promise<BorrowRecord | undefined> {
         const borrowRecords: BorrowRecord[] = await BorrowRecord.getBorrowRecordsFromCacheOrDB();
         if (!borrowRecords) return undefined;
         return borrowRecords.find(record => record[keyName] === keyValue);
+    }
+
+    static async saveBorrowRecord(borrowRecord: BorrowRecord): Promise<void> {
+        await borrowRecord.save();
+        await this.resetBorrowRecordsCache();
+    }
+
+    /**
+     * Retrieves the borrow record for a specific book and user, filtering by active borrowing status.
+     *
+     * @async
+     * @function getActiveBorrowRecordForBook
+     * @param {number} bookId - The ID of the book to check the borrow record for.
+     * @param {User} user - The user whose borrow record is to be retrieved.
+     * @returns {Promise<BorrowRecord | null>} A promise resolving to the borrow record if found, or null otherwise.
+     *
+     * @throws {Error} Throws an error if the database query fails.
+     *
+     * @example
+     * // Example usage
+     * const borrowRecord = await getBorrowRecord(123, currentUser);
+     * if (borrowRecord) {
+     *   console.log(`Borrow record ID: ${borrowRecord.id}`);
+     * } else {
+     *   console.log('No active borrow record found for this book and user.');
+     * }
+     */
+    static async getActiveBorrowRecordForBook(bookId: number, user: User): Promise<BorrowRecord | null> {
+        return await BorrowRecord.findOne({
+            where: {
+                status: BorrowRecordTechcode.BORROWED,
+                user: user,
+                book_copy: {
+                    book: {
+                        book_id: bookId,
+                    },
+                },
+            },
+            relations: {
+                user: true,
+                book_copy: {
+                    book: true,
+                },
+            },
+        });
     }
 }
 

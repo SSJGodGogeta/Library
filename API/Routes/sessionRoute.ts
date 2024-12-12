@@ -7,6 +7,6 @@ const sessionRoutes = createEntityRoutes<Session>(
         getAllFromCacheOrDB: Session.getSessionFromCacheOrDB,
         getByKey: Session.getSessionByKey,
     },
-    "book_copy"
+    "session"
 );
 routes.push({path: "/session", router: sessionRoutes});

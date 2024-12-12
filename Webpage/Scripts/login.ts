@@ -1,44 +1,40 @@
 document.addEventListener("DOMContentLoaded", () => {
     // load the email-address and the password field
-    let email_address_input: HTMLInputElement = document.getElementById("email") as HTMLInputElement;
-    let password_input: HTMLInputElement = document.getElementById("password") as HTMLInputElement;
+    let emailAddressInput: HTMLInputElement = document.getElementById("email") as HTMLInputElement;
+    let passwordInput: HTMLInputElement = document.getElementById("password") as HTMLInputElement;
+    let loginButton: HTMLButtonElement = document.getElementById("loginButton") as HTMLButtonElement;
+    let loginError: HTMLParagraphElement = document.getElementById("loginError") as HTMLParagraphElement;
+    loginError.style.display = "none";
 
-    // load the login button
-    let login_button: HTMLButtonElement = document.getElementById("loginButton") as HTMLButtonElement;
-
-    // load the hidden error message
-    // let loginError: HTMLParagraphElement = document.getElementById("loginError") as HTMLParagraphElement;
-
-    login_button.onclick = async function () {
+    async function handleLogin() {
         try {
-            // hide the error message for a retry
-            // loginError.style.display = "none";  This doesnt work. Buttons are undefined.
-
-            const email: String = email_address_input.value!.trim().toLowerCase(); // trim and lowercase the email address
-            const password: String = password_input.value!; // read the password
-
-            const response = await fetch(`http://localhost:3000/authentication/login`, {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include', // allow receiving cookies
-                body: JSON.stringify({
-                    email: email,
-                    password: password,
-                }),
-            });
-            if (!response.ok) {
-                throw new Error(response.status + " - " + response.statusText);
+            const email: string = emailAddressInput.value!.trim().toLowerCase(); // trim and lowercase the email address
+            const password: string = passwordInput.value!; // read the password
+            if (email.length == 0 || password.length == 0) return;
+            const response = await login(email, password);
+            if (response.code && response.code > 299) {
+                loginError.style.display = "block";
+                loginError.innerText = `${response.code}: ${response.message}`;
+                return;
             }
-
             console.log("Logged in successfully");
-            window.location.href = "/Webpage/index.html";
+            await fetchCurrentUser();
+            window.location.href = "/Library/Webpage/index.html";
         } catch (e) {
-            // If the login failed, show an error message and log the error
             console.error(e);
-            // loginError.style.display = "block";
         }
     }
+
+
+    loginButton.onclick = async function () {
+        await handleLogin();
+    }
+    document.addEventListener('keydown', async function (event) {
+        if (event.key === "Enter") {
+            await handleLogin();
+        }
+    });
 });
+
+
 
