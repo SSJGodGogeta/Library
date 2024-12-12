@@ -30,6 +30,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 });
 
+/**
+ * Generated the book information that appears after clicking on a book.
+ * @param bookDetailsContainer the book container to edit
+ * @param book the book object to get info from
+ * @param currentBorrowRecord the borrow record from the db.
+ */
 function generateBookDetails(bookDetailsContainer: HTMLDivElement, book: Book, currentBorrowRecord: BorrowRecord | null) {
     bookDetailsContainer.innerHTML = `
             <img src="${book.cover_url}" alt="book cover" height="300px">
@@ -55,14 +61,20 @@ function generateBookDetails(bookDetailsContainer: HTMLDivElement, book: Book, c
             <p><b>Publisher:</b> ${book.publisher ?? "unknown"}</p>
             <p><b>Language:</b> ${book.language_code ?? "unknown"}</p>
             <p><b>Version:</b> ${book.edition ?? 1}</p>
-            <p><b>Release:</b> ${book.year ?? "unknown"}</p>
-            
-            <h3>Information for borrowing the book:</h3>
-            <p><b>Total Copies:</b> ${book.total_copies}</p>
-            <p><b>Available Copies:</b> ${book.available_copies}</p>
-            
-            <br>
-            
-            <p>If there is no copy available to borrow, you can reserve one instead.</p>
-        `;
+            <p><b>Release:</b> ${book.year ?? "unknown"}</p> 
+            <br>`;
+
+    if (!currentBorrowRecord) {
+        // Doesn't make sense to show this message to someone who has already borrowed the book...
+        bookDetailsContainer.innerHTML += `<h3>Information for borrowing the book:</h3>
+                <p><b>Total Copies:</b> ${book.total_copies}</p>
+                <p><b>Available Copies:</b> ${book.available_copies}</p>
+                <p>If there is no copy available to borrow, you can reserve one instead.</p>
+                <br>`;
+        return;
+    }
+    const returnInfoParagraph = document.createElement('p');
+    returnInfoParagraph.className = 'return-info';
+    returnInfoParagraph.innerHTML = `<b>Return date:</b> ${formatDateWithoutTime(currentBorrowRecord.return_date.toString())}`;
+    bookDetailsContainer.appendChild(returnInfoParagraph);
 }

@@ -91,7 +91,7 @@ function clearUserFromSessionStorage() {
 }
 
 /**
- * Generates an HTML `<li>` element representing a book with its details and rating.
+ * Generates an HTML `<li>` element representing a book with its details and rating for the overview window in book.html.
  * @param {Book} book - The book object containing all necessary information.
  * @returns {HTMLLIElement} - An HTML list item element containing the book's details.
  */
