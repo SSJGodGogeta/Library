@@ -89,6 +89,7 @@ let user = {
     lastName: "",
     loggedIn: false,
     email: "",
+    permissions: "",
 }
 
 /**

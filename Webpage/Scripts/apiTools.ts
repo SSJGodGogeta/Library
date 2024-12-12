@@ -140,52 +140,63 @@ function isFetchResponse(obj: any): obj is FetchResponse {
  * - The server endpoint (`http://localhost:3000/authentication/currentUser`) must return a JSON
  *   response with an `entities` object containing the user's details.
  */
-async function fetchCurrentUser(): Promise<void> {
+async function fetchCurrentUser(): Promise<typeof user | undefined> {
     const storedUser = getUserFromSessionStorage();
     if (storedUser) {
         console.warn("User already fetched and stored for this session.");
         Object.assign(user, storedUser); // Synchronize the in-memory `user` object with the stored data
-        return;
+        return storedUser;
     }
 
     try {
         const entities = await fetchRoute<User>(backendRoutes.authentication.currentUser);
         if (isFetchResponse(entities)) {
             console.error(`Fetch failed with code ${entities.code}: ${entities.message}`);
-            return;
+            return undefined;
         }
 
         if (!entities) {
             console.error("User is not logged in");
-            return;
+            return undefined;
         }
 
         user.loggedIn = true;
         user.firstName = entities.first_name;
         user.lastName = entities.last_name;
         user.email = entities.email;
+        user.permissions = entities.permissions;
 
         saveUserToSessionStorage(user);
         console.warn("Finished fetching and saving user.");
+        return user;
     } catch (error) {
         console.error(error);
     }
 }
 
 async function login(email: string, password: string) {
-    return await fetchRoute<FetchResponse>(backendRoutes.authentication.login, 'POST', {
+    const response = await fetchRoute<FetchResponse>(backendRoutes.authentication.login, 'POST', {
         email: email,
         password: password
-    });
+    }, "message");
+    console.log(response);
+    return {
+        code: response.code,
+        message: response.message,
+    } as FetchResponse;
 }
 
 async function register(email: string, password: string, firstName: string, lastName: string) {
-    return await fetchRoute<FetchResponse>(backendRoutes.authentication.register, 'POST', {
+    const response = await fetchRoute<FetchResponse>(backendRoutes.authentication.register, 'POST', {
         email: email,
         password: password,
         firstName: firstName,
         lastName: lastName,
-    });
+    }, "message");
+    return {
+        code: response.code,
+        message: response.message,
+    } as FetchResponse;
 }
 
 /**
@@ -328,7 +339,7 @@ async function borrowBook(bookId: number): Promise<void | FetchResponse> {
  * If you (for some reason) get the idea of changing it or not using the sendResponseAsJson() function and using the base functions...
  * Don't forget to fetch the results correctly using this function and specifying the responseKey explicitly.
  */
-async function fetchRoute<T>(endpoint: string, method: "GET" | "POST" = "GET", body?: any, responseKey: string = "entities"): Promise<T | FetchResponse> {
+async function fetchRoute<T>(endpoint: string, method: "GET" | "POST" = "GET", body?: any, responseKey: "entities" | "message" = "entities"): Promise<T | FetchResponse> {
     const url = `http://localhost:3000${endpoint}`;
     console.log(`Using route: ${url} with method: ${method} and body: ${JSON.stringify(body)}`);
     const options: RequestInit = {
@@ -342,8 +353,9 @@ async function fetchRoute<T>(endpoint: string, method: "GET" | "POST" = "GET", b
         options.body = JSON.stringify(body);
     }
     let json: any;
+    let response: any;
     try {
-        const response = await fetch(url, options);
+        response = await fetch(url, options);
         json = await response.json();
         if (!response.ok) {
             console.log(response);
@@ -357,14 +369,9 @@ async function fetchRoute<T>(endpoint: string, method: "GET" | "POST" = "GET", b
             }
             throw new Error(json.message || `Network response was not ok: ${response.statusText}`);
         }
-        if ((endpoint == backendRoutes.authentication.login) || endpoint == backendRoutes.authentication.register) return {
-            code: response.status,
-            message: json.message || response.statusText,
-        } as FetchResponse;
     } catch (error: any) {
-        await Promise.reject(error);
         return {
-            code: 505,
+            code: response.status || 500,
             message: error.message,
         } as FetchResponse;
     }

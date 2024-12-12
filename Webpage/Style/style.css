@@ -189,16 +189,16 @@ main {
     background-color: #f5f5f5;
 }
 
- .isbn-info {
+.isbn-info {
     color: #777777;
 }
 
-.author-info  {
+.author-info {
     margin-top: 0;
     margin-bottom: 5px;
 }
 
-.author-info:hover   {
+.author-info:hover {
     text-decoration: underline;
 }
 
@@ -234,22 +234,22 @@ main {
     margin-left: 20px;
 }
 
-#book-details-container>h1 {
+#book-details-container > h1 {
     margin-bottom: 0;
     margin-top: 20px;
 }
 
-#book-details-container>h3 {
+#book-details-container > h3 {
     margin-top: 40px;
     margin-bottom: 10px;
 }
 
-#book-details-container>p {
+#book-details-container > p {
     margin-bottom: 0;
     margin-top: 0;
 }
 
-#book-details-container>.rating-container {
+#book-details-container > .rating-container {
     margin-bottom: 20px;
     margin-top: 0;
 }
@@ -258,7 +258,7 @@ main {
     margin-bottom: 20px;
 }
 
-.borrow-button-container>button {
+.borrow-button-container > button {
     cursor: pointer;
     margin-right: 10px;
     background-color: #007bff;
@@ -268,11 +268,59 @@ main {
     border-radius: 5px;
 }
 
-.borrow-button-container>button:disabled {
+.borrow-button-container > button:disabled {
     cursor: not-allowed;
     background-color: #bbbbbb;
 }
 
 .return-info {
     color: red;
+}
+
+.userTable, .borrowedBooksTable {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    text-align: center;
+}
+
+.userTable > tr > td, .userTable > tr > th {
+    border: 1px solid #dddddd;
+    text-align: center;
+    padding: 8px;
+}
+
+.borrowedBooksTable > tr > td, .borrowedBooksTable > tr > th {
+    border: 1px solid #dddddd;
+    text-align: center;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: rgb(0, 0, 0, 0.05);
+}
+
+#logoutButton {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    color: white;
+    background-color: rgba(255, 0, 68, 0.7);
+    border: 2px solid black;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    transition-duration: 0.4s;
+}
+
+#logoutButton:hover {
+    background-color: rgba(255, 0, 68, 1);
+    box-shadow: 0 12px 16px 0 rgba(255, 0, 68, 0.15), 0 17px 50px 0 rgba(255, 0, 68, 0.3);
+}
+
+#logoutButton:active {
+    box-shadow: 0 12px 16px 0 rgba(255, 0, 68, 0.15), 0 17px 50px 0 rgba(255, 0, 68, 0.3);
+    transform: translateY(4px);
 }
