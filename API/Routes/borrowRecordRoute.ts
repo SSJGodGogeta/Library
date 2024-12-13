@@ -106,6 +106,7 @@ async function returnBook(req: Request, res: Response) {
 }
 
 async function reserveBook(req: Request, res: Response) {
+    //TODO Testing and create a separate page or part on the my books where you can see the reserved books.
     let result = await handleBase(req, res);
     // If result is null, a response has already been sent.
     if (!result) return;
@@ -139,6 +140,9 @@ async function reserveBook(req: Request, res: Response) {
     if (!nearestReturnBookCopy) {
         console.error("Couldnt find any book copy.");
         return sendResponseAsJson(res, 404, "No available book copy found!");
+    }
+    if (borrowRecords.some(record => record.user.user_id == user.user_id && bookCopies.some(copy => copy.book_copy_id == nearestReturnBookCopy.book_copy_id))) {
+        return sendResponseAsJson(res, 400, "You already have the same book reserved");
     }
     const record = borrowRecords.find(rec => rec.book_copy.book_copy_id == nearestReturnBookCopy.book_copy_id);
     if (!record) return sendResponseAsJson(res, 404, `No record found that contains book_copy_id: ${nearestReturnBookCopy.book_copy_id}!`);
