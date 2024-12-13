@@ -63,7 +63,16 @@ async function myRecords(req: Request, res: Response) {
     try {
         // get all active borrowRecords for a user
         const borrowRecords: BorrowRecord[] = await BorrowRecord.getBorrowRecordsFromCacheOrDB();
-        const activeBorrowRecord: BorrowRecord[] = borrowRecords.filter((record) => record.user.user_id === req.body.user.user_id && record.status == BorrowRecordTechcode.BORROWED);
+        const activeBorrowRecord: BorrowRecord[] = borrowRecords.filter((record) => record.user.user_id === req.body.user.user_id && (record.status == BorrowRecordTechcode.BORROWED || record.status == BorrowRecordTechcode.RESERVED)).sort((a, b) => {
+            // Place BORROWED before RESERVED
+            if (a.status === BorrowRecordTechcode.BORROWED && b.status !== BorrowRecordTechcode.BORROWED) {
+                return -1;
+            }
+            if (a.status !== BorrowRecordTechcode.BORROWED && b.status === BorrowRecordTechcode.BORROWED) {
+                return 1;
+            }
+            return 0; // If statuses are equal, maintain their relative order
+        });
 
         return sendResponseAsJson(res, 200, "Success", activeBorrowRecord);
     } catch (error) {

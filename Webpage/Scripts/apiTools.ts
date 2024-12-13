@@ -282,7 +282,7 @@ async function fetchMyRecords() {
         console.error(`Fetch failed with code ${response.code}: ${response.message}`);
         return response as FetchResponse;
     }
-    return response;
+    return response as unknown as BorrowRecord[];
 }
 
 async function fetchBorrowRecordForBook(bookId: number | null, user: any) {

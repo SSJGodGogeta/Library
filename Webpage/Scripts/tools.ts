@@ -143,6 +143,7 @@ function generateMyBookContainer(borrowRecord: BorrowRecord): HTMLLIElement {
         returnInfoParagraph.innerHTML = `<b>Return date:</b> ${formatDateWithoutTime(borrowRecord.return_date.toString())}`;
         bookInfoDiv.appendChild(returnInfoParagraph);
     }
+
     return bookItem;
 }
 
@@ -163,8 +164,16 @@ async function generateBookList(options?: { onlyBorrowedBooks: boolean }) {
             return;
         }
         if (isFetchResponse(result)) return;
+        let hasShownReservedTitle: boolean = false
         for (const book of result) {
             // generate book container element
+            if (onlyBorrowedBooks && (book as BorrowRecord).status == "RESERVED" && !hasShownReservedTitle) {
+                hasShownReservedTitle = true;
+                const reservedTitle = document.createElement("h2");
+                reservedTitle.id = "reserved-title";
+                reservedTitle.innerHTML = "Reserved Books:";
+                bookList.appendChild(reservedTitle);
+            }
             const bookElement: HTMLLIElement = onlyBorrowedBooks ? generateMyBookContainer(book as BorrowRecord) : generateAllBooksContainer(book as Book);
 
             bookList.appendChild(bookElement);
