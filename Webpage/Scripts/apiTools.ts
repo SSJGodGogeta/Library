@@ -342,7 +342,7 @@ async function returnBook(bookId: number): Promise<void | FetchResponse> {
     }
     console.warn("Overdue?:");
     console.warn(response);
-    await delay(2500);
+    await delay(1000);
     window.location.reload();
 }
 
@@ -357,7 +357,7 @@ async function reserveBook(bookId: number): Promise<void | FetchResponse> {
     }
     console.warn("BorrowRecord:");
     console.warn(response);
-    await delay(2500);
+    await delay(1000);
     window.location.reload();
 }
 
