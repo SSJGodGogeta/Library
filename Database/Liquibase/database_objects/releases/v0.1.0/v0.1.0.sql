@@ -34,8 +34,8 @@ CREATE TABLE IF NOT EXISTS `scrum_library`.`book`
     `edition`          INT           NULL DEFAULT NULL,
     `isbn`             VARCHAR(13)   NOT NULL,
     `language_code`    CHAR(3)       NULL DEFAULT NULL,
-    `total_copies`     INT           NULL DEFAULT NULL,
-    `available_copies` INT           NULL DEFAULT NULL,
+    `total_copies`     INT           NULL DEFAULT 0,
+    `available_copies` INT           NULL DEFAULT 0,
     `average_rating`   FLOAT         NULL DEFAULT NULL,
     `times_borrowed`   INT           NULL DEFAULT NULL,
     `availability`     VARCHAR(50)   NOT NULL,
@@ -221,6 +221,10 @@ ALTER TABLE `scrum_library`.`session`
 -- changeset arman:ar5
 SET GLOBAL log_bin_trust_function_creators = 1;
 
+
+
+
+
 -- changeset arman:ar6
 CREATE TRIGGER update_book_availableCopies_after_insert
     AFTER INSERT
@@ -228,38 +232,26 @@ CREATE TRIGGER update_book_availableCopies_after_insert
     FOR EACH ROW
 BEGIN
     UPDATE scrum_library.book
-    SET total_copies = total_copies + 1
+    SET total_copies = total_copies + 1,
+        available_copies = available_copies + 1
     WHERE book_id = NEW.book_book_id;
 END;
 
--- changeset arman:ar7
-CREATE TRIGGER update_book_rating_after_insert
-    AFTER INSERT
-    ON scrum_library.borrow_record
-    FOR EACH ROW
-BEGIN
-    UPDATE scrum_library.book AS b
-    SET b.sum_rating     = b.sum_rating + NEW.rating,
-        b.count_rating   = b.count_rating + 1,
-        b.average_rating = (b.sum_rating + NEW.rating) / (b.count_rating + 1),
-        b.times_borrowed = b.times_borrowed + 1
-    WHERE b.book_id = (SELECT bc.book_book_id
-                       FROM scrum_library.book_copy AS bc
-                       WHERE bc.book_copy_id = NEW.book_copy_book_copy_id);
-END;
-
--- changeset arman:ar8
+-- [Purpose]: update the total_copies and available_copies count in the book
 CREATE TRIGGER update_book_availableCopies_after_delete
     AFTER DELETE
     ON scrum_library.book_copy
     FOR EACH ROW
 BEGIN
     UPDATE scrum_library.book
-    SET total_copies = total_copies - 1
+    SET
+        total_copies = total_copies - 1,
+        available_copies = available_copies -1
     WHERE book_id = OLD.book_book_id;
 END;
 
--- changeset kevin:kev9
+
+-- changeset kevin:kev7
 DROP TRIGGER IF EXISTS update_book_rating_after_insert;
 
 -- [Purpose]: update the times borrowed in the book
@@ -295,8 +287,8 @@ CREATE TRIGGER update_book_statistics_after_update
 BEGIN
     UPDATE scrum_library.book AS b
     SET
-        -- update the available copies if the status changed from NOT_BORROWED to BORROWED
-        b.available_copies = b.available_copies + IF(NEW.status = 'NOT_BORROWED' AND OLD.status = 'BORROWED', 1, 0),
+        -- update the available copies if the status changed from RETURNED to BORROWED / RESERVED
+        b.available_copies = b.available_copies + IF(NEW.status = 'RETURNED' AND OLD.status = 'BORROWED' OR OLD.status = 'RESERVED', 1, 0),
 
         -- update the rating information in the book if the borrow record has new rating information
         b.sum_rating = b.sum_rating + IF(NEW.rating IS NOT NULL AND OLD.rating IS NULL, NEW.rating, 0),
@@ -309,21 +301,8 @@ BEGIN
     );
 END;
 
--- changeset kevin:kev10
-DROP TRIGGER IF EXISTS update_book_availableCopies_after_delete;
+-- changeset kevin:kev8
 
--- [Purpose]: update the total_copies and available_copies count in the book
-CREATE TRIGGER update_book_availableCopies_after_delete
-    AFTER DELETE
-    ON scrum_library.book_copy
-    FOR EACH ROW
-BEGIN
-    UPDATE scrum_library.book
-    SET
-        total_copies = total_copies - 1,
-        available_copies = available_copies -1
-    WHERE book_id = OLD.book_book_id;
-END;
 
 -- [Purpose]: update the status of the book copy when a new borrow record is inserted
 CREATE TRIGGER update_book_copy_status_after_insert
@@ -332,11 +311,11 @@ CREATE TRIGGER update_book_copy_status_after_insert
 BEGIN
     UPDATE scrum_library.book_copy AS bc
     SET
-        bc.status = NEW.status
+        bc.status = 'NOT_AVAILABLE'
     WHERE bc.book_copy_id =  NEW.book_copy_book_copy_id;
 END;
 
--- changeset kevin:kev11
+-- changeset kevin:kev9
 -- [Purpose]: update the status of the book copy when a borrow record is updated
 DROP TRIGGER IF EXISTS update_book_copy_status_after_update;
 
@@ -350,7 +329,7 @@ BEGIN
     WHERE bc.book_copy_id =  NEW.book_copy_book_copy_id;
 END;
 
--- changeset kevin:kev12
+-- changeset kevin:kev10
 -- [Purpose]: update the available copy count of a book if a borrow record gets deleted
 -- under normal conditions this trigger will not be executed, to guarantee a complete history
 DROP TRIGGER IF EXISTS update_book_after_borrow_delete;
@@ -379,6 +358,6 @@ CREATE TRIGGER update_book_copy_after_borrow_delete
     FOR EACH ROW
 BEGIN
     UPDATE scrum_library.book_copy AS bc
-    SET bc.status = IF(OLD.status = 'BORROWED', 'NOT_BORROWED', bc.status)
+    SET bc.status = IF(OLD.status = 'BORROWED' OR OLD.status = 'RESERVED', 'RETURNED', bc.status)
     WHERE bc.book_copy_id = OLD.book_copy_book_copy_id;
 END;

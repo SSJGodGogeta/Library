@@ -23,7 +23,7 @@ interface BorrowRecord {
     borrow_record_id: number,
     borrow_date: Date,
     return_date: Date,
-    status: "NOT_BORROWED" | "BORROWED",
+    status: "RETURNED" | "BORROWED" | "RESERVED",
     rating: number,
     book_copy: BookCopy,
     user: User,
@@ -31,7 +31,7 @@ interface BorrowRecord {
 
 interface BookCopy {
     book_copy_id: number,
-    status: "NOT_BORROWED" | "BORROWED",
+    status: "AVAILABLE" | "NOT_AVAILABLE" | "SOON_AVAILABLE",
     book: Book,
 }
 

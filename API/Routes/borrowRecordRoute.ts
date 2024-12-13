@@ -8,6 +8,7 @@ import {Book} from "../../Database/Mapper/Entities/book.js";
 import {User} from "../../Database/Mapper/Entities/user.js";
 import {PermissionTechcode} from "../../Database/Mapper/Techcodes/PermissionTechcode.js";
 import {sendResponseAsJson} from "./tools/sendResponseAsJson.js";
+import {AvailabilityTechcode} from "../../Database/Mapper/Techcodes/AvailabilityTechcode.js";
 
 const router = Router();
 
@@ -24,7 +25,7 @@ async function borrowBook(req: Request, res: Response) {
         if (!result) return;
         const {user: user, book: book} = result;
         // get a book copy that is currently not borrowed
-        let availableBookCopy: Book_Copy | undefined = (await Book_Copy.getBookCopiesFromCacheOrDB()).find((copy) => copy.status == BorrowRecordTechcode.NOT_BORROWED && copy.book.book_id == book.book_id);
+        let availableBookCopy: Book_Copy | undefined = (await Book_Copy.getBookCopiesFromCacheOrDB()).find((copy) => copy.status == AvailabilityTechcode.AVAILABLE && copy.book.book_id == book.book_id);
 
         if (!availableBookCopy) {
             // there are 0 available copies. If the book objects has saved a different value update it
@@ -62,7 +63,7 @@ async function myRecords(req: Request, res: Response) {
     try {
         // get all active borrowRecords for a user
         const borrowRecords: BorrowRecord[] = await BorrowRecord.getBorrowRecordsFromCacheOrDB();
-        const activeBorrowRecord: BorrowRecord[] = borrowRecords.filter((record) => record.user.user_id === req.body.user.user_id);
+        const activeBorrowRecord: BorrowRecord[] = borrowRecords.filter((record) => record.user.user_id === req.body.user.user_id && record.status == BorrowRecordTechcode.BORROWED);
 
         return sendResponseAsJson(res, 200, "Success", activeBorrowRecord);
     } catch (error) {
@@ -87,20 +88,20 @@ async function returnBook(req: Request, res: Response) {
     let result = await handleBase(req, res, true);
     // If result is null, a response has already been sent.
     if (!result) return;
-    const {book: book, borrowedBook: borrowedBook} = result;
-    if (!borrowedBook) {
+    const {book: book, borrowedBook: borrowedBookRecord} = result;
+    if (!borrowedBookRecord) {
         sendResponseAsJson(res, 422, "Could not find borrow entry");
         return;
     }
-    borrowedBook.book_copy.status = BorrowRecordTechcode.NOT_BORROWED;
-    borrowedBook.status = BorrowRecordTechcode.NOT_BORROWED;
-    borrowedBook.return_date = new Date();
+    borrowedBookRecord.book_copy.status = AvailabilityTechcode.AVAILABLE;
+    borrowedBookRecord.status = BorrowRecordTechcode.RETURNED;
+    borrowedBookRecord.return_date = new Date();
     book.available_copies ? book.available_copies += 1 : book.available_copies = 1;
-    const overdue: boolean = new Date().getTime() > borrowedBook.return_date.getTime();
+    const overdue: boolean = new Date().getTime() > borrowedBookRecord.return_date.getTime();
     //TODO Store this value in DB too.
-    await BorrowRecord.saveBorrowRecord(borrowedBook);
+    await BorrowRecord.saveBorrowRecord(borrowedBookRecord);
     await Book.saveBook(book);
-    await Book_Copy.saveBookCopy(borrowedBook.book_copy);
+    await Book_Copy.saveBookCopy(borrowedBookRecord.book_copy);
     return sendResponseAsJson(res, 200, "Success", overdue);
 }
 
@@ -111,9 +112,9 @@ async function reserveBook(req: Request, res: Response) {
     const {user: user, book: book} = result;
     let bookCopies: Book_Copy[] = await Book_Copy.getBookCopiesFromCacheOrDB();
     bookCopies = bookCopies.filter(copy => copy.book.book_id == book.book_id);
-    let availableBookCopy: Book_Copy | undefined = bookCopies.find((copy) => copy.status == BorrowRecordTechcode.NOT_BORROWED);
+    let availableBookCopy: Book_Copy | undefined = bookCopies.find((copy) => copy.status == AvailabilityTechcode.AVAILABLE);
     if (availableBookCopy) {
-        return sendResponseAsJson(res, 400, "There are available copies of this book. No need to reserve it.");
+        return sendResponseAsJson(res, 400, `There are available copies of this book. No need to reserve it. Copy: ${availableBookCopy.book_copy_id}`);
     }
     // there are 0 available copies. If the book objects has saved a different value update it
     if (book.available_copies !== 0) {
