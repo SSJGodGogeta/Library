@@ -38,5 +38,6 @@ async function loadHomePage() {
     }
     console.error("Activities element with ID 'activities' not found.");
 
-    //TODO: Add book recommendations after. We can use the book api and filter books by their rating. Use the bookRoute
+    //TODO: Add book recommendations. We can use the book api and filter books by their rating. Use the bookRoute
+    // Add book genre or other tags. (DB)
 }
