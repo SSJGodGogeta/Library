@@ -934,7 +934,7 @@ scrum_library|schema||scrum_library|localhost|grant option|G</Grants>
     </schema>
     <schema id="290" parent="1" name="scrum_library">
       <Current>1</Current>
-      <LastIntrospectionLocalTimestamp>2024-12-12.17:36:11</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2024-12-27.17:44:22</LastIntrospectionLocalTimestamp>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </schema>
     <user id="291" parent="1" name="scrum_library">
@@ -1020,10 +1020,12 @@ scrum_library|schema||scrum_library|localhost|grant option|G</Grants>
     </column>
     <column id="309" parent="292" name="total_copies">
       <DasType>int|0s</DasType>
+      <DefaultExpression>0</DefaultExpression>
       <Position>10</Position>
     </column>
     <column id="310" parent="292" name="available_copies">
       <DasType>int|0s</DasType>
+      <DefaultExpression>0</DefaultExpression>
       <Position>11</Position>
     </column>
     <column id="311" parent="292" name="average_rating">
@@ -1125,7 +1127,7 @@ scrum_library|schema||scrum_library|localhost|grant option|G</Grants>
     <trigger id="332" parent="293" name="update_book_availableCopies_after_insert">
       <Definer>scrum_library@localhost</Definer>
       <Events>I</Events>
-      <SourceTextLength>117</SourceTextLength>
+      <SourceTextLength>166</SourceTextLength>
     </trigger>
     <trigger id="333" parent="293" name="update_book_availableCopies_after_delete">
       <Definer>scrum_library@localhost</Definer>
@@ -1133,7 +1135,7 @@ scrum_library|schema||scrum_library|localhost|grant option|G</Grants>
       <SourceTextLength>173</SourceTextLength>
     </trigger>
     <column id="334" parent="294" name="borrow_record_id">
-      <AutoIncrement>24</AutoIncrement>
+      <AutoIncrement>10</AutoIncrement>
       <DasType>int|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -1207,7 +1209,7 @@ scrum_library|schema||scrum_library|localhost|grant option|G</Grants>
     <trigger id="349" parent="294" name="update_book_copy_status_after_insert">
       <Definer>scrum_library@localhost</Definer>
       <Events>I</Events>
-      <SourceTextLength>146</SourceTextLength>
+      <SourceTextLength>151</SourceTextLength>
     </trigger>
     <trigger id="350" parent="294" name="update_book_statistics_after_insert">
       <Definer>scrum_library@localhost</Definer>
@@ -1222,7 +1224,7 @@ scrum_library|schema||scrum_library|localhost|grant option|G</Grants>
     <trigger id="352" parent="294" name="update_book_statistics_after_update">
       <Definer>scrum_library@localhost</Definer>
       <Events>U</Events>
-      <SourceTextLength>642</SourceTextLength>
+      <SourceTextLength>665</SourceTextLength>
     </trigger>
     <trigger id="353" parent="294" name="update_book_after_borrow_delete">
       <Definer>scrum_library@localhost</Definer>
@@ -1232,7 +1234,7 @@ scrum_library|schema||scrum_library|localhost|grant option|G</Grants>
     <trigger id="354" parent="294" name="update_book_copy_after_borrow_delete">
       <Definer>scrum_library@localhost</Definer>
       <Events>D</Events>
-      <SourceTextLength>181</SourceTextLength>
+      <SourceTextLength>204</SourceTextLength>
     </trigger>
     <column id="355" parent="295" name="ID">
       <DasType>varchar(255)|0s</DasType>
@@ -1325,184 +1327,217 @@ scrum_library|schema||scrum_library|localhost|grant option|G</Grants>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
     <column id="375" parent="297" name="reservation_id">
-      <AutoIncrement>9</AutoIncrement>
+      <AutoIncrement>2</AutoIncrement>
       <DasType>int|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
     </column>
-    <column id="376" parent="297" name="reservation_date">
+    <column id="376" parent="297" name="startDate">
       <DasType>datetime|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="377" parent="297" name="book_book_id">
-      <DasType>int|0s</DasType>
+    <column id="377" parent="297" name="returnDate">
+      <DasType>datetime|0s</DasType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="378" parent="297" name="user_user_id">
+    <column id="378" parent="297" name="book_book_id">
       <DasType>int|0s</DasType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <foreign-key id="379" parent="297" name="fk_reservation_book1">
+    <column id="379" parent="297" name="user_user_id">
+      <DasType>int|0s</DasType>
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+    </column>
+    <column id="380" parent="297" name="borrowRecordId">
+      <DasType>int|0s</DasType>
+      <NotNull>1</NotNull>
+      <Position>6</Position>
+    </column>
+    <column id="381" parent="297" name="bookCopyId">
+      <DasType>int|0s</DasType>
+      <NotNull>1</NotNull>
+      <Position>7</Position>
+    </column>
+    <foreign-key id="382" parent="297" name="fk_reservation_book1">
       <ColNames>book_book_id</ColNames>
       <RefColNames>book_id</RefColNames>
       <RefTableName>book</RefTableName>
     </foreign-key>
-    <foreign-key id="380" parent="297" name="fk_reservation_user1">
+    <foreign-key id="383" parent="297" name="fk_reservation_user1">
       <ColNames>user_user_id</ColNames>
       <RefColNames>user_id</RefColNames>
       <RefTableName>user</RefTableName>
     </foreign-key>
-    <index id="381" parent="297" name="PRIMARY">
+    <foreign-key id="384" parent="297" name="fk_reservation_borrowRecord">
+      <ColNames>borrowRecordId</ColNames>
+      <RefColNames>borrow_record_id</RefColNames>
+      <RefTableName>borrow_record</RefTableName>
+    </foreign-key>
+    <foreign-key id="385" parent="297" name="fk_reservation_book_copy1">
+      <ColNames>bookCopyId</ColNames>
+      <RefColNames>book_copy_id</RefColNames>
+      <RefTableName>book_copy</RefTableName>
+    </foreign-key>
+    <index id="386" parent="297" name="PRIMARY">
       <ColNames>reservation_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="382" parent="297" name="reservation_id_UNIQUE">
+    <index id="387" parent="297" name="reservation_id_UNIQUE">
       <ColNames>reservation_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="383" parent="297" name="fk_reservation_book1_idx">
+    <index id="388" parent="297" name="fk_reservation_book1_idx">
       <ColNames>book_book_id</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="384" parent="297" name="fk_reservation_user1_idx">
+    <index id="389" parent="297" name="fk_reservation_user1_idx">
       <ColNames>user_user_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="385" parent="297" name="PRIMARY">
+    <index id="390" parent="297" name="fk_reservation_borrowRecord">
+      <ColNames>borrowRecordId</ColNames>
+      <Type>btree</Type>
+    </index>
+    <index id="391" parent="297" name="fk_reservation_book_copy1">
+      <ColNames>bookCopyId</ColNames>
+      <Type>btree</Type>
+    </index>
+    <key id="392" parent="297" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="386" parent="297" name="reservation_id_UNIQUE">
+    <key id="393" parent="297" name="reservation_id_UNIQUE">
       <UnderlyingIndexName>reservation_id_UNIQUE</UnderlyingIndexName>
     </key>
-    <column id="387" parent="298" name="session_id">
+    <column id="394" parent="298" name="session_id">
+      <AutoIncrement>5</AutoIncrement>
+      <DasType>int|0s</DasType>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+    </column>
+    <column id="395" parent="298" name="ip">
+      <DasType>varchar(40)|0s</DasType>
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+    </column>
+    <column id="396" parent="298" name="deviceInfo">
+      <DasType>varchar(300)|0s</DasType>
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+    </column>
+    <column id="397" parent="298" name="token">
+      <DasType>varchar(255)|0s</DasType>
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+    </column>
+    <column id="398" parent="298" name="created">
+      <DasType>datetime|0s</DasType>
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+    </column>
+    <column id="399" parent="298" name="last_used">
+      <DasType>datetime|0s</DasType>
+      <NotNull>1</NotNull>
+      <Position>6</Position>
+    </column>
+    <column id="400" parent="298" name="user_user_id">
+      <DasType>int|0s</DasType>
+      <NotNull>1</NotNull>
+      <Position>7</Position>
+    </column>
+    <foreign-key id="401" parent="298" name="fk_session_user">
+      <ColNames>user_user_id</ColNames>
+      <RefColNames>user_id</RefColNames>
+      <RefTableName>user</RefTableName>
+    </foreign-key>
+    <index id="402" parent="298" name="PRIMARY">
+      <ColNames>session_id</ColNames>
+      <Type>btree</Type>
+      <Unique>1</Unique>
+    </index>
+    <index id="403" parent="298" name="session_id_UNIQUE">
+      <ColNames>session_id</ColNames>
+      <Type>btree</Type>
+      <Unique>1</Unique>
+    </index>
+    <index id="404" parent="298" name="fk_session_user_idx">
+      <ColNames>user_user_id</ColNames>
+      <Type>btree</Type>
+    </index>
+    <key id="405" parent="298" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
+    </key>
+    <key id="406" parent="298" name="session_id_UNIQUE">
+      <UnderlyingIndexName>session_id_UNIQUE</UnderlyingIndexName>
+    </key>
+    <column id="407" parent="299" name="user_id">
       <AutoIncrement>6</AutoIncrement>
       <DasType>int|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
     </column>
-    <column id="388" parent="298" name="ip">
-      <DasType>varchar(40)|0s</DasType>
-      <NotNull>1</NotNull>
-      <Position>2</Position>
-    </column>
-    <column id="389" parent="298" name="deviceInfo">
-      <DasType>varchar(300)|0s</DasType>
-      <NotNull>1</NotNull>
-      <Position>3</Position>
-    </column>
-    <column id="390" parent="298" name="token">
-      <DasType>varchar(255)|0s</DasType>
-      <NotNull>1</NotNull>
-      <Position>4</Position>
-    </column>
-    <column id="391" parent="298" name="created">
-      <DasType>datetime|0s</DasType>
-      <NotNull>1</NotNull>
-      <Position>5</Position>
-    </column>
-    <column id="392" parent="298" name="last_used">
-      <DasType>datetime|0s</DasType>
-      <NotNull>1</NotNull>
-      <Position>6</Position>
-    </column>
-    <column id="393" parent="298" name="user_user_id">
-      <DasType>int|0s</DasType>
-      <NotNull>1</NotNull>
-      <Position>7</Position>
-    </column>
-    <foreign-key id="394" parent="298" name="fk_session_user">
-      <ColNames>user_user_id</ColNames>
-      <RefColNames>user_id</RefColNames>
-      <RefTableName>user</RefTableName>
-    </foreign-key>
-    <index id="395" parent="298" name="PRIMARY">
-      <ColNames>session_id</ColNames>
-      <Type>btree</Type>
-      <Unique>1</Unique>
-    </index>
-    <index id="396" parent="298" name="session_id_UNIQUE">
-      <ColNames>session_id</ColNames>
-      <Type>btree</Type>
-      <Unique>1</Unique>
-    </index>
-    <index id="397" parent="298" name="fk_session_user_idx">
-      <ColNames>user_user_id</ColNames>
-      <Type>btree</Type>
-    </index>
-    <key id="398" parent="298" name="PRIMARY">
-      <NameSurrogate>1</NameSurrogate>
-      <Primary>1</Primary>
-      <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
-    </key>
-    <key id="399" parent="298" name="session_id_UNIQUE">
-      <UnderlyingIndexName>session_id_UNIQUE</UnderlyingIndexName>
-    </key>
-    <column id="400" parent="299" name="user_id">
-      <AutoIncrement>10</AutoIncrement>
-      <DasType>int|0s</DasType>
-      <NotNull>1</NotNull>
-      <Position>1</Position>
-    </column>
-    <column id="401" parent="299" name="email">
+    <column id="408" parent="299" name="email">
       <DasType>varchar(75)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="402" parent="299" name="password">
+    <column id="409" parent="299" name="password">
       <DasType>varchar(100)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="403" parent="299" name="first_name">
+    <column id="410" parent="299" name="first_name">
       <DasType>varchar(50)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="404" parent="299" name="last_name">
+    <column id="411" parent="299" name="last_name">
       <DasType>varchar(50)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="405" parent="299" name="imageurl">
+    <column id="412" parent="299" name="imageurl">
       <DasType>varchar(500)|0s</DasType>
       <Position>6</Position>
     </column>
-    <column id="406" parent="299" name="permissions">
+    <column id="413" parent="299" name="permissions">
       <DasType>varchar(50)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>7</Position>
     </column>
-    <index id="407" parent="299" name="PRIMARY">
+    <index id="414" parent="299" name="PRIMARY">
       <ColNames>user_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="408" parent="299" name="user_id_UNIQUE">
+    <index id="415" parent="299" name="user_id_UNIQUE">
       <ColNames>user_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="409" parent="299" name="user_email_UNIQUE">
+    <index id="416" parent="299" name="user_email_UNIQUE">
       <ColNames>email</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="410" parent="299" name="PRIMARY">
+    <key id="417" parent="299" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="411" parent="299" name="user_id_UNIQUE">
+    <key id="418" parent="299" name="user_id_UNIQUE">
       <UnderlyingIndexName>user_id_UNIQUE</UnderlyingIndexName>
     </key>
-    <key id="412" parent="299" name="user_email_UNIQUE">
+    <key id="419" parent="299" name="user_email_UNIQUE">
       <UnderlyingIndexName>user_email_UNIQUE</UnderlyingIndexName>
     </key>
   </database-model>

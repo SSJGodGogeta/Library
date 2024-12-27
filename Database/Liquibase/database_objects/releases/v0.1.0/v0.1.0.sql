@@ -139,21 +139,36 @@ DROP TABLE IF EXISTS `scrum_library`.`reservation`;
 CREATE TABLE IF NOT EXISTS `scrum_library`.`reservation`
 (
     `reservation_id`   INT      NOT NULL AUTO_INCREMENT,
-    `reservation_date` DATETIME NOT NULL,
+    `startDate` DATETIME NOT NULL,
+    `returnDate` DATETIME NOT NULL,
     `book_book_id`     INT      NOT NULL,
     `user_user_id`     INT      NOT NULL,
+    `borrowRecordId` INT NOT NULL,
+    `bookCopyId` INT NOT NULL,
     PRIMARY KEY (`reservation_id`),
     UNIQUE INDEX `reservation_id_UNIQUE` (`reservation_id` ASC) VISIBLE,
     INDEX `fk_reservation_book1_idx` (`book_book_id` ASC) VISIBLE,
+    INDEX `fk_reservation_book_copy1` (`bookCopyId` ASC) VISIBLE,
     INDEX `fk_reservation_user1_idx` (`user_user_id` ASC) VISIBLE,
+    INDEX `fk_reservation_borrowRecord` (`borrowRecordId` ASC) VISIBLE,
     CONSTRAINT `fk_reservation_book1`
         FOREIGN KEY (`book_book_id`)
             REFERENCES `scrum_library`.`book` (`book_id`)
             ON DELETE NO ACTION
             ON UPDATE NO ACTION,
+    CONSTRAINT `fk_reservation_book_copy1`
+    FOREIGN KEY (`bookCopyId`)
+    REFERENCES `scrum_library`.`book_copy` (`book_copy_id`)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION,
     CONSTRAINT `fk_reservation_user1`
         FOREIGN KEY (`user_user_id`)
             REFERENCES `scrum_library`.`user` (`user_id`)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION,
+    CONSTRAINT `fk_reservation_borrowRecord`
+    FOREIGN KEY (`borrowRecordId`)
+    REFERENCES `scrum_library`.`borrow_record` (`borrow_record_id`)
             ON DELETE NO ACTION
             ON UPDATE NO ACTION
 )

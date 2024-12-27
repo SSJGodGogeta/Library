@@ -9,6 +9,7 @@ import {User} from "../../Database/Mapper/Entities/user.js";
 import {PermissionTechcode} from "../../Database/Mapper/Techcodes/PermissionTechcode.js";
 import {sendResponseAsJson} from "./tools/sendResponseAsJson.js";
 import {AvailabilityTechcode} from "../../Database/Mapper/Techcodes/AvailabilityTechcode.js";
+import {Reservation} from "../../Database/Mapper/Entities/reservation.js";
 
 const router = Router();
 
@@ -115,12 +116,12 @@ async function returnBook(req: Request, res: Response) {
 }
 
 async function reserveBook(req: Request, res: Response) {
-    //TODO Testing and create a separate page or part on the my books where you can see the reserved books.
     let result = await handleBase(req, res);
     // If result is null, a response has already been sent.
-    if (!result) return;
+    if (!result || !result.book || !result.user) return;
     const {user: user, book: book} = result;
     let bookCopies: Book_Copy[] = await Book_Copy.getBookCopiesFromCacheOrDB();
+    // Book copies of the desired book to reserve
     bookCopies = bookCopies.filter(copy => copy.book.book_id == book.book_id);
     let availableBookCopy: Book_Copy | undefined = bookCopies.find((copy) => copy.status == AvailabilityTechcode.AVAILABLE);
     if (availableBookCopy) {
@@ -132,7 +133,11 @@ async function reserveBook(req: Request, res: Response) {
         await Book.saveBook(book);
     }
     let borrowRecords: BorrowRecord[] = await BorrowRecord.getBorrowRecordsFromCacheOrDB();
+    let reservations: Reservation[] = await Reservation.getReservationFromCacheOrDB();
+    // does the user already have the same book reserved ?
 
+    reservations = reservations.filter(reserv => reserv.book.book_id == book.book_id && reserv.user.user_id == user.user_id);
+    if (reservations.length > 0) return sendResponseAsJson(res, 400, "You already have the same book reserved");
     borrowRecords = borrowRecords.filter(record => bookCopies.some(copy => copy.book_copy_id == record.book_copy.book_copy_id));
     const nearestReturnBookCopy = borrowRecords.reduce<BorrowRecord | null>(
         (nearestRecord, currentRecord) => {
@@ -155,20 +160,23 @@ async function reserveBook(req: Request, res: Response) {
     }
     const record = borrowRecords.find(rec => rec.book_copy.book_copy_id == nearestReturnBookCopy.book_copy_id);
     if (!record) return sendResponseAsJson(res, 404, `No record found that contains book_copy_id: ${nearestReturnBookCopy.book_copy_id}!`);
-    const reserveBorrowRecord = new BorrowRecord();
-    reserveBorrowRecord.book_copy = nearestReturnBookCopy;
-    reserveBorrowRecord.user = user;
-    reserveBorrowRecord.borrow_date = record.return_date;
-    reserveBorrowRecord.status = BorrowRecordTechcode.RESERVED;
+    const newReserveRecord = new Reservation();
+    newReserveRecord.book = nearestReturnBookCopy.book;
+    newReserveRecord.user = user;
+    newReserveRecord.borrowRecord = record;
+    newReserveRecord.startDate = record.return_date;
+    newReserveRecord.bookCopyId = nearestReturnBookCopy;
     const returnDate = calculateReturnDate(res, user, record.return_date);
     if (!returnDate) return;
-    reserveBorrowRecord.return_date = returnDate;
+    newReserveRecord.returnDate = returnDate;
+    // TODO: should the record.status change to reserved afterwards ?
 
-    await BorrowRecord.saveBorrowRecord(reserveBorrowRecord);
+    await Reservation.saveReservation(newReserveRecord);
     // clear cache for the books and book copies
     await Book.resetBookCache();
     await Book_Copy.resetBookCopyCache();
-    return sendResponseAsJson(res, 200, "Success", reserveBorrowRecord);
+    await Reservation.resetReservationsCache();
+    return sendResponseAsJson(res, 200, "Success", newReserveRecord);
 
 }
 
