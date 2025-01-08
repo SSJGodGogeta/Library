@@ -3,3 +3,4 @@ Dist/
 Database/Liquibase/database_objects/output_local.sql
 .env
 .idea/
+.idea\dataSources
