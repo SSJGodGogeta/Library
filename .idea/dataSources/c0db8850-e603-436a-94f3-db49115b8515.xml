@@ -934,7 +934,7 @@ scrum_library|schema||scrum_library|localhost|grant option|G</Grants>
     </schema>
     <schema id="290" parent="1" name="scrum_library">
       <Current>1</Current>
-      <LastIntrospectionLocalTimestamp>2025-01-08.17:48:47</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-01-08.20:09:58</LastIntrospectionLocalTimestamp>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </schema>
     <user id="291" parent="1" name="scrum_library">
@@ -1417,7 +1417,7 @@ scrum_library|schema||scrum_library|localhost|grant option|G</Grants>
       <UnderlyingIndexName>reservation_id_UNIQUE</UnderlyingIndexName>
     </key>
     <column id="394" parent="298" name="session_id">
-      <AutoIncrement>1</AutoIncrement>
+      <AutoIncrement>4</AutoIncrement>
       <DasType>int|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -1438,12 +1438,12 @@ scrum_library|schema||scrum_library|localhost|grant option|G</Grants>
       <Position>4</Position>
     </column>
     <column id="398" parent="298" name="created">
-      <DasType>datetime|0s</DasType>
+      <DasType>timestamp|0s</DasType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
     <column id="399" parent="298" name="last_used">
-      <DasType>datetime|0s</DasType>
+      <DasType>timestamp|0s</DasType>
       <NotNull>1</NotNull>
       <Position>6</Position>
     </column>

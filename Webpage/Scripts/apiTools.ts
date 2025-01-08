@@ -88,9 +88,11 @@ const backendRoutes = {
         borrow: "/borrowRecord/borrow",
         return: "/borrowRecord/return",
         reserve: "/borrowRecord/reserve",
+        myRecordsBookByBookId: "/borrowRecord/myRecords/book/",
         myActiveRecords: "/borrowRecord/myActiveRecords/",
         AllMyRecords: "/borrowRecord/AllMyRecords/",
-        myRecordsBookByBookId: "/borrowRecord/myRecords/book/",
+        ActiveRecordsByUserId: "/borrowRecord/ActiveRecordsByUserId/",
+        AllRecordsByUserId: "/borrowRecord/AllRecordsByUserId/",
     },
     reservation: {
         all: "/reservation",
@@ -100,6 +102,7 @@ const backendRoutes = {
         all: "/session",
         bySessionId: "/session/",
         byUserId: "/session/byUserId/",
+        updateSessionById: "/session/update/",
     },
     user: {
         all: "/user",
@@ -189,6 +192,15 @@ async function fetchUserById(userId: number) {
     return response;
 }
 
+async function fetchAllUsers() {
+    const response = fetchRoute<User[]>(backendRoutes.user.byUserId);
+    if (isFetchResponse(response)) {
+        console.error(`Fetch failed with code ${response.code}: ${response.message}`);
+        return response as FetchResponse;
+    }
+    return response;
+}
+
 async function fetchSessionByUserId(userId: number) {
     const response = fetchRoute<Session>(`${backendRoutes.session.byUserId + userId}`);
     if (isFetchResponse(response)) {
@@ -203,6 +215,15 @@ async function login(email: string, password: string) {
         email: email,
         password: password
     }, "message");
+    console.log(response);
+    return {
+        code: response.code,
+        message: response.message,
+    } as FetchResponse;
+}
+
+async function updateSessionOfUser(userId: number) {
+    const response = await fetchRoute<FetchResponse>(`${backendRoutes.session.updateSessionById + userId}`, 'GET', null, "message");
     console.log(response);
     return {
         code: response.code,
@@ -298,8 +319,8 @@ async function fetchBook(bookId: number) {
     return response;
 }
 
-async function fetchMyActiveRecords() {
-    const response = fetchRoute<BorrowRecord[]>(backendRoutes.borrowRecord.myActiveRecords);
+async function fetchActiveRecords(userId: number | null = null) {
+    const response = userId == null ? await fetchRoute<BorrowRecord[]>(backendRoutes.borrowRecord.myActiveRecords) : await fetchRoute<BorrowRecord[]>(`${backendRoutes.borrowRecord.ActiveRecordsByUserId + userId}`);
     if (isFetchResponse(response)) {
         console.error(`Fetch failed with code ${response.code}: ${response.message}`);
         return response as FetchResponse;
@@ -307,8 +328,9 @@ async function fetchMyActiveRecords() {
     return response as unknown as BorrowRecord[];
 }
 
-async function fetchAllMyRecords() {
-    const response = fetchRoute<BorrowRecord[]>(backendRoutes.borrowRecord.AllMyRecords);
+async function fetchAllRecords(userId: number | null = null) {
+
+    const response = userId == null ? await fetchRoute<BorrowRecord[]>(backendRoutes.borrowRecord.AllMyRecords) : await fetchRoute<BorrowRecord[]>(`${backendRoutes.borrowRecord.AllRecordsByUserId + userId}`);
     if (isFetchResponse(response)) {
         console.error(`Fetch failed with code ${response.code}: ${response.message}`);
         return response as FetchResponse;

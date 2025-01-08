@@ -14,11 +14,54 @@ import {Reservation} from "../../Database/Mapper/Entities/reservation.js";
 const router = Router();
 
 router.post("/borrow", authenticate, borrowBook);
-router.get("/myActiveRecords", authenticate, myActiveRecords);
-router.get("/AllMyRecords", authenticate, AllMyRecords);
 router.get("/myRecords/book/:bookId", authenticate, myRecordsBook);
 router.post("/return", authenticate, returnBook);
-router.post("/reserve", authenticate, reserveBook);
+router.post("/reserve", authenticate, reserveBook);// Router definitions
+router.get("/ActiveRecordsByUserId/:userId", authenticate, (req, res) => handleRecords(req, res, true, true));
+router.get("/AllRecordsByUserId/:userId", authenticate, (req, res) => handleRecords(req, res, false, true));
+router.get("/myActiveRecords", authenticate, (req, res) => handleRecords(req, res, true, false));
+router.get("/AllMyRecords", authenticate, (req, res) => handleRecords(req, res, false, false));
+
+// Generic function to handle record fetching
+async function handleRecords(req: Request, res: Response, onlyActive: boolean, useParamId: boolean) {
+    try {
+        // Determine the user ID from either the route parameter or the request body
+        const userId = useParamId ? parseInt(req.params.userId, 10) : req.body.user?.user_id;
+
+        if (!userId) {
+            return sendResponseAsJson(res, 400, "Invalid or missing user ID.");
+        }
+
+        // Fetch all borrow records
+        const borrowRecords: BorrowRecord[] = await BorrowRecord.getBorrowRecordsFromCacheOrDB();
+
+        // Filter based on user ID and optionally status
+        const filteredRecords: BorrowRecord[] = borrowRecords.filter(record =>
+            record.user.user_id === userId &&
+            (!onlyActive || [BorrowRecordTechcode.BORROWED, BorrowRecordTechcode.RESERVED].includes(record.status))
+        );
+
+        // Sort active records (if onlyActive) to place BORROWED before RESERVED
+        if (onlyActive) {
+            filteredRecords.sort((a, b) => {
+                if (a.status === BorrowRecordTechcode.BORROWED && b.status !== BorrowRecordTechcode.BORROWED) {
+                    return -1;
+                }
+                if (a.status !== BorrowRecordTechcode.BORROWED && b.status === BorrowRecordTechcode.BORROWED) {
+                    return 1;
+                }
+                return 0; // Maintain relative order if statuses are equal
+            });
+        }
+
+        // Return the filtered and sorted records
+        return sendResponseAsJson(res, 200, "Success", filteredRecords);
+    } catch (error) {
+        console.error("Error processing borrow request:", error);
+        return sendResponseAsJson(res, 500, "Failed to process borrow request.");
+    }
+}
+
 
 async function borrowBook(req: Request, res: Response) {
     try {
@@ -55,40 +98,6 @@ async function borrowBook(req: Request, res: Response) {
         await Book_Copy.resetBookCopyCache();
 
         return sendResponseAsJson(res, 200, "Success", borrowRecord);
-    } catch (error) {
-        console.error(`Error procession borrow request:`, error);
-        return sendResponseAsJson(res, 500, "Failed process borrow request.");
-    }
-}
-
-async function myActiveRecords(req: Request, res: Response) {
-    try {
-        // get all active borrowRecords for a user
-        const borrowRecords: BorrowRecord[] = await BorrowRecord.getBorrowRecordsFromCacheOrDB();
-        const activeBorrowRecord: BorrowRecord[] = borrowRecords.filter((record) => record.user.user_id === req.body.user.user_id && (record.status == BorrowRecordTechcode.BORROWED || record.status == BorrowRecordTechcode.RESERVED)).sort((a, b) => {
-            // Place BORROWED before RESERVED
-            if (a.status === BorrowRecordTechcode.BORROWED && b.status !== BorrowRecordTechcode.BORROWED) {
-                return -1;
-            }
-            if (a.status !== BorrowRecordTechcode.BORROWED && b.status === BorrowRecordTechcode.BORROWED) {
-                return 1;
-            }
-            return 0; // If statuses are equal, maintain their relative order
-        });
-
-        return sendResponseAsJson(res, 200, "Success", activeBorrowRecord);
-    } catch (error) {
-        console.error(`Error procession borrow request:`, error);
-        return sendResponseAsJson(res, 500, "Failed process borrow request.");
-    }
-}
-
-async function AllMyRecords(req: Request, res: Response) {
-    try {
-        // get all active borrowRecords for a user
-        const borrowRecords: BorrowRecord[] = await BorrowRecord.getBorrowRecordsFromCacheOrDB();
-        const allBorrowRecords: BorrowRecord[] = borrowRecords.filter((record) => record.user.user_id === req.body.user.user_id);
-        return sendResponseAsJson(res, 200, "Success", allBorrowRecords);
     } catch (error) {
         console.error(`Error procession borrow request:`, error);
         return sendResponseAsJson(res, 500, "Failed process borrow request.");

@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         // check if the user (if one is logged in) already has a copy of the book borrowed
         const user = getUserFromSessionStorage();
+        if (user) await updateSessionOfUser(user.id);
 
         const currentBorrowRecord = await fetchBorrowRecordForBook(bookId, user);
         // Get the table body where rows will be inserted

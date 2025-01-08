@@ -15,7 +15,7 @@ const sessionRoutes = createEntityRoutes<Session>(
 );
 
 async function getLastSessionOfUser(req: Request, res: Response) {
-    if (!req.params.id) return;
+    if (!req.params.id) return sendResponseAsJson(res, 404, "Couldnt find id in request params.");
     const userId = parseInt(req.params.id);
     const user = await User.getUserByKey("user_id", userId);
     if (!user) sendResponseAsJson(res, 404, `No user found with userId: ${userId}`);
@@ -24,5 +24,22 @@ async function getLastSessionOfUser(req: Request, res: Response) {
     return sendResponseAsJson(res, 200, "Found last session:", session);
 }
 
+async function updateSessionById(req: Request, res: Response) {
+    if (!req.params.id) return sendResponseAsJson(res, 404, "Couldnt find id in request params.");
+    const userId = parseInt(req.params.id);
+    await updateSession(userId) ? sendResponseAsJson(res, 200, `Updated session for user with ID: ${userId}`) : sendResponseAsJson(res, 404, `Couldnt find session with id ${userId}`);
+}
+
+async function updateSession(userId: number) {
+    const session = await Session.getSessionByUserId(userId);
+    if (!session) return false;
+    session.last_used = new Date();
+    await Session.saveSession(session);
+    return true;
+}
+
 sessionRoutes.get("/byUserId/:id", authenticate, getLastSessionOfUser);
+
+sessionRoutes.get("/update/:id", authenticate, updateSessionById);
+
 routes.push({path: "/session", router: sessionRoutes});

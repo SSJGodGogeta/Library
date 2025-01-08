@@ -161,6 +161,8 @@ async function login(req: Request, res: Response) {
         // was provided by the user sending the post request, because otherwise the function would have exited already
         // ----------------------------------------------------------------------------------------------------------
 
+        const oldSession: Session | null = await Session.getSessionByUserId(user.user_id);
+        if (oldSession) await oldSession.remove();
         // generate the session and store it in the database
         const session: Session = await createNewSession(req, user!)
         // Set the token as a secure HttpOnly cookie
@@ -182,12 +184,8 @@ async function currentUser(req: Request, res: Response) {
     }
 }
 
-async function logout(req: Request, res: Response) {
+async function logout(_req: Request, res: Response) {
     try {
-        // the session is guaranteed to exist at this point. Otherwise, the authenticationMiddleware would have thrown an error
-        const session: Session = req.body.session;
-        await session.remove();
-
         // Clear the cookie from the client
         res.clearCookie("sessionToken", {
             httpOnly: true,

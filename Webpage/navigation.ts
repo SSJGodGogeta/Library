@@ -81,6 +81,7 @@ async function loadNavbar(): Promise<void> {
     logoutButton.id = "logoutButton";
     logoutButton.innerText = "Logout";
     document.body.appendChild(logoutButton);
+    if (user) await updateSessionOfUser(user.id);
     logoutButton.addEventListener("click", async () => {
         await logoutUser();
         await delay(500);

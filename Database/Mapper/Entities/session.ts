@@ -22,10 +22,10 @@ export class Session extends BaseEntity {
     @Column({length: 255, nullable: false})
     token!: string;
 
-    @Column({type: 'datetime', nullable: false})
+    @Column({type: 'timestamp', nullable: false})
     created!: Date;
 
-    @Column({type: 'datetime', nullable: false})
+    @Column({type: 'timestamp', nullable: false})
     last_used!: Date;
 
     @ManyToOne('User', (user: User) => user.user_id)

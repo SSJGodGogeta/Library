@@ -9,7 +9,8 @@ async function loadHomePage() {
         const user = getUserFromSessionStorage();
         if (user && user.loggedIn) {
             console.warn(`User logged in as: ${user.firstName}`);
-            greetUser.innerHTML = `Hello ${user.firstName} ${user.lastName} &#128075`
+            greetUser.innerHTML = `Hello ${user.firstName} ${user.lastName} &#128075`;
+            await updateSessionOfUser(user.id);
         } else {
             console.warn(`User not logged in!`);
         }
