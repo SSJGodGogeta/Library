@@ -96,10 +96,10 @@ function clearUserFromSessionStorage() {
  * @param {Book} book - The book object containing all necessary information.
  * @returns {HTMLLIElement} - An HTML list item element containing the book's details.
  */
-function generateAllBooksContainer(book: Book): HTMLLIElement {
+function generateAllBooksContainer(book: Book, currentFile?: string | undefined): HTMLLIElement {
     const bookItem: HTMLLIElement = document.createElement('li');
     bookItem.innerHTML = `
-               <div class="book-container" onclick="routeToBookDetails('${book.book_id}')">
+               <div class="book-container" onclick="routeToBookDetails(${book.book_id}, '${currentFile ?? ''}')">
                     <img src="${book.cover_url ?? "Images/bookCoverPlaceholder.png"}" alt="book cover" height="200px">
                     <div class="book-info">
                         <h2>${book.title}</h2>
@@ -148,7 +148,7 @@ function generateMyBookContainer(borrowRecord: BorrowRecord): HTMLLIElement {
     return bookItem;
 }
 
-async function generateBookList(options?: { onlyBorrowedBooks: boolean }) {
+async function generateBookList(options?: { onlyBorrowedBooks: boolean, currentFile: string | undefined }) {
     try {
         const onlyBorrowedBooks: boolean = options?.onlyBorrowedBooks ?? false;
         const result = onlyBorrowedBooks ? await fetchActiveRecordsOfUser() : await fetchBooks();
@@ -175,7 +175,7 @@ async function generateBookList(options?: { onlyBorrowedBooks: boolean }) {
                 reservedTitle.innerHTML = "Reserved Books:";
                 bookList.appendChild(reservedTitle);
             }
-            const bookElement: HTMLLIElement = onlyBorrowedBooks ? generateMyBookContainer(book as BorrowRecord) : generateAllBooksContainer(book as Book);
+            const bookElement: HTMLLIElement = onlyBorrowedBooks ? generateMyBookContainer(book as BorrowRecord) : generateAllBooksContainer((book as Book), options?.currentFile);
 
             bookList.appendChild(bookElement);
         }// End of inner for loop

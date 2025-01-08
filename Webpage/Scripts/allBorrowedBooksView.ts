@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", async function () {
     await generateTable();
+    const user = await fetchCurrentUser();
+    if (user) await updateSessionOfUser(user.id);
 });
 
 async function generateTable() {

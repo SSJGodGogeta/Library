@@ -298,8 +298,9 @@ async function logoutUser(): Promise<any> {
  * routeToBookDetails(2);
  * ```
  */
-function routeToBookDetails(bookId: number): void {
-    window.location.href = "/Library/Webpage/bookDetails.html?bookId=" + bookId;
+function routeToBookDetails(bookId: number, currentFile: string): void {
+    if (currentFile && currentFile == "booksOverview.html") window.location.href = "/Library/Webpage/bookDetails.html?bookId=" + bookId + "&admin=true";
+    else window.location.href = "/Library/Webpage/bookDetails.html?bookId=" + bookId;
 }
 
 async function fetchBooks() {
