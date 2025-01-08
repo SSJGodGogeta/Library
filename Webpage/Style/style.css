@@ -306,7 +306,7 @@ main {
 }
 
 .borrowedBooksTable > tr > td, .borrowedBooksTable > tr > th {
-    border: 1px solid #dddddd;
+    border: 1px solid black;
     text-align: center;
     padding: 8px;
 }

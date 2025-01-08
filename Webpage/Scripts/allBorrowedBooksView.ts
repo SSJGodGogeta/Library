@@ -13,6 +13,7 @@ async function generateTable() {
     tableContainer.className = "borrowedBooks";
     const table = document.createElement("table");
     table.className = "borrowedBooksTable";
+    table.style.borderCollapse = "collapse";  // Ensure borders collapse into a single border
     const heading = document.createElement("h2");
     heading.textContent = "All borrowed books:";
     tableContainer.appendChild(heading);
@@ -26,6 +27,7 @@ async function generateTable() {
         <th>Book-Info:</th>
         <th>Book Exemplar ID:</th>
         <th>User-Info:</th>
+        <th>Overdue:</th>
     `;
     table.appendChild(headerRow);
 
@@ -39,6 +41,7 @@ async function generateTable() {
         console.log("No borrowed books data found.");
         return;
     }
+    const currentDate = new Date();
     // Populate the table with rows from the fetched data
     borrowRecords.forEach((record) => {
         const row = document.createElement("tr");
@@ -46,7 +49,12 @@ async function generateTable() {
         // You can format the dates if needed (example: using toLocaleString or similar)
         const formattedBorrowDate = new Date(record.borrow_date).toLocaleString();
         const formattedReturnDate = new Date(record.return_date).toLocaleString();
-
+        // Check if the return date is overdue
+        const returnDate = new Date(record.return_date);
+        const isOverdue = returnDate < currentDate ? "True" : "False";  // Overdue if return date is before current date
+        if (isOverdue === "True") {
+            row.style.backgroundColor = "#f8d7da";  // Light red background for overdue rows
+        } else row.style.backgroundColor = "#dff8d7";
         row.innerHTML = `
             <td>${record.borrow_record_id}</td>
             <td>${formattedBorrowDate}</td>
@@ -55,6 +63,7 @@ async function generateTable() {
             <td>ID: ${record.book_copy.book.book_id}, ${record.book_copy.book.title}</td>
             <td>${record.book_copy.book_copy_id}</td>
             <td>ID: ${record.user.user_id}, ${record.user.first_name} ${record.user.last_name}</td>
+            <td>${isOverdue}</td>
         `;
         table.appendChild(row);
     });
