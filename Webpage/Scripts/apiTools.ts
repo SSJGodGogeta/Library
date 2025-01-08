@@ -42,7 +42,8 @@ interface User {
     first_name: string,
     last_name: string,
     imageurl?: string,
-    permissions: "ADMIN" | "EMPLOYEE" | "STUDENT" | "PROFESSOR"
+    permissions: "ADMIN" | "EMPLOYEE" | "STUDENT" | "PROFESSOR",
+    created_at: Date
 }
 
 interface Reservation {
@@ -87,7 +88,8 @@ const backendRoutes = {
         borrow: "/borrowRecord/borrow",
         return: "/borrowRecord/return",
         reserve: "/borrowRecord/reserve",
-        myRecords: "/borrowRecord/myRecords/",
+        myActiveRecords: "/borrowRecord/myActiveRecords/",
+        AllMyRecords: "/borrowRecord/AllMyRecords/",
         myRecordsBookByBookId: "/borrowRecord/myRecords/book/",
     },
     reservation: {
@@ -97,6 +99,7 @@ const backendRoutes = {
     session: {
         all: "/session",
         bySessionId: "/session/",
+        byUserId: "/session/byUserId/",
     },
     user: {
         all: "/user",
@@ -163,6 +166,7 @@ async function fetchCurrentUser(): Promise<typeof user | undefined> {
         }
 
         user.loggedIn = true;
+        user.id = entities.user_id;
         user.firstName = entities.first_name;
         user.lastName = entities.last_name;
         user.email = entities.email;
@@ -174,6 +178,24 @@ async function fetchCurrentUser(): Promise<typeof user | undefined> {
     } catch (error) {
         console.error(error);
     }
+}
+
+async function fetchUserById(userId: number) {
+    const response = fetchRoute<User>(`${backendRoutes.user.byUserId + userId}`);
+    if (isFetchResponse(response)) {
+        console.error(`Fetch failed with code ${response.code}: ${response.message}`);
+        return response as FetchResponse;
+    }
+    return response;
+}
+
+async function fetchSessionByUserId(userId: number) {
+    const response = fetchRoute<Session>(`${backendRoutes.session.byUserId + userId}`);
+    if (isFetchResponse(response)) {
+        console.error(`Fetch failed with code ${response.code}: ${response.message}`);
+        return response as FetchResponse;
+    }
+    return response;
 }
 
 async function login(email: string, password: string) {
@@ -276,8 +298,17 @@ async function fetchBook(bookId: number) {
     return response;
 }
 
-async function fetchMyRecords() {
-    const response = fetchRoute<BorrowRecord[]>(backendRoutes.borrowRecord.myRecords);
+async function fetchMyActiveRecords() {
+    const response = fetchRoute<BorrowRecord[]>(backendRoutes.borrowRecord.myActiveRecords);
+    if (isFetchResponse(response)) {
+        console.error(`Fetch failed with code ${response.code}: ${response.message}`);
+        return response as FetchResponse;
+    }
+    return response as unknown as BorrowRecord[];
+}
+
+async function fetchAllMyRecords() {
+    const response = fetchRoute<BorrowRecord[]>(backendRoutes.borrowRecord.AllMyRecords);
     if (isFetchResponse(response)) {
         console.error(`Fetch failed with code ${response.code}: ${response.message}`);
         return response as FetchResponse;

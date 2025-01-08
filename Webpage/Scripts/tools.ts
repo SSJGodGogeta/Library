@@ -59,6 +59,7 @@ function delay(ms: number): Promise<void> {
 }
 
 let user = {
+    id: 0,
     firstName: "",
     lastName: "",
     loggedIn: false,
@@ -150,7 +151,7 @@ function generateMyBookContainer(borrowRecord: BorrowRecord): HTMLLIElement {
 async function generateBookList(options?: { onlyBorrowedBooks: boolean }) {
     try {
         const onlyBorrowedBooks: boolean = options?.onlyBorrowedBooks ?? false;
-        const result = onlyBorrowedBooks ? await fetchMyRecords() : await fetchBooks();
+        const result = onlyBorrowedBooks ? await fetchMyActiveRecords() : await fetchBooks();
         // Get the table body where rows will be inserted
         const bookList = document.getElementById('book-list');
         if (!bookList) {

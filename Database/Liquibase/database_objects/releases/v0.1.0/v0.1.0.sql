@@ -88,6 +88,7 @@ CREATE TABLE IF NOT EXISTS `scrum_library`.`user`
     `last_name`   VARCHAR(50)  NOT NULL,
     `imageurl`    VARCHAR(500) NULL DEFAULT NULL,
     `permissions` VARCHAR(50)  NOT NULL,
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`user_id`),
     UNIQUE INDEX `user_id_UNIQUE` (`user_id` ASC) VISIBLE,
     UNIQUE INDEX `user_email_UNIQUE` (`email` ASC) VISIBLE

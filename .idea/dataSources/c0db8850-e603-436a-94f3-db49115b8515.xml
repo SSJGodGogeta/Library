@@ -934,7 +934,7 @@ scrum_library|schema||scrum_library|localhost|grant option|G</Grants>
     </schema>
     <schema id="290" parent="1" name="scrum_library">
       <Current>1</Current>
-      <LastIntrospectionLocalTimestamp>2024-12-27.17:44:22</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-01-08.17:48:47</LastIntrospectionLocalTimestamp>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </schema>
     <user id="291" parent="1" name="scrum_library">
@@ -1135,7 +1135,7 @@ scrum_library|schema||scrum_library|localhost|grant option|G</Grants>
       <SourceTextLength>173</SourceTextLength>
     </trigger>
     <column id="334" parent="294" name="borrow_record_id">
-      <AutoIncrement>10</AutoIncrement>
+      <AutoIncrement>9</AutoIncrement>
       <DasType>int|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -1327,7 +1327,7 @@ scrum_library|schema||scrum_library|localhost|grant option|G</Grants>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
     <column id="375" parent="297" name="reservation_id">
-      <AutoIncrement>2</AutoIncrement>
+      <AutoIncrement>1</AutoIncrement>
       <DasType>int|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -1417,7 +1417,7 @@ scrum_library|schema||scrum_library|localhost|grant option|G</Grants>
       <UnderlyingIndexName>reservation_id_UNIQUE</UnderlyingIndexName>
     </key>
     <column id="394" parent="298" name="session_id">
-      <AutoIncrement>5</AutoIncrement>
+      <AutoIncrement>1</AutoIncrement>
       <DasType>int|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -1514,30 +1514,36 @@ scrum_library|schema||scrum_library|localhost|grant option|G</Grants>
       <NotNull>1</NotNull>
       <Position>7</Position>
     </column>
-    <index id="414" parent="299" name="PRIMARY">
+    <column id="414" parent="299" name="created_at">
+      <DasType>timestamp|0s</DasType>
+      <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
+      <NotNull>1</NotNull>
+      <Position>8</Position>
+    </column>
+    <index id="415" parent="299" name="PRIMARY">
       <ColNames>user_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="415" parent="299" name="user_id_UNIQUE">
+    <index id="416" parent="299" name="user_id_UNIQUE">
       <ColNames>user_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="416" parent="299" name="user_email_UNIQUE">
+    <index id="417" parent="299" name="user_email_UNIQUE">
       <ColNames>email</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="417" parent="299" name="PRIMARY">
+    <key id="418" parent="299" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="418" parent="299" name="user_id_UNIQUE">
+    <key id="419" parent="299" name="user_id_UNIQUE">
       <UnderlyingIndexName>user_id_UNIQUE</UnderlyingIndexName>
     </key>
-    <key id="419" parent="299" name="user_email_UNIQUE">
+    <key id="420" parent="299" name="user_email_UNIQUE">
       <UnderlyingIndexName>user_email_UNIQUE</UnderlyingIndexName>
     </key>
   </database-model>
