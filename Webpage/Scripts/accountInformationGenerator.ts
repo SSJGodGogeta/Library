@@ -71,10 +71,10 @@ async function createUserTable(users: User[], limiter: HTMLDivElement) {
         let borrowedBooksTotal = 0;
         let activeBorrowedBooks = 0;
 
-        const allMyBorrowRecords = await fetchAllRecords(user.user_id);
+        const allMyBorrowRecords = await fetchAllRecordsOfUser(user.user_id);
         if (!isFetchResponse(allMyBorrowRecords)) borrowedBooksTotal = allMyBorrowRecords.length;
 
-        const myActiveRecords = await fetchActiveRecords(user.user_id);
+        const myActiveRecords = await fetchActiveRecordsOfUser(user.user_id);
         if (!isFetchResponse(myActiveRecords)) activeBorrowedBooks = myActiveRecords.length;
 
         const row = document.createElement("tr");
@@ -117,9 +117,9 @@ async function createMyAccountInformation(fetchedUser: User, limiter: HTMLDivEle
 `;
     let borrowedBooksTotal = 0;
     let activeBorrowedBooks = 0;
-    const allMyBorrowRecords = await fetchAllRecords();
+    const allMyBorrowRecords = await fetchAllRecordsOfUser();
     if (!isFetchResponse(allMyBorrowRecords)) borrowedBooksTotal = allMyBorrowRecords.length;
-    const myActiveRecords = await fetchActiveRecords();
+    const myActiveRecords = await fetchActiveRecordsOfUser();
     if (!isFetchResponse(myActiveRecords)) activeBorrowedBooks = myActiveRecords.length;
 
     div.innerHTML += `<ol>Total Borrowed Books: ${borrowedBooksTotal}</ol>

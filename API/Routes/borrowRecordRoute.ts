@@ -22,6 +22,8 @@ router.get("/AllRecordsByUserId/:userId", authenticate, (req, res) => handleReco
 router.get("/myActiveRecords", authenticate, (req, res) => handleRecords(req, res, true, false));
 router.get("/AllMyRecords", authenticate, (req, res) => handleRecords(req, res, false, false));
 
+router.get("/all", authenticate, getAllRecords);
+
 // Generic function to handle record fetching
 async function handleRecords(req: Request, res: Response, onlyActive: boolean, useParamId: boolean) {
     try {
@@ -234,6 +236,18 @@ async function handleBase(req: Request, res: Response, wantsToReturn: boolean = 
         return null;
     }
     return {user: user, book: book, borrowedBook: alreadyHasBorrowedBook};
+}
+
+async function getAllRecords(_req: Request, res: Response) {
+    try {
+        const borrowRecords: BorrowRecord[] = await BorrowRecord.getBorrowRecordsFromCacheOrDB();
+        const filteredRecords: BorrowRecord[] = borrowRecords.filter(record =>
+            [BorrowRecordTechcode.BORROWED, BorrowRecordTechcode.RESERVED].includes(record.status));
+        return sendResponseAsJson(res, 200, "Success", filteredRecords);
+    } catch (error) {
+        console.error("Error processing borrow request:", error);
+        return sendResponseAsJson(res, 500, "Failed to process borrow request.");
+    }
 }
 
 

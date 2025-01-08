@@ -151,7 +151,7 @@ function generateMyBookContainer(borrowRecord: BorrowRecord): HTMLLIElement {
 async function generateBookList(options?: { onlyBorrowedBooks: boolean }) {
     try {
         const onlyBorrowedBooks: boolean = options?.onlyBorrowedBooks ?? false;
-        const result = onlyBorrowedBooks ? await fetchActiveRecords() : await fetchBooks();
+        const result = onlyBorrowedBooks ? await fetchActiveRecordsOfUser() : await fetchBooks();
         // Get the table body where rows will be inserted
         const bookList = document.getElementById('book-list');
         if (!bookList) {
