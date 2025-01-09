@@ -30,6 +30,9 @@ export class User extends BaseEntity {
     @Column({length: 50, nullable: false})
     permissions!: PermissionTechcode;
 
+    @Column({type: "timestamp", nullable: false})
+    created_at!: Date;
+
     static async getUsersFromCacheOrDB(): Promise<User[]> {
         if (!users) users = await User.find();
         return users;

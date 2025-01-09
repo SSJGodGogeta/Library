@@ -34,7 +34,7 @@ function createEntityRoutes<Entity>(
     async function getAllEntries(_req: Request, res: Response) {
         try {
             const entities: Entity[] | null = await EntityModel.getAllFromCacheOrDB();
-            if (!entities) sendResponseAsJson(res, 404, "No Entities found!");
+            if (!entities) sendResponseAsJson(res, 404, "No Entities found!1");
             else {
                 sendResponseAsJson(res, 200, "Success", entities);
             }
@@ -66,7 +66,7 @@ function createEntityRoutes<Entity>(
                 `${entityName}_id` as keyof Entity, // Type assertion ensures this is treated as key of Entity
                 entityId as Entity[keyof Entity]   // Type-safe value of key
             );
-            if (!entity) sendResponseAsJson(res, 404, "No Entities found!");
+            if (!entity) sendResponseAsJson(res, 404, "No Entities found!2");
             else {
                 sendResponseAsJson(res, 200, "Success", entity);
             }
@@ -78,7 +78,6 @@ function createEntityRoutes<Entity>(
 
     return router;
 }
-
 
 
 /**

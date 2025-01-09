@@ -90,7 +90,6 @@ function setSessionCookie(res: Response, token: string) {
         httpOnly: true, // js cant access the cookie (prevent XSS Attacks)
         secure: true, // Only send over HTTPS
         sameSite: 'strict', // save but will not support cross site workflows like oauth2
-        maxAge: 30 * 24 * 60 * 60 * 1000 // Cookie expiry (30 * 24 hours in milliseconds)
     });
 }
 
@@ -162,6 +161,8 @@ async function login(req: Request, res: Response) {
         // was provided by the user sending the post request, because otherwise the function would have exited already
         // ----------------------------------------------------------------------------------------------------------
 
+        const oldSession: Session | null = await Session.getSessionByUserId(user.user_id);
+        if (oldSession) await oldSession.remove();
         // generate the session and store it in the database
         const session: Session = await createNewSession(req, user!)
         // Set the token as a secure HttpOnly cookie
@@ -183,12 +184,8 @@ async function currentUser(req: Request, res: Response) {
     }
 }
 
-async function logout(req: Request, res: Response) {
+async function logout(_req: Request, res: Response) {
     try {
-        // the session is guaranteed to exist at this point. Otherwise, the authenticationMiddleware would have thrown an error
-        const session: Session = req.body.session;
-        await session.remove();
-
         // Clear the cookie from the client
         res.clearCookie("sessionToken", {
             httpOnly: true,

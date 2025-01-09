@@ -254,21 +254,36 @@ main {
     margin-top: 0;
 }
 
-.borrow-button-container {
+.borrow-button-container, .admin-button-container {
     margin-bottom: 20px;
 }
 
-.borrow-button-container > button {
+.borrow-button-container > button, .admin-button-container > button {
     cursor: pointer;
     margin-right: 10px;
-    background-color: #007bff;
+    background-color: #3a9bff;
     color: white;
     border-style: none;
     padding: 8px 25px;
     border-radius: 5px;
 }
 
-.borrow-button-container > button:disabled {
+.borrow-button-container > button:not(:disabled):hover, .admin-button-container > button:not(:disabled):hover {
+    transform: translateY(2px);
+    background-color: #007bff;
+}
+
+#btn-return, #btn-delete, #btn-delete-all {
+    background-color: rgb(255, 69, 69);
+    transition-duration: 0.4s;
+}
+
+#btn-return:not(:disabled):hover, #btn-delete:not(:disabled):hover, #btn-delete-all:not(:disabled):hover {
+    background-color: rgb(255, 17, 17);
+    transform: translateY(2px);
+}
+
+.borrow-button-container > button:disabled, .admin-button-container > button:disabled {
     cursor: not-allowed;
     background-color: #bbbbbb;
 }
@@ -291,7 +306,7 @@ main {
 }
 
 .borrowedBooksTable > tr > td, .borrowedBooksTable > tr > th {
-    border: 1px solid #dddddd;
+    border: 1px solid black;
     text-align: center;
     padding: 8px;
 }
@@ -307,7 +322,7 @@ tr:nth-child(even) {
     z-index: 1000;
     color: white;
     background-color: rgba(255, 0, 68, 0.7);
-    border: 2px solid black;
+    border: 1px solid black;
     border-radius: 5px;
     padding: 10px;
     font-size: 20px;

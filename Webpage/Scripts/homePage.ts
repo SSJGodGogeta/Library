@@ -9,7 +9,8 @@ async function loadHomePage() {
         const user = getUserFromSessionStorage();
         if (user && user.loggedIn) {
             console.warn(`User logged in as: ${user.firstName}`);
-            greetUser.innerHTML = `Hello ${user.firstName} ${user.lastName} &#128075`
+            greetUser.innerHTML = `Hello ${user.firstName} ${user.lastName} &#128075`;
+            await updateSessionOfUser(user.id);
         } else {
             console.warn(`User not logged in!`);
         }
@@ -38,5 +39,6 @@ async function loadHomePage() {
     }
     console.error("Activities element with ID 'activities' not found.");
 
-    //TODO: Add book recommendations after. We can use the book api and filter books by their rating. Use the bookRoute
+    //TODO: Add book recommendations. We can use the book api and filter books by their rating. Use the bookRoute
+    // Add book genre or other tags. (DB)
 }

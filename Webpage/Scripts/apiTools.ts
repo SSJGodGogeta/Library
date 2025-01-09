@@ -23,7 +23,7 @@ interface BorrowRecord {
     borrow_record_id: number,
     borrow_date: Date,
     return_date: Date,
-    status: "NOT_BORROWED" | "BORROWED",
+    status: "RETURNED" | "BORROWED" | "RESERVED",
     rating: number,
     book_copy: BookCopy,
     user: User,
@@ -31,7 +31,7 @@ interface BorrowRecord {
 
 interface BookCopy {
     book_copy_id: number,
-    status: "NOT_BORROWED" | "BORROWED",
+    status: "AVAILABLE" | "NOT_AVAILABLE" | "SOON_AVAILABLE",
     book: Book,
 }
 
@@ -42,7 +42,8 @@ interface User {
     first_name: string,
     last_name: string,
     imageurl?: string,
-    permissions: "ADMIN" | "EMPLOYEE" | "STUDENT" | "PROFESSOR"
+    permissions: "ADMIN" | "EMPLOYEE" | "STUDENT" | "PROFESSOR",
+    created_at: Date
 }
 
 interface Reservation {
@@ -84,9 +85,15 @@ const backendRoutes = {
         byAuthorId: "/book/author/",
     },
     borrowRecord: {
-        borrow: "/borrowRecord/borrow",
-        myRecords: "/borrowRecord/myRecords/",
+        all: "/borrowRecord/all",
+        borrow: "/borrowRecord/borrow/",
+        return: "/borrowRecord/return/",
+        reserve: "/borrowRecord/reserve/",
         myRecordsBookByBookId: "/borrowRecord/myRecords/book/",
+        myActiveRecords: "/borrowRecord/myActiveRecords/",
+        AllMyRecords: "/borrowRecord/AllMyRecords/",
+        ActiveRecordsByUserId: "/borrowRecord/ActiveRecordsByUserId/",
+        AllRecordsByUserId: "/borrowRecord/AllRecordsByUserId/",
     },
     reservation: {
         all: "/reservation",
@@ -95,6 +102,8 @@ const backendRoutes = {
     session: {
         all: "/session",
         bySessionId: "/session/",
+        byUserId: "/session/byUserId/",
+        updateSessionById: "/session/update/",
     },
     user: {
         all: "/user",
@@ -161,6 +170,7 @@ async function fetchCurrentUser(): Promise<typeof user | undefined> {
         }
 
         user.loggedIn = true;
+        user.id = entities.user_id;
         user.firstName = entities.first_name;
         user.lastName = entities.last_name;
         user.email = entities.email;
@@ -174,11 +184,47 @@ async function fetchCurrentUser(): Promise<typeof user | undefined> {
     }
 }
 
+async function fetchUserById(userId: number) {
+    const response = fetchRoute<User>(`${backendRoutes.user.byUserId + userId}`);
+    if (isFetchResponse(response)) {
+        console.error(`Fetch failed with code ${response.code}: ${response.message}`);
+        return response as FetchResponse;
+    }
+    return response;
+}
+
+async function fetchAllUsers() {
+    const response = fetchRoute<User[]>(backendRoutes.user.byUserId);
+    if (isFetchResponse(response)) {
+        console.error(`Fetch failed with code ${response.code}: ${response.message}`);
+        return response as FetchResponse;
+    }
+    return response;
+}
+
+async function fetchSessionByUserId(userId: number) {
+    const response = fetchRoute<Session>(`${backendRoutes.session.byUserId + userId}`);
+    if (isFetchResponse(response)) {
+        console.error(`Fetch failed with code ${response.code}: ${response.message}`);
+        return response as FetchResponse;
+    }
+    return response;
+}
+
 async function login(email: string, password: string) {
     const response = await fetchRoute<FetchResponse>(backendRoutes.authentication.login, 'POST', {
         email: email,
         password: password
     }, "message");
+    console.log(response);
+    return {
+        code: response.code,
+        message: response.message,
+    } as FetchResponse;
+}
+
+async function updateSessionOfUser(userId: number) {
+    const response = await fetchRoute<FetchResponse>(`${backendRoutes.session.updateSessionById + userId}`, 'GET', null, "message");
     console.log(response);
     return {
         code: response.code,
@@ -252,8 +298,9 @@ async function logoutUser(): Promise<any> {
  * routeToBookDetails(2);
  * ```
  */
-function routeToBookDetails(bookId: number): void {
-    window.location.href = "/Library/Webpage/bookDetails.html?bookId=" + bookId;
+function routeToBookDetails(bookId: number, currentFile: string): void {
+    if (currentFile && currentFile == "booksOverview.html") window.location.href = "/Library/Webpage/bookDetails.html?bookId=" + bookId + "&admin=true";
+    else window.location.href = "/Library/Webpage/bookDetails.html?bookId=" + bookId;
 }
 
 async function fetchBooks() {
@@ -274,13 +321,32 @@ async function fetchBook(bookId: number) {
     return response;
 }
 
-async function fetchMyRecords() {
-    const response = fetchRoute<BorrowRecord[]>(backendRoutes.borrowRecord.myRecords);
+async function fetchAllBorrowRecords() {
+    const response = fetchRoute<BorrowRecord[]>(backendRoutes.borrowRecord.all);
     if (isFetchResponse(response)) {
         console.error(`Fetch failed with code ${response.code}: ${response.message}`);
         return response as FetchResponse;
     }
     return response;
+}
+
+async function fetchActiveRecordsOfUser(userId: number | null = null) {
+    const response = userId == null ? await fetchRoute<BorrowRecord[]>(backendRoutes.borrowRecord.myActiveRecords) : await fetchRoute<BorrowRecord[]>(`${backendRoutes.borrowRecord.ActiveRecordsByUserId + userId}`);
+    if (isFetchResponse(response)) {
+        console.error(`Fetch failed with code ${response.code}: ${response.message}`);
+        return response as FetchResponse;
+    }
+    return response as unknown as BorrowRecord[];
+}
+
+async function fetchAllRecordsOfUser(userId: number | null = null) {
+
+    const response = userId == null ? await fetchRoute<BorrowRecord[]>(backendRoutes.borrowRecord.AllMyRecords) : await fetchRoute<BorrowRecord[]>(`${backendRoutes.borrowRecord.AllRecordsByUserId + userId}`);
+    if (isFetchResponse(response)) {
+        console.error(`Fetch failed with code ${response.code}: ${response.message}`);
+        return response as FetchResponse;
+    }
+    return response as unknown as BorrowRecord[];
 }
 
 async function fetchBorrowRecordForBook(bookId: number | null, user: any) {
@@ -319,13 +385,43 @@ async function fetchBorrowRecordForBook(bookId: number | null, user: any) {
  * ```
  */
 async function borrowBook(bookId: number): Promise<void | FetchResponse> {
-    const response = await fetchRoute<boolean>(`${backendRoutes.borrowRecord.borrow}`, "POST", {bookId}).catch(error => {
+    const response = await fetchRoute<BorrowRecord>(`${backendRoutes.borrowRecord.borrow}`, "POST", {bookId}).catch(error => {
         console.log(`An error occurred: ${error}`)
     });
     if (isFetchResponse(response)) {
         console.error(`Fetch failed with code ${response.code}: ${response.message}`);
         return response as FetchResponse;
     }
+    window.location.reload();
+}
+
+async function returnBook(bookId: number): Promise<void | FetchResponse> {
+    console.log(`Returning book: ${bookId}`);
+    const response = await fetchRoute<boolean>(`${backendRoutes.borrowRecord.return}`, "POST", {bookId}).catch(error => {
+        console.log(`An error occurred: ${error}`)
+    });
+    if (isFetchResponse(response)) {
+        console.error(`Fetch failed with code ${response.code}: ${response.message}`);
+        return response as FetchResponse;
+    }
+    console.warn("Overdue?:");
+    console.warn(response);
+    await delay(1000);
+    window.location.reload();
+}
+
+async function reserveBook(bookId: number): Promise<void | FetchResponse> {
+    console.log(`Reserving book: ${bookId}`);
+    const response = await fetchRoute<BorrowRecord>(`${backendRoutes.borrowRecord.reserve}`, "POST", {bookId}).catch(error => {
+        console.log(`An error occurred: ${error}`)
+    });
+    if (isFetchResponse(response)) {
+        console.error(`Fetch failed with code ${response.code}: ${response.message}`);
+        return response as FetchResponse;
+    }
+    console.warn("BorrowRecord:");
+    console.warn(response);
+    await delay(1000);
     window.location.reload();
 }
 
