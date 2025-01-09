@@ -497,9 +497,10 @@ components:
         status:
           type: string
           enum:
-            - BORROWED
-            - NOT_BORROWED
-          example: NOT_BORROWED
+            - AVAILABLE
+            - NOT_AVAILABLE
+            - SOON_AVAILABLE
+          example: AVAILABLE
         book:
           $ref: '#/components/schemas/Book'
 

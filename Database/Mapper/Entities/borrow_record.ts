@@ -2,6 +2,7 @@ import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColum
 import {User} from './user.js';
 import {Book_Copy} from './book_copy.js';
 import {BorrowRecordTechcode} from '../Techcodes/BorrowRecordTechcode.js';
+import {AvailabilityTechcode} from "../Techcodes/AvailabilityTechcode.js";
 
 @Entity('borrow_record')
 export class BorrowRecord extends BaseEntity {
@@ -61,6 +62,16 @@ export class BorrowRecord extends BaseEntity {
     }
 
     static async saveBorrowRecord(borrowRecord: BorrowRecord): Promise<void> {
+        const records = await BorrowRecord.getBorrowRecordsFromCacheOrDB();
+        records.forEach((record: BorrowRecord) => {
+            // Automatically shift reserved copies to "borrowed".
+            if (record.borrow_date.getTime() < new Date().getTime() && record.status == BorrowRecordTechcode.RESERVED) {
+                record.status = BorrowRecordTechcode.BORROWED;
+                record.book_copy.status = AvailabilityTechcode.NOT_AVAILABLE;
+                record.save();
+                this.resetBorrowRecordsCache();
+            }
+        })
         await borrowRecord.save();
         await this.resetBorrowRecordsCache();
     }
