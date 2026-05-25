@@ -27,11 +27,18 @@ router.get("/all", authenticate, getAllRecords);
 // Generic function to handle record fetching
 async function handleRecords(req: Request, res: Response, onlyActive: boolean, useParamId: boolean) {
     try {
+        const requestingUser: User = req.body.user;
         // Determine the user ID from either the route parameter or the request body
-        const userId = useParamId ? parseInt(req.params.userId, 10) : req.body.user?.user_id;
+        const userId = useParamId ? parseInt(req.params.userId, 10) : requestingUser?.user_id;
 
         if (!userId) {
             return sendResponseAsJson(res, 400, "Invalid or missing user ID.");
+        }
+
+        // Only EMPLOYEE/ADMIN may view another user's records
+        if (useParamId && requestingUser.user_id !== userId) {
+            const elevated = [PermissionTechcode.EMPLOYEE, PermissionTechcode.ADMIN].includes(requestingUser.permissions);
+            if (!elevated) return sendResponseAsJson(res, 403, "Access denied.");
         }
 
         // Fetch all borrow records

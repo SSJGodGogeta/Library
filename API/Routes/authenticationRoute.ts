@@ -99,7 +99,7 @@ async function register(req: Request, res: Response) {
         // get the email and the password, provided in the body
         let {email, password, firstName, lastName} = req.body;
         // check if the all necessary data was provided
-        validateCredentials(res, email, password);
+        if (!validateCredentials(res, email, password)) return;
         if (!firstName) return sendResponseAsJson(res, 422, "First name is required");
         if (!lastName) return sendResponseAsJson(res, 422, "Last name is required");
 
@@ -139,7 +139,7 @@ async function login(req: Request, res: Response) {
         // get the email and the password, provided in the body
         let {email, password} = req.body;
 
-        validateCredentials(res, email, password);
+        if (!validateCredentials(res, email, password)) return;
 
         // get the user corresponding to the given email
         const user: User | undefined = await User.getUserByKey(`email`, email);
@@ -184,13 +184,16 @@ async function currentUser(req: Request, res: Response) {
     }
 }
 
-async function logout(_req: Request, res: Response) {
+async function logout(req: Request, res: Response) {
     try {
-        // Clear the cookie from the client
+        // Invalidate the server-side session before clearing the cookie
+        const session: Session | undefined = req.body.session;
+        if (session) await session.remove();
+
         res.clearCookie("sessionToken", {
             httpOnly: true,
-            secure: false, // Use true if HTTPS in production
-            sameSite: "lax",
+            secure: true,
+            sameSite: "strict",
         });
 
         return sendResponseAsJson(res, 200, "Success");

@@ -54,6 +54,11 @@ export class User extends BaseEntity {
         await user.save();
         await this.resetUserCache();
     }
+
+    toJSON() {
+        const {password, ...rest} = this as any;
+        return rest;
+    }
 }
 
 let users: User[] | null = null;

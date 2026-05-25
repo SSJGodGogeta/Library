@@ -19,8 +19,9 @@ import {sendResponseAsJson} from "./sendResponseAsJson.js";
  *
  * @returns {void} This function sends a response directly and does not return a value.
  */
-export function validateCredentials(res: Response, email: string, password: string): void {
-    if (!email) return sendResponseAsJson(res, 422, "Email is required");
-    if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) return sendResponseAsJson(res, 422, "Email has invalid format");
-    if (!password) return sendResponseAsJson(res, 422, "Password is required");
+export function validateCredentials(res: Response, email: string, password: string): boolean {
+    if (!email) { sendResponseAsJson(res, 422, "Email is required"); return false; }
+    if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) { sendResponseAsJson(res, 422, "Email has invalid format"); return false; }
+    if (!password) { sendResponseAsJson(res, 422, "Password is required"); return false; }
+    return true;
 }
